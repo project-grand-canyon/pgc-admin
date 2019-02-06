@@ -20,7 +20,9 @@ function login(username, password) {
     return axios(requestOptions).then((response)=>{
             console.log('login service: login - got response');
             const token = response.data.accessToken;
-            localStorage.setItem('user', JSON.stringify(token));
+            const expiration = Date.now() + (1000 * response.data.expiresIn);
+            localStorage.setItem('user', token);
+            localStorage.setItem('expires', expiration.toString());
         }).catch(handleBadResponse)
 }
 
@@ -61,7 +63,7 @@ function handleBadResponse(error) {
         logout();
         window.location.reload(true);
     }
-    if (error.response.status > 400) {
+    if (error.response.status >= 400) {
         const error = error.response.data || error.response.statusText;
         return Promise.reject(error)
     }

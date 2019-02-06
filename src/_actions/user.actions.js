@@ -1,6 +1,6 @@
 import { userConstants } from '../_constants';
 import { userService } from '../_services';
-import { alertActions } from '.';
+import { districtsActions } from './districts.actions';
 
 function login(username, password) {
     console.log('user action login');
@@ -13,14 +13,13 @@ function login(username, password) {
                 user => { 
                     console.log('user action login dispatch success ');
                     dispatch(success(user));
-                    window.location.href = '/dashboard';
+                    console.log('user action login dispatch districts refresh');
+                    dispatch(districtsActions.refresh());
                 },
                 error => {
                     console.log(JSON.stringify(error));
                     console.log('user action login dispatch failure');
                     dispatch(failure(error.toString()));
-                    console.log('user action login dispatch alert action failure');
-                    dispatch(alertActions.error(error.toString()));
                 }
             );
     };
@@ -45,11 +44,9 @@ function register(user) {
                 user => { 
                     dispatch(success());
                     window.location.href = '/login';
-                    dispatch(alertActions.success('Registration successful'));
                 },
                 error => {
                     dispatch(failure(error.toString()));
-                    dispatch(alertActions.error(error.toString()));
                 }
             );
     };

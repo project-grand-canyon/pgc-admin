@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import { Button, Col, Form, Icon, Input, Row } from 'antd';
-import { Link } from 'react-router-dom';
+import { withRouter, Redirect } from 'react-router-dom';
 import { connect } from 'react-redux';
 
 import { userActions } from '../../_actions';
@@ -29,6 +29,11 @@ class Login extends Component {
     }
 
     render() {
+
+        if (this.props.loggedIn) {
+            return <Redirect to="/dashboard" />
+        }
+
         const { getFieldDecorator } = this.props.form;
         return (<>
             <div>
@@ -68,12 +73,12 @@ class Login extends Component {
 }
 
 function mapStateToProps(state) {
-    const { loggingIn } = state.authentication;
+    const { loggedIn } = state.authentication;
     return {
-        loggingIn
+        loggedIn
     };
 }
 
 const login = Form.create({})(Login);
 
-export default connect(mapStateToProps)(login)
+export default withRouter(connect(mapStateToProps)(login));

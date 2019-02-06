@@ -1,0 +1,5 @@
+export const districtsConstants = {
+    REQUEST: 'DISTRICTS_REQUEST',
+    FAILURE: 'DISTRICTS_FAILURE',
+    SUCCESS: 'DISTRICTS_SUCCESS'
+};
