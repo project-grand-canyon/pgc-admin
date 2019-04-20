@@ -1,4 +1,5 @@
 import { userConstants } from '../_constants';
+import { message } from 'antd';
 
 let user = localStorage.getItem('user');
 const initialState = user ? { loggedIn: true, user } : {};
@@ -19,7 +20,12 @@ export function authentication(state = initialState, action) {
       };
     case userConstants.LOGIN_FAILURE:
     console.log('reducer: authentication login failure');
-      return {};
+    console.log(action)
+    message.error(action['error']);
+      return {
+        loggedIn: false,
+        error: action.error
+      };
     case userConstants.LOGOUT:
     console.log('reducer: authentication login logout');
       return {};

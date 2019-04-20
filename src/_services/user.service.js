@@ -55,13 +55,17 @@ function update(user) {
 }
 
 function handleBadResponse(error) {
+    if (!error.response) {
+        console.log('Error connecting to API')
+        return Promise.reject(error)
+    }
     console.log(`login repsonse: ${error.response.status}`);
     console.log('login service: handle bad response');
     console.log('Hi');
     if (error.response.status === 401) {
         console.log('login service: handle bad response - call logout');
         logout();
-        window.location.reload(true);
+        return Promise.reject(new Error('Unauthorized/Invalid Credentials'))
     }
     if (error.response.status >= 400) {
         const error = error.response.data || error.response.statusText;

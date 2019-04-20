@@ -2,7 +2,8 @@ import { districtsConstants } from '../_constants';
 import { districtsService } from '../_services';
 
 export const districtsActions = {
-    refresh
+    refresh,
+    select
 };
 
 function refresh() {
@@ -29,4 +30,15 @@ function refresh() {
     function request() { return { type: districtsConstants.REQUEST } }
     function success(districts) { return { type: districtsConstants.SUCCESS, districts } }
     function failure(error) { return { type: districtsConstants.FAILURE, error } }    
+}
+
+function select(district) {
+    console.log('districts action: select');
+    console.log(district);
+    return dispatch => {
+        console.log('districts action select dispatch request');
+        dispatch(select(district));
+    };
+
+    function select(district) { return { type: districtsConstants.SELECT, district } }    
 }

@@ -15,6 +15,7 @@ function refresh() {
     return axios(requestOptions).then((response)=>{
             console.log('districts service: getAll - got response');
             console.log(response);
+            localStorage.setItem('districts', response.data)
             return response.data;
         }).catch(handleBadResponse)
 }
