@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { Form, Input, Modal, Select, TreeSelect } from 'antd';
+import { Form, Input, Modal, Select, TreeSelect, Tooltip } from 'antd';
 
 import groupBy from '../../_util/groupBy';
 
@@ -58,6 +58,14 @@ class AddNewTalkingPointModal extends Component {
                 {getFieldDecorator('content', {
                     rules: [{required: true, message: 'You must write a message to the Member of Congress'}]
                 })(<Input.TextArea placeholder="The message to the Member of Congress" autosize={{ minRows: 3, maxRows: 6 }} />
+                )}
+            </Form.Item>
+            <Form.Item label="Reference URL">
+                {getFieldDecorator('referenceUrl', {
+                })(
+                    <Tooltip title="Link to a relevant resource (like a news article)">
+                        <Input placeholder="Link to reference" />
+                    </Tooltip>
                 )}
             </Form.Item>
             <Form.Item label="Scope">

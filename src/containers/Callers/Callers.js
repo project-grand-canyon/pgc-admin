@@ -82,31 +82,52 @@ class Callers extends Component {
   }
 
     onEditCaller = (callerDetails) => {
-      const key = callerDetails.key;
-      const callersCopy = [...this.state.callers];
-      const callers = callersCopy.map((el) => { return (el.key == key) ? callerDetails : el })
-      this.setState({callers, editingKey: null});
-    }
+      const updatedCaller = {
+        firstName: callerDetails.firstName,
+        lastName: callerDetails.lastName,
+        contactMethods: callerDetails.contactMethods,
+        phone: callerDetails.phone,
+        email: callerDetails.email,
+        districtId: callerDetails.districtId,
+        zipCode: callerDetails.zipCode,
+        paused: callerDetails.paused
+      }
+      const requestOptions = {
+        url: `/callers/${callerDetails.key}`,
+        method: 'PUT',
+        headers: { ...authHeader(), 'Content-Type': 'application/json' },
+        data: updatedCaller
+      };
+      axios(requestOptions).then((response)=>{
+        // no-op
+      }).catch((e) => {
+          Modal.error({
+              title: "Error Updating Caller",
+              content: e.message,
+          });
+          this.setState({fetchError: e.message})
+      }).then(()=>{
+        this.fetchCallers(()=>{this.setState({editingKey: null})});
+      })
+  }
     
     edit = (key) => {
         console.log(key)
         this.setState({ editingKey: key });
     }
 
-    fetchCallers() {
+    fetchCallers(cb) {
         const district = this.props.district;
         if (district) {
             const requestOptions = {
-                url: `/callers/`, // TODO: only get callers for a district
+                url: `/callers?districtId=${district.districtId}`, // TODO: only get callers for a district
                 method: 'GET',
                 headers: { ...authHeader(), 'Content-Type': 'application/json' },
             };
             axios(requestOptions).then((response)=>{
               console.log('got it')
                 const allCallers = response.data;
-                const callers = allCallers.filter( caller => {
-                  return caller.districtId === district.districtId;
-                }).map(el => {
+                const callers = allCallers.map(el => {
                   const key = el['callerId'];
                   el.key = key;
                   el.contactMethodSMS = el.contactMethods.indexOf('sms') != -1;
@@ -120,6 +141,8 @@ class Callers extends Component {
                     content: e.message,
                 });
                 this.setState({fetchError: e.message})
+            }).then(()=>{
+              cb && cb()
             })
         }
     }

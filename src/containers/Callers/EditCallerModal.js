@@ -95,6 +95,13 @@ class EditCallerModal extends Component {
         validateFieldsAndScroll(null, {force: true}, (errors, values) => {
             if (errors == null) {
                 const updated = {...this.props.caller, ...this.props.form.getFieldsValue()};
+                updated['contactMethods']=[];
+                if (updated.contactMethodEmail) {
+                    updated['contactMethods'].push('email')
+                }
+                if (updated.contactMethodSMS) {
+                    updated['contactMethods'].push('sms')
+                }
                 this.props.onEditCaller(updated);
             }
         });

@@ -23,7 +23,8 @@ class TalkingPoints extends Component {
         liveTalkingPoints: null,
         redirect: null,
         editing: null,
-        wantsToAddNewTalkingPoint: false
+        wantsToAddNewTalkingPoint: false,
+        admins: null
     }
 
     componentDidMount() {
@@ -31,9 +32,23 @@ class TalkingPoints extends Component {
     }
 
     fetchData = (cb) => {
+
+        // TODO: Promise.all
+
         if (!this.props.districts || !this.props.district) {
             return;
         }
+
+        const adminsRequestOptions = {
+            url: `/admins`,
+            method: 'GET',
+            headers: { ...authHeader(), 'Content-Type': 'application/json' },
+        };
+        axios(adminsRequestOptions).then((response)=>{
+                this.setState({admins: response.data})
+            }).catch((e) => {
+                console.log(e)
+            })
 
         const talkingPointRequestOptions = {
             url: `/talkingpoints`,
@@ -184,6 +199,10 @@ class TalkingPoints extends Component {
             enabled: true
         }
 
+        if (values.referenceUrl){
+            body["referenceUrl"] = values.referenceUrl
+        }
+
         if (values.scope == "state") {
             body.states = values.subScope;
         } else if (values.scope == "district") {
@@ -311,6 +330,7 @@ class TalkingPoints extends Component {
                         {getFieldDecorator("theme", {})(
                             <Select
                                 showSearch
+                                allowClear
                                 placeholder="Select a theme"
                                 optionFilterProp="children"
                                 filterOption={(input, option) => option.props.children.toLowerCase().indexOf(input.toLowerCase()) >= 0}>
@@ -395,9 +415,12 @@ class TalkingPoints extends Component {
             bordered
             dataSource={this.presentableTalkingPoints()}
             renderItem={item => {
-                const theme = this.state.themes.find( (el) => {
+                const theme = this.state.themes.find((el) => {
                     return el.themeId === item.themeId
                 });
+                const createdBy = this.state.admins.find((el)=> {
+                    return el.adminId === item.createdBy
+                })
                 const districts = item.districts.map((itemEl) => {
                     return this.props.districts.filter((districtEl)=>{
                         return districtEl.districtId === itemEl;
@@ -414,6 +437,7 @@ class TalkingPoints extends Component {
                         title={theme.name} 
                         talkingPoint={item} 
                         applicablePlaces={applicablePlaces} 
+                        createdBy={createdBy}
                         isInScript={this.state.liveTalkingPoints.includes(item.talkingPointId)}
                         handleScriptToggle={(id)=>{this.toggleTalkingPointInclusionInScript(id)}}
                     />
@@ -429,6 +453,7 @@ class TalkingPoints extends Component {
             && this.props.districts != null
             && this.props.districts.length > 0
             && this.state.liveTalkingPoints != null
+            && this.state.admins != null
     }
 }
 

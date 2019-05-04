@@ -6,7 +6,6 @@ export const districtsService = {
 };
 
 function refresh() {
-    console.log(`districts service: refresh`);
     const requestOptions = {
         url: '/districts',
         method: 'GET',
