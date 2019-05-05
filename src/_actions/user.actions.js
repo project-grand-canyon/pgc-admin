@@ -1,6 +1,7 @@
 import { userConstants } from '../_constants';
 import { userService } from '../_services';
 import { districtsActions } from './districts.actions';
+import { adminActions } from './admin.actions';
 
 function login(username, password) {
     return dispatch => {
@@ -10,6 +11,7 @@ function login(username, password) {
                 user => { 
                     dispatch(success(user));
                     dispatch(districtsActions.refresh());
+                    dispatch(adminActions.refresh(username))
                 },
                 error => {
                     dispatch(failure(error.toString()));
@@ -23,8 +25,13 @@ function login(username, password) {
 }
 
 function logout() {
-    userService.logout();
-    return { type: userConstants.LOGOUT };
+    return dispatch => {
+        userService.logout();
+        dispatch(adminActions.clear())
+        dispatch(lgt())
+    }
+
+    function lgt() { return { type: userConstants.LOGOUT } }
 }
 
 function register(user) {
