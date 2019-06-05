@@ -4,13 +4,10 @@ import { authHeader } from '../_util/auth/auth-header';
 
 export const userService = {
     login,
-    logout,
-    register,
-    update
+    logout
 };
 
 function login(username, password) {
-    console.log(`login service: login: ${username} ${password}`);
     const requestOptions = {
         url: '/login',
         method: 'POST',
@@ -22,6 +19,7 @@ function login(username, password) {
             const token = response.data.accessToken;
             const expiration = Date.now() + (1000 * response.data.expiresIn);
             localStorage.setItem('user', token);
+            localStorage.setItem('username', username);
             localStorage.setItem('expires', expiration.toString());
         }).catch(handleBadResponse)
 }
@@ -30,47 +28,25 @@ function logout() {
     // remove user from local storage to log user out
     console.log('login service: logout');
     localStorage.removeItem('user');
-}
-
-function register(user) {
-    const requestOptions = {
-        url: '/register',
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        data: user
-    };
-
-    return axios(requestOptions).catch(handleBadResponse);
-}
-
-function update(user) {
-    const requestOptions = {
-        url: '/update-user',
-        method: 'PUT',
-        headers: { ...authHeader(), 'Content-Type': 'application/json' },
-        data: user
-    };
-
-    return axios(requestOptions).catch(handleBadResponse);
+    localStorage.removeItem('username')
 }
 
 function handleBadResponse(error) {
+    console.log(error.message)
     if (!error.response) {
-        console.log('Error connecting to API')
+        console.log('blank')
         return Promise.reject(error)
     }
-    console.log(`login repsonse: ${error.response.status}`);
-    console.log('login service: handle bad response');
-    console.log('Hi');
     if (error.response.status === 401) {
-        console.log('login service: handle bad response - call logout');
         logout();
+        console.log('401')
         return Promise.reject(new Error('Unauthorized/Invalid Credentials'))
     }
     if (error.response.status >= 400) {
+        console.log('other')
         const error = error.response.data || error.response.statusText;
         return Promise.reject(error)
     }
+    console.log('other other')
     return Promise.resolve(error.response);
-
 }

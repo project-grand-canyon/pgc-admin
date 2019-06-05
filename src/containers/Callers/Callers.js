@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { Card, Checkbox, List, Modal, Skeleton, Form, Input, Button, Table, Typography } from 'antd';
+import { Button, Form, message, Modal, Popconfirm, Table, Typography } from 'antd';
 
 import axios from '../../_util/axios-api';
 
@@ -60,7 +60,7 @@ class Callers extends Component {
         render: val => (val ? 'Yes' : 'No')
     },{
         title: 'Edit',
-        dataIndex: 'operation',
+        dataIndex: 'operation1',
         render: (text, record) => {
           const isEditing = this.isEditing(record);
           return (
@@ -73,7 +73,42 @@ class Callers extends Component {
             </div>
           );
         },
+      },{
+        title: 'Send Notification',
+        dataIndex: 'operation2',
+        render: (_, record) => {
+          return (
+            <Popconfirm
+              title="Are you sure you want to send a notification to this caller?"
+              onConfirm={(e)=>{this.sendNotification(record.callerId)}}
+              okText="Yes"
+              cancelText="No"
+            >
+              <Button>Send</Button>
+            </Popconfirm>
+            
+          );
+        },
       }];
+
+    sendNotification = (callerId) => {
+      const requestOptions = {
+        url: `/reminders/${callerId}`,
+        method: 'PUT',
+        headers: { ...authHeader(), 'Content-Type': 'application/json' }
+      };
+      axios(requestOptions).then((response)=>{
+        message.success("Notification sent successfully.")
+      }).catch((e) => {
+          Modal.error({
+              title: "Notification failed to send",
+              content: e.response && e.response.data && e.response.data.message || "Unrecognized error."
+          });
+          this.setState({fetchError: e.message})
+      }).then(()=>{
+        this.fetchCallers(()=>{this.setState({editingKey: null})});
+      })
+    }
 
     isEditing = record => record.key === this.state.editingKey;
 

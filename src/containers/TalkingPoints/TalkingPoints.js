@@ -56,7 +56,18 @@ class TalkingPoints extends Component {
             headers: { ...authHeader(), 'Content-Type': 'application/json' },
         };
         axios(talkingPointRequestOptions).then((response)=>{
-                this.setState({allTalkingPoints: response.data});
+
+                const sortedTPs = response.data.sort((el1, el2)=>{
+                    const d1 = new Date(el1.created)
+                    const d2 = new Date(el2.created)
+                    if (d1 < d2) {
+                        return 1
+                    } else {
+                        return -1
+                    }
+                })
+
+                this.setState({allTalkingPoints: sortedTPs});
             }).catch((e) => {
                 console.log(e)
             })
@@ -218,7 +229,11 @@ class TalkingPoints extends Component {
         axios(talkingPointRequestOptions).then((response)=>{
                 message.success('Talking Point Added');
             }).catch((e) => {
-                message.success('Error Adding Talking Point');
+                Modal.error({
+                    title: 'Error Adding Talking Point',
+                    content: e.response && e.response.data && e.response.data.message || "Unrecognized Error",
+                  });
+                message.error();
                 console.log(e)
             }).then(()=>{
                 this.fetchData(()=>{this.setState({editing: false})})
@@ -365,7 +380,6 @@ class TalkingPoints extends Component {
                     return el != talkingPointId
                 }) :
                 [...this.state.liveTalkingPoints].concat([talkingPointId])
-            console.log(newScript);
             const updateScriptRequestOptions = {
                 url: `/districts/${this.props.district.districtId}/script`,
                 method: 'PUT',
@@ -373,7 +387,6 @@ class TalkingPoints extends Component {
                 data: newScript
             };
             axios(updateScriptRequestOptions).then((response)=>{
-                console.log(response);
                 Modal.confirm({
                     title: 'View Updated Script?',
                     content: 'You just made changes to the call-in script. Would you like to view the updated script?',
@@ -411,7 +424,6 @@ class TalkingPoints extends Component {
                 gutter: 16, xs: 1, lg: 2, xxl: 3
             }}
         header={<Typography.Title level={3}>Search Results</Typography.Title>}
-            footer={<div>Footer</div>}
             bordered
             dataSource={this.presentableTalkingPoints()}
             renderItem={item => {

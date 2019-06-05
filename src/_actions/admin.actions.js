@@ -6,8 +6,8 @@ function refresh(username) {
         dispatch(request());
         adminService.refresh(username)
             .then(
-                adminDetails => { 
-                    dispatch(success(adminDetails));
+                admin => { 
+                    dispatch(success(admin));
                 },
                 error => {
                     dispatch(failure(error.toString()));

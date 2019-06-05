@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import { Link } from 'react-router-dom';
 
-import { Button, Icon, List, Modal, message, Skeleton, Form, Popconfirm, Typography, Spin} from 'antd';
+import { Button, Card, Icon, Input, List, Modal, message, Skeleton, Form, Popconfirm, Typography, Spin} from 'antd';
 
 import axios from '../../_util/axios-api';
 
@@ -12,7 +12,8 @@ class Script extends Component {
     state = {
         hydratedDistrict: null,
         themes: null,
-        editing: false
+        savingEdits: false,
+        updatedRequest: null,
     }
 
     componentDidMount() {
@@ -75,8 +76,32 @@ class Script extends Component {
         }
     }
 
+    getCurrentRequest = () => {
+        if(!this.state.hydratedDistrict) {
+            return null;
+        }
+
+        const emptyReq = {content: "No request set"};
+
+        if (!this.state.hydratedDistrict.requests) {
+            return emptyReq;
+        }
+        
+        const sorted = [...this.state.hydratedDistrict.requests].sort((el1, el2)=> {
+            if (el1.lastModified < el2.lastModified) {
+                return 1
+            } else {
+                return -1
+            }
+        });
+
+        const request = sorted.shift();
+
+        return request || emptyReq;
+    }
+
     scriptItemClicked = (idx, action) => {
-        this.setState({editing: true},() => { 
+        this.setState({savingEdits: true},() => { 
             const newDistrict = {...this.state.hydratedDistrict}
             const newScript = [...newDistrict.script]
             if (action == "up") {
@@ -110,21 +135,102 @@ class Script extends Component {
                 console.log(e.response.data)
                 message.error(e.response && e.response.data && e.response.data.message || "Unrecognized error while updating script")
             }).then(() => {
-                self.fetchData(()=>{self.setState({editing: false})})
+                self.fetchData(()=>{self.setState({savingEdits: false})})
             });
         });
     }
 
-    list = () => {
-        if (this.state.hydratedDistrict == null) {
+    updateRequest = () => {
+        const newRequest = {...this.state.updatedRequest};
+        this.setState({
+            updatedRequest: null,
+            savingEdits: true
+        }, () => {
+            const updateRequestRequestOptions = newRequest.requestId ?  {
+                url: `/requests/${newRequest.requestId}`,
+                method: 'PUT',
+                headers: { ...authHeader(), 'Content-Type': 'application/json' },
+                data: {
+                    districtId: this.state.hydratedDistrict.districtId,
+                    content: newRequest.content
+                }
+            } : {
+                url: `/requests/`,
+                method: 'POST',
+                headers: { ...authHeader(), 'Content-Type': 'application/json' },
+                data: {
+                    districtId: this.state.hydratedDistrict.districtId,
+                    content: newRequest.content
+                }
+            };
+            const self = this;
+            axios(updateRequestRequestOptions).then((response)=>{
+            }).catch((e) => {
+                console.log(e)
+                console.log(e.response.data)
+                message.error(e.response && e.response.data && e.response.data.message || "Unrecognized error while updating request")
+            }).then(() => {
+                self.fetchData(()=>{self.setState({savingEdits: false})})
+            });
+        });
+    }
+
+    requestSection = () => {
+        if (this.state.hydratedDistrict == null || this.state.themes == null || this.state.savingEdits) {
             return <></>
         }
-        if (this.state.editing) {
+        
+        const heading = (
+            <>
+                <Typography.Title level={3}>Request</Typography.Title>
+                <Typography.Paragraph>Set the request that each of your callers will make to your Member of Congress. Ensure the request is respectful and relevant to the lawmaker.</Typography.Paragraph>
+            </>
+        )
+
+        const currentRequest = this.getCurrentRequest();
+        let requestDisplay = (
+            <Card actions={[<Icon type="edit" onClick={(e)=> { this.setState({updatedRequest: {...currentRequest}})} }/>]}>
+                <Typography.Text>{currentRequest && currentRequest.content}</Typography.Text>
+            </Card>
+        );
+
+        if (this.state.updatedRequest) {
+            requestDisplay = (
+                <>
+                    <Input.TextArea defaultValue={currentRequest.content} autosize onChange={(e)=>{
+                        const newUpdated = {...this.state.updatedRequest}
+                        newUpdated.content = e.target.value;
+                        this.setState({updatedRequest: newUpdated})
+                    }}/>
+                    <Button onClick={(e)=>{
+                        this.setState({updatedRequest: null})
+                    }}>Cancel</Button>
+                    <Button onClick={(e)=>{
+                        this.updateRequest();
+                    }}>Save</Button>
+                </>
+            )
+        }
+
+        return (
+            <>
+                {heading}
+                {requestDisplay}
+            </>
+        )
+    }
+
+    talkingPointsSection = () => {
+        if (this.state.hydratedDistrict == null || this.state.themes == null) {
+            return <></>
+        }
+        if (this.state.savingEdits) {
             return <Spin size="large" />
         }
-        return <List
+        const list = <List
             itemLayout="vertical"
             bordered
+            style={{background: "#FFFFFF"}}
             dataSource={this.state.hydratedDistrict.script}
             renderItem={(item, idx) => {
                 const theme = this.state.themes.find( (el) => {
@@ -152,6 +258,16 @@ class Script extends Component {
             }
             }
         />
+        const heading = (
+            <>
+                <Typography.Title level={3}>Talking Points</Typography.Title>
+                <Typography.Paragraph>Change the order or remove talking points.</Typography.Paragraph>
+            </>
+        )
+        return <div style={{marginTop: "1em"}}>
+            {heading}
+            {list}
+        </div>
     }
 
     actions = () => {
@@ -160,7 +276,7 @@ class Script extends Component {
                 {this.state.hydratedDistrict &&
                 <div style={{padding: "10px", display: "flex", justifyContent: "center"}}>
                     <Button style={{marginRight: "5px"}} ><Link to="/talking-points">Add a Talking Point</Link></Button>
-                    <Button style={{marginLeft: "5px"}} target="_blank" href={`https://www.projectgrandcanyon.com/${this.state.hydratedDistrict.state.toLowerCase()}${this.state.hydratedDistrict.number}.html`}>View the Live Script</Button>
+                    <Button style={{marginLeft: "5px"}} target="_blank" href={`http://www.projectgrandcanyon.com/call/${this.state.hydratedDistrict.state.toLowerCase()}/${this.state.hydratedDistrict.number}`}>View the Live Script</Button>
                 </div>}
             </Skeleton>
         )
@@ -174,9 +290,6 @@ class Script extends Component {
                     <Typography.Title level={2}>
                         {this.state.hydratedDistrict.state}-{this.state.hydratedDistrict.number} Script
                     </Typography.Title>
-                    <Typography.Paragraph>
-                        Use this page to re-order or remove talking points in your district's call-in guide.
-                    </Typography.Paragraph>
                 </div>
             }
         </Skeleton>);
@@ -185,7 +298,8 @@ class Script extends Component {
     render() {
         return <>
             {this.header()}
-            {this.list()}
+            {this.requestSection()}
+            {this.talkingPointsSection()}
             {this.actions()}
         </>;
     }

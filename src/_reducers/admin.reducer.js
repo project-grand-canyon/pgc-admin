@@ -1,6 +1,6 @@
 import { adminConstants } from '../_constants';
 
-const initialState = { districts: [] };
+const initialState = {};
   
 export function admin(state = initialState, action) {
 	switch (action.type) {
@@ -12,6 +12,7 @@ export function admin(state = initialState, action) {
 				refreshing: true
 			};
 		case adminConstants.SUCCESS:
+			console.log(action);
 		  return {
 				admin: action.admin,
 				refreshed: true

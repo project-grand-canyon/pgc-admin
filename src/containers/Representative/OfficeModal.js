@@ -50,6 +50,7 @@ class OfficeModal extends Component {
             getFieldDecorator
           } = this.props.form;
         return (<Modal
+        maskClosable={false}
         visible = {this.props.display}
         title = {office.districtOfficeId ? "Edit Office" : "Add Office"} 
         onOk={this.handleOk}

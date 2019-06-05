@@ -38,6 +38,7 @@ class EditCallerModal extends Component {
           } = this.props.form;
 
         return (<Modal
+        maskClosable={false}
         visible = {this.props.display}
         title = "Edit Caller"
         onOk={this.handleOk}

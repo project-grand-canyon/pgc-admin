@@ -21,8 +21,8 @@ class Home extends Component {
                     this.setState({redirectDestination: "/login"})
                 }}>Login</Button>
                 <Button onClick={(_)=>{
-                    this.setState({redirectDestination: "/register"})
-                }}>Register</Button>
+                    this.setState({redirectDestination: "/signup"})
+                }}>Sign Up</Button>
             </>
         );
 

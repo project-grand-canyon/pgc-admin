@@ -34,7 +34,7 @@ const references = (props) => {
         </Typography.Paragraph> : null;
     const createdBy = props.createdBy && props.createdBy.email ? 
         <Typography.Paragraph copyable={{ text: props.createdBy.email }} style={{color:"black"}}>Created by: {props.createdBy.email} </Typography.Paragraph> : null;
-    return <Typography.Paragraph>
+    return <Typography.Paragraph style={{color:"black", textAlign: "left"}}>
         {reference}{createdBy}
     </Typography.Paragraph>
 }
@@ -46,9 +46,10 @@ const talkingpointcard = (props) => {
         >
             <Card.Meta
                 title= {props.title}
-            >   
+                style= {{marginBottom: "0.5em"}}
+            >
             </Card.Meta>
-            <Typography.Paragraph style={{color:"black"}}>{props.talkingPoint.content}</Typography.Paragraph>
+            <Typography.Paragraph style={{color:"black", textAlign: "left"}}>{props.talkingPoint.content}</Typography.Paragraph>
             {references(props)}
         </Card>
     );  

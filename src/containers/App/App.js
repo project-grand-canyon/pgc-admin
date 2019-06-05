@@ -1,5 +1,8 @@
 import React, { Component } from 'react';
+import * as Sentry from '@sentry/browser';
 import {Switch, Route} from 'react-router-dom';
+import { withRouter } from "react-router";
+import ReactGA from 'react-ga';
 
 import ScrollToTop from '../ScrollToTop/ScrollToTop';
 import PrivateRoute from '../../components/PrivateRoute/PrivateRoute';
@@ -21,6 +24,27 @@ import Districts from '../Districts/Districts';
 import styles from './App.module.css';
 
 class App extends Component {
+
+  constructor(props) {
+    super(props);
+    Sentry.init({
+      dsn: "https://a494b18b01b840f5859e7f93d9ef5b16@sentry.io/1462516"
+     });
+     ReactGA.initialize('UA-140402020-2'); // Google Analytics
+  }
+
+  componentDidMount() {
+		ReactGA.pageview(window.location.pathname)
+  }
+
+  componentDidUpdate(prevProps) {
+    if (this.props.location !== prevProps.location) {
+      if (this.props.location.pathname){
+        ReactGA.pageview(this.props.location.pathname)
+      }
+    }
+  }
+
   render() {
     return (
       <ScrollToTop>
@@ -47,4 +71,4 @@ class App extends Component {
   }
 }
 
-export default App;
+export default withRouter(App);

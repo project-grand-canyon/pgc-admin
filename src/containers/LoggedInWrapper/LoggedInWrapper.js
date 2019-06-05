@@ -3,32 +3,118 @@ import { Link, Redirect, withRouter } from 'react-router-dom';
 import { Select, Spin, Icon, Layout, Menu, Typography } from 'antd';
 import { connect } from 'react-redux';
 
-import { districtsActions } from '../../_actions';
-
-import styles from './LoggedInWrapper.module.css';
+import { districtsActions, adminActions } from '../../_actions';
 
 class LoggedInWrapper extends Component {
 
-	componentDidMount() {
-		console.log('loggedin wrapper componentdidmount')
-		this.props.dispatch(districtsActions.refresh())
-	}
-
-	handleChangeDistrict = (selectedIndex) => {
-		const district = this.props.districts.find((district => {
-            return district.districtId === selectedIndex;
-        }));
-		console.log(`handleChangeDistrict ${selectedIndex}`);
-		console.log(district)
-        this.props.dispatch(districtsActions.select(district));
+    state = {
+        editableDistricts: []
     }
 
-    render() {
+	componentDidMount() {
+        this.props.dispatch(districtsActions.refresh());
+        let username = localStorage.getItem('username');
+        this.props.dispatch(adminActions.refresh(username));
+    }
+    
+    componentDidUpdate(prevProps, prevState) {
+        let sameDistricts = true;
+        if (prevProps.districts && this.props.districts) {
+            sameDistricts = prevProps.districts.reduce((acc, el, idx)=>{
+                if (acc) {
+                    return el.districtId == this.props.districts[idx].districtId;
+                }
+            }, prevProps.districts.length == this.props.districts.length)
+        }
+        if (!sameDistricts || prevProps.admin != this.props.admin) {
+            var newEditibleDistricts = []
+            if (!this.props.districts || this.props.districts.length == 0 || !this.props.admin){
+                // no-op
+                console.log('no-op')
+            } else if (this.props.admin.root) {
+                console.log('root')
+                newEditibleDistricts = this.props.districts.sort((el1, el2)=>{
+                    const state1 = el1.state;
+                    const state2 = el2.state;
+                    const dist1 = el1.number;
+                    const dist2 = el2.number;
+                    if(state1 < state2) {
+                        return -1;
+                    } else if (state1 > state2) {
+                        return 1;
+                    } else {
+                        if (dist1 < dist2) {
+                            return -1;
+                        } else if (dist1 > dist2) {
+                            return 1;
+                        }
+                    }
+                    return 0;
+                });
+            } else {
+                const sortedAndFiltered = this.props.districts.filter(el => {
+                    return this.props.admin.districts.includes(el.districtId) 
+                }).sort((el1, el2)=>{
+                    const state1 = el1.state;
+                    const state2 = el2.state;
+                    const dist1 = el1.number;
+                    const dist2 = el2.number;
+                    if(state1 < state2) {
+                        return -1;
+                    } else if (state1 > state2) {
+                        return 1;
+                    } else {
+                        if (dist1 < dist2) {
+                            return -1;
+                        } else if (dist1 > dist2) {
+                            return 1;
+                        }
+                    }
+                    return 0;
+                });
+                newEditibleDistricts = sortedAndFiltered
+            }
+            this.setState({
+                editableDistricts: newEditibleDistricts
+            }, () => {
+                this.selectFirstEditableDistrict();
+            });
+        } else if (!this.props.selectedDistrict && this.state.editableDistricts.length > 0) {
+            this.selectFirstEditableDistrict();
+        }
+    }
 
-		const hasDistricts = this.props.districts && this.props.districts.length > 0;
+    selectFirstEditableDistrict = () => {
+        if (this.state.editableDistricts && this.state.editableDistricts.length > 0) {
+            const id = this.state.editableDistricts[0].districtId
+            this.handleChangeDistrict(id)
+        }
+    }
+
+    handleChangeDistrict = (selectedIndex) => {
+        const district = this.state.editableDistricts.find((district => {
+            return district.districtId === selectedIndex;
+        }));
+        if (district){
+            this.props.dispatch(districtsActions.select({...district}));
+        } else {
+            console.log('failed to select district')
+        }
+    }
+
+    getSelectDistrict = () => {
+        if (!this.props.selectedDistrict) {
+            console.log('no selection')
+        } else {
+            console.log('yes selection')
+            console.log(this.props.selectedDistrict)
+        }
+        
+        const hasDistricts = this.state.editableDistricts.length > 0 && this.props.selectedDistrict;
+
         const selectDistrict = hasDistricts ? (
 				<Select defaultValue={`${this.props.selectedDistrict.state}-${this.props.selectedDistrict.number}`} onChange={this.handleChangeDistrict}>
-					{this.props.districts.map((district, index) => {
+					{this.state.editableDistricts.map((district, index) => {
 						return (
 							<Select.Option key={index} value={district.districtId}>{district.state}-{district.number}
 							</Select.Option>
@@ -36,6 +122,11 @@ class LoggedInWrapper extends Component {
 					})}
 				</Select>
           ) : <Spin />;
+          return selectDistrict;
+    }
+
+    render() {
+        const selectDistrict = this.getSelectDistrict()
         if (!this.props.loggedIn) {
             return <Redirect to="/" />
         }
@@ -106,6 +197,7 @@ class LoggedInWrapper extends Component {
                     </Layout.Content>
                 </Layout>
                 <Layout.Footer >
+                    <Typography.Text>Questions or feedback? <a href="https://forms.gle/R8xavqpe4zKM2VmK9" target="_blank">Contact Us</a></Typography.Text>
                     <div style={{text: 'white'}}></div>
                 </Layout.Footer>
             </Layout>
@@ -114,12 +206,13 @@ class LoggedInWrapper extends Component {
 }
 
 const mapStateToProps = state => {
-    console.log('mapStateToProps');
     const { authentication } = state;
-	const { loggedIn } = authentication;
-	console.log(state);
+    const { loggedIn } = authentication;
+    console.log('mapStateToProps');
+    console.log(state)
     return { 
         districts: state.districts.districts,
+        admin: state.admin.admin,
         selectedDistrict: state.districts.selected,
         loggedIn
     };

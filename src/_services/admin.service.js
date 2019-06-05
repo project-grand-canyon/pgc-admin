@@ -7,7 +7,7 @@ export const adminService = {
 };
 
 function clear() {
-    localStorage.setItem('admin', null)
+    localStorage.removeItem('admin')
 }
 
 function refresh(username) {

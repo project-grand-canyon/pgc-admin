@@ -34,6 +34,7 @@ class AddNewTalkingPointModal extends Component {
             getFieldDecorator
           } = this.props.form;
         return (<Modal
+        maskClosable={false}
         visible = {this.props.display}
         title = "Add a Talking Point"
         onOk={this.handleOk}
@@ -63,9 +64,7 @@ class AddNewTalkingPointModal extends Component {
             <Form.Item label="Reference URL">
                 {getFieldDecorator('referenceUrl', {
                 })(
-                    <Tooltip title="Link to a relevant resource (like a news article)">
-                        <Input placeholder="Link to reference" />
-                    </Tooltip>
+                    <Input placeholder="Link to reference like a news article" /> 
                 )}
             </Form.Item>
             <Form.Item label="Scope">
@@ -111,7 +110,7 @@ class AddNewTalkingPointModal extends Component {
             return []
         }
         
-        const houseOfRepDistricts = this.props.districts.filter((district) => { return parseInt(district.number) > 0 });
+        const houseOfRepDistricts = this.props.districts.filter((district) => { return parseInt(district.number) >= 0 });
 
         const districtsByState = groupBy(houseOfRepDistricts, 'state');
         const treeData = Object.keys(districtsByState).sort().map((state)=>{
@@ -141,8 +140,6 @@ class AddNewTalkingPointModal extends Component {
                 <TreeSelect {...tProps} />,
                 )}
             </Form.Item> 
-          return ;
-
     }
 
     states = (getFieldDecorator) => {
