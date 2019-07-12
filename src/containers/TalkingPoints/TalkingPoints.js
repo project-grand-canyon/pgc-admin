@@ -6,7 +6,7 @@ import { Button, Checkbox, Col, Form, Input, List, message, Modal, DatePicker, R
 
 import axios from '../../_util/axios-api';
 import { authHeader } from '../../_util/auth/auth-header';
-import AddNewTalkingPointModal from './AddNewTalkingPointModal'
+import AddEditTalkingPointModal from './AddEditTalkingPointModal'
 
 import TalkingPointCard from '../../components/TalkingPointCard/TalkingPointCard';
 
@@ -24,7 +24,8 @@ class TalkingPoints extends Component {
         redirect: null,
         editing: null,
         wantsToAddNewTalkingPoint: false,
-        admins: null
+        admins: null,
+        editingTalkingPointDetails: null
     }
 
     componentDidMount() {
@@ -200,9 +201,9 @@ class TalkingPoints extends Component {
         })
     }
 
-    handleNewTalkingPoint = (values) => {
-        this.setState({wantsToAddNewTalkingPoint: false, editing: true})
-        
+    handleSaveTalkingPoint = (values) => {
+        this.setState({wantsToAddNewTalkingPoint: false, editingTalkingPointDetails: null, editing: true})
+
         const body = {
             content: values.content,
             scope: values.scope,
@@ -220,6 +221,15 @@ class TalkingPoints extends Component {
             body.districts = values.subScope;
         }
 
+        if (values.talkingPointId) {
+            body['talkingPointId'] = values.talkingPointId
+            this.editTalkingPoint(body)
+        } else {
+            this.addNewTalkingPoint(body)
+        }
+    }
+
+    addNewTalkingPoint = (body) => {
         const talkingPointRequestOptions = {
             url: `/talkingpoints`,
             method: 'POST',
@@ -227,33 +237,51 @@ class TalkingPoints extends Component {
             data: body,
         };
         axios(talkingPointRequestOptions).then((response)=>{
-                message.success('Talking Point Added');
-            }).catch((e) => {
-                Modal.error({
-                    title: 'Error Adding Talking Point',
-                    content: e.response && e.response.data && e.response.data.message || "Unrecognized Error",
-                  });
-                message.error();
-                console.log(e)
-            }).then(()=>{
-                this.fetchData(()=>{this.setState({editing: false})})
-            })
+            message.success('Talking Point Added');
+        }).catch((e) => {
+            Modal.error({
+                title: 'Error Adding Talking Point',
+                content: e.response && e.response.data && e.response.data.message || "Unrecognized Error",
+                });
+            console.log(e)
+        }).then(()=>{
+            this.fetchData(()=>{this.setState({editing: false})})
+        })
+    }
 
+    editTalkingPoint = (body) => {
+        const talkingPointRequestOptions = {
+            url: `/talkingpoints/${body.talkingPointId}`,
+            method: 'PUT',
+            headers: { ...authHeader(), 'Content-Type': 'application/json' },
+            data: body,
+        };
+        axios(talkingPointRequestOptions).then((response)=>{
+            message.success('Talking Point Edited');
+        }).catch((e) => {
+            Modal.error({
+                title: 'Error Editing Talking Point',
+                content: e.response && e.response.data && e.response.data.message || "Unrecognized Error",
+                });
+            console.log(e)
+        }).then(()=>{
+            this.fetchData(()=>{this.setState({editing: false})})
+        })
     }
 
     handleCancelAddNewTalkingPoint = () => {
-        console.log("wahwah")
-        this.setState({wantsToAddNewTalkingPoint: false})
+        this.setState({wantsToAddNewTalkingPoint: false, editingTalkingPointDetails: null})
     }
 
-    addNewTalkingPointModal = () => {
+    addEditTalkingPointModal = () => {
         return this.hasTalkingPoints() ?
-            <AddNewTalkingPointModal 
+            <AddEditTalkingPointModal 
                 themes={this.state.themes} 
-                display={this.state.wantsToAddNewTalkingPoint} 
-                handleAdd={(vals)=>{this.handleNewTalkingPoint(vals)}}
+                display={this.state.wantsToAddNewTalkingPoint || this.state.editingTalkingPointDetails != null} 
+                handleSave={(vals)=>{this.handleSaveTalkingPoint(vals)}}
                 handleCancel={this.handleCancelAddNewTalkingPoint}
-                districts={this.props.districts} 
+                districts={this.props.districts}
+                talkingPointUnderEdit={this.state.editingTalkingPointDetails}
             /> : null;
     }
 
@@ -274,7 +302,7 @@ class TalkingPoints extends Component {
         return <>
             {this.header()}
             <Skeleton loading={this.hasTalkingPoints() === false}>
-                {this.addNewTalkingPointModal()}
+                {this.addEditTalkingPointModal()}
                 {this.searchbar()}
                 {this.filterBox()}
                 {this.list()}
@@ -371,6 +399,20 @@ class TalkingPoints extends Component {
         );
     }
 
+    initiateEditTalkingPoint = (talkingPointDetails) => {
+        if (this.props.adminId && this.props.adminId !== talkingPointDetails.createdBy) {
+            Modal.error({
+                title: 'Not Allowed to Edit',
+                content: "Only the person who created this talking point can edit it."
+            })
+            return
+        }
+
+        this.setState({
+            editingTalkingPointDetails: talkingPointDetails
+        })
+    }
+
     toggleTalkingPointInclusionInScript = (talkingPointId) => {
         const self = this;
         this.setState({editing: true}, () =>{
@@ -452,6 +494,7 @@ class TalkingPoints extends Component {
                         createdBy={createdBy}
                         isInScript={this.state.liveTalkingPoints.includes(item.talkingPointId)}
                         handleScriptToggle={(id)=>{this.toggleTalkingPointInclusionInScript(id)}}
+                        handleEditTalkingPoint={(details)=>{this.initiateEditTalkingPoint(details)}}
                     />
                 </List.Item>
             }
@@ -470,7 +513,12 @@ class TalkingPoints extends Component {
 }
 
 const mapStateToProps = state => {
-    return { 
+
+    const admin = {...state.admin}
+    const adminTwo = {...admin.admin}
+
+    return {
+        adminId: adminTwo.adminId,
         districts: state.districts.districts,
         district: state.districts.selected
     };

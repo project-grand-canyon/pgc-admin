@@ -4,7 +4,7 @@ import { Form, Input, Modal, Select, TreeSelect, Tooltip } from 'antd';
 import groupBy from '../../_util/groupBy';
 
 
-class AddNewTalkingPointModal extends Component {
+class AddEditTalkingPointModal extends Component {
 
     empty = []
 
@@ -18,7 +18,10 @@ class AddNewTalkingPointModal extends Component {
         const { validateFieldsAndScroll } = this.props.form;
         validateFieldsAndScroll((errors, values) => {
             if (errors == null) {
-                this.props.handleAdd(values);
+                if (this.props.talkingPointUnderEdit && this.props.talkingPointUnderEdit.talkingPointId) {
+                    values["talkingPointId"] = this.props.talkingPointUnderEdit.talkingPointId;
+                }
+                this.props.handleSave(values);
                 this.props.form.resetFields()
             }
         });
@@ -29,6 +32,37 @@ class AddNewTalkingPointModal extends Component {
         this.props.handleCancel();
     }
 
+    componentDidUpdate(prevProps, prevState, snapshot) {
+        if (this.props.talkingPointUnderEdit && !prevProps.talkingPointUnderEdit){
+
+            const states = this.props.talkingPointUnderEdit['states'];
+            const districts = this.props.talkingPointUnderEdit['districts'];
+            let subScope = null;
+
+            
+            
+
+            if (Array.isArray(states) && states.length) {
+                subScope = states
+            } else if (Array.isArray(districts) && districts.length) {
+                subScope = districts
+            }
+            
+            this.props.form.setFieldsValue({
+                scope: this.props.talkingPointUnderEdit['scope'],
+                theme: this.props.talkingPointUnderEdit['themeId'],
+                content: this.props.talkingPointUnderEdit['content']
+            });
+            if (subScope){
+                console.log(subScope)
+                this.props.form.setFieldsValue({subScope: subScope})
+            }
+            if (this.props.talkingPointUnderEdit.referenceUrl) {
+                this.props.form.setFieldsValue({referenceUrl: this.props.talkingPointUnderEdit.referenceUrl})
+            }
+        }
+    }
+
     render() {
         const {
             getFieldDecorator
@@ -36,10 +70,10 @@ class AddNewTalkingPointModal extends Component {
         return (<Modal
         maskClosable={false}
         visible = {this.props.display}
-        title = "Add a Talking Point"
+        title = {this.props.talkingPointUnderEdit ? "Edit Talking Point" : "Add a Talking Point"} 
         onOk={this.handleOk}
         onCancel={this.handleCancel}
-        okText = "Add"
+        okText = "Save"
       >
         <Form layout="vertical">
             <Form.Item label="Theme">
@@ -57,7 +91,8 @@ class AddNewTalkingPointModal extends Component {
             </Form.Item> 
             <Form.Item label="Content">
                 {getFieldDecorator('content', {
-                    rules: [{required: true, message: 'You must write a message to the Member of Congress'}]
+                    rules: [{required: true, message: 'You must write a message to the Member of Congress'},
+                            {max: 512, message:'The message must not exceed 512 characters.'}]
                 })(<Input.TextArea placeholder="The message to the Member of Congress" autosize={{ minRows: 3, maxRows: 6 }} />
                 )}
             </Form.Item>
@@ -91,7 +126,9 @@ class AddNewTalkingPointModal extends Component {
         const scope = this.props.form.getFieldValue('scope')
 
         if (!scope || scope == "national") {
-            return null
+            return <Form.Item>
+            {getFieldDecorator("subScope", {initialValue: this.empty, rules:[{required: false}]})(<></>)}
+            </Form.Item> 
         }
 
         if (scope === "state") {
@@ -168,6 +205,6 @@ const AddNewTalkingPointForm = Form.create({
             props.form.resetFields(['subScope'])
         }
     } 
-})(AddNewTalkingPointModal);
+})(AddEditTalkingPointModal);
 
 export default AddNewTalkingPointForm;

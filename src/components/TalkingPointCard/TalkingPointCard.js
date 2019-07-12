@@ -17,8 +17,10 @@ const star = (props) => {
     )
 }
 
-const edit = () => {
-    const icon = <Icon type="edit" />
+const edit = (props) => {
+    const icon = <Icon type="edit" onClick={(e)=> {
+        props.handleEditTalkingPoint(props.talkingPoint)
+    } } />
     return (
         <div style={{display: "flex", flexDirection: "column"}}>
             {icon}
@@ -42,7 +44,7 @@ const references = (props) => {
 const talkingpointcard = (props) => {
     return (
         <Card
-        actions={[ star(props), edit()]}
+        actions={[ star(props), edit(props)]}
         >
             <Card.Meta
                 title= {props.title}

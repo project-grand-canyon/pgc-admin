@@ -71,7 +71,8 @@ class Representative extends Component {
             "number": this.state.hydratedDistrict.number,
             "repFirstName": formFields.firstName,
             "repLastName": formFields.lastName,
-            "info": formFields.shortBio
+            "info": formFields.shortBio,
+            "repImageUrl": this.state.hydratedDistrict.repImageUrl
         }
 
         this.setState({editing: true},()=>{
@@ -151,7 +152,8 @@ class Representative extends Component {
                     {dis && (
                     <Form.Item label="Short Bio">
                         {getFieldDecorator('shortBio', {
-                            rules: [{required: true, message: 'A couple of sentences about the Representative.'}],
+                            rules: [{required: true, message: 'A couple of sentences about the Representative.'},
+                                    {max: 512, message:'The message must not exceed 512 characters.'}],
                             initialValue: dis.info
                         })(<Input.TextArea rows={3} />)}
                     </Form.Item>
