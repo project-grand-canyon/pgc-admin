@@ -84,7 +84,7 @@ class Callers extends Component {
               <p>Use this button for troubleshooting when a caller missed their automatic notification, etc.</p>
             </Card>}
               placement="left"
-              icon={<Icon type="question-circle-o" style={{ color: 'red' }} />}
+              icon={<></>}
               onConfirm={(e)=>{this.sendNotification(record.callerId)}}
               okText="Send"
               cancelText="Cancel"

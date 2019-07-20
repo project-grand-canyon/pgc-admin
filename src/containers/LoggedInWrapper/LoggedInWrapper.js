@@ -113,7 +113,11 @@ class LoggedInWrapper extends Component {
         const hasDistricts = this.state.editableDistricts.length > 0 && this.props.selectedDistrict;
 
         const selectDistrict = hasDistricts ? (
-				<Select defaultValue={`${this.props.selectedDistrict.state}-${this.props.selectedDistrict.number}`} onChange={this.handleChangeDistrict}>
+                <Select 
+                    defaultValue={`${this.props.selectedDistrict.state}-${this.props.selectedDistrict.number}`}
+                    onChange={this.handleChangeDistrict}
+                    style={{minWidth: "5em"}}
+                >
 					{this.state.editableDistricts.map((district, index) => {
 						return (
 							<Select.Option key={index} value={district.districtId}>{district.state}-{district.number}
