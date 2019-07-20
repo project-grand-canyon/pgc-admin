@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { Button, Form, message, Modal, Popconfirm, Table, Typography } from 'antd';
+import { Button, Card, Form, Icon, message, Modal, Popconfirm, Table, Typography } from 'antd';
 
 import axios from '../../_util/axios-api';
 
@@ -79,10 +79,15 @@ class Callers extends Component {
         render: (_, record) => {
           return (
             <Popconfirm
-              title="Are you sure you want to send a notification to this caller?"
+              title={<Card title="Are you sure?" bordered={false}>
+              <p>Callers already get automatic call-in notifications once per month.</p>
+              <p>Use this button for troubleshooting when a caller missed their automatic notification, etc.</p>
+            </Card>}
+              placement="left"
+              icon={<Icon type="question-circle-o" style={{ color: 'red' }} />}
               onConfirm={(e)=>{this.sendNotification(record.callerId)}}
-              okText="Yes"
-              cancelText="No"
+              okText="Send"
+              cancelText="Cancel"
             >
               <Button>Send</Button>
             </Popconfirm>
