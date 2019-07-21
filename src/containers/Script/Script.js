@@ -4,7 +4,7 @@ import { Link } from 'react-router-dom';
 import { Button, Card, Icon, Input, List, Modal, message, Skeleton, Form, Popconfirm, Typography, Spin} from 'antd';
 
 import axios from '../../_util/axios-api';
-
+import { displayName } from '../../_util/district';
 import { authHeader } from '../../_util/auth/auth-header';
 import { connect } from 'react-redux';
 
@@ -288,7 +288,7 @@ class Script extends Component {
             {this.state.hydratedDistrict &&
                 <div style={{padding: "10px"}}>
                     <Typography.Title level={2}>
-                        {this.state.hydratedDistrict.state}-{this.state.hydratedDistrict.number} Script
+                        {displayName(this.state.hydratedDistrict)} ({this.state.hydratedDistrict.repLastName}) Script
                     </Typography.Title>
                 </div>
             }

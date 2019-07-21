@@ -5,6 +5,8 @@ import { connect } from 'react-redux';
 
 import { districtsActions, adminActions } from '../../_actions';
 
+import {isSenatorDistrict, displayName, comparator as districtComparator } from '../../_util/district';
+
 class LoggedInWrapper extends Component {
 
     state = {
@@ -33,45 +35,11 @@ class LoggedInWrapper extends Component {
                 console.log('no-op')
             } else if (this.props.admin.root) {
                 console.log('root')
-                newEditibleDistricts = this.props.districts.sort((el1, el2)=>{
-                    const state1 = el1.state;
-                    const state2 = el2.state;
-                    const dist1 = el1.number;
-                    const dist2 = el2.number;
-                    if(state1 < state2) {
-                        return -1;
-                    } else if (state1 > state2) {
-                        return 1;
-                    } else {
-                        if (dist1 < dist2) {
-                            return -1;
-                        } else if (dist1 > dist2) {
-                            return 1;
-                        }
-                    }
-                    return 0;
-                });
+                newEditibleDistricts = this.props.districts.sort(districtComparator);
             } else {
                 const sortedAndFiltered = this.props.districts.filter(el => {
                     return this.props.admin.districts.includes(el.districtId) 
-                }).sort((el1, el2)=>{
-                    const state1 = el1.state;
-                    const state2 = el2.state;
-                    const dist1 = el1.number;
-                    const dist2 = el2.number;
-                    if(state1 < state2) {
-                        return -1;
-                    } else if (state1 > state2) {
-                        return 1;
-                    } else {
-                        if (dist1 < dist2) {
-                            return -1;
-                        } else if (dist1 > dist2) {
-                            return 1;
-                        }
-                    }
-                    return 0;
-                });
+                }).sort(districtComparator);
                 newEditibleDistricts = sortedAndFiltered
             }
             this.setState({
@@ -103,24 +71,16 @@ class LoggedInWrapper extends Component {
     }
 
     getSelectDistrict = () => {
-        if (!this.props.selectedDistrict) {
-            console.log('no selection')
-        } else {
-            console.log('yes selection')
-            console.log(this.props.selectedDistrict)
-        }
-        
         const hasDistricts = this.state.editableDistricts.length > 0 && this.props.selectedDistrict;
-
         const selectDistrict = hasDistricts ? (
                 <Select 
-                    defaultValue={`${this.props.selectedDistrict.state}-${this.props.selectedDistrict.number}`}
+                    defaultValue={displayName(this.props.selectedDistrict)}
                     onChange={this.handleChangeDistrict}
-                    style={{minWidth: "5em"}}
+                    style={{minWidth: "7em"}}
                 >
 					{this.state.editableDistricts.map((district, index) => {
 						return (
-							<Select.Option key={index} value={district.districtId}>{district.state}-{district.number}
+							<Select.Option key={index} value={district.districtId}>{displayName(district)}
 							</Select.Option>
 						)
 					})}
@@ -159,7 +119,7 @@ class LoggedInWrapper extends Component {
                             </Menu.Item>
                             <Menu.Item key="script">
                                 <Icon type="file-text" />
-                                <span>Current Call-In Script</span>
+                                <span>Call-In Script</span>
                                 <Link to="/script" />
                             </Menu.Item>
                             <Menu.Item key="talking-points-library">
@@ -172,11 +132,20 @@ class LoggedInWrapper extends Component {
                                 <span>Schedule</span>
                                 <Link to="/schedule" />
                             </Menu.Item> */}
-                            <Menu.Item key="callers">
-                                <Icon type="team" />
-                                <span>Callers</span>
-                                <Link to="/callers" />
-                            </Menu.Item>
+                            {isSenatorDistrict(this.props.selectedDistrict) ?  null :
+                                <Menu.Item key="distribution">
+                                    <Icon type="phone" />
+                                    <span>Call Distribution</span>
+                                    <Link to="/distribution" />
+                                </Menu.Item>                                
+                            }
+                            {isSenatorDistrict(this.props.selectedDistrict) ?  null :
+                                <Menu.Item key="callers">
+                                    <Icon type="team" />
+                                    <span>Callers</span>
+                                    <Link to="/callers" />
+                                </Menu.Item>
+                            }
                             <Menu.Item key="reports">
                                 <Icon type="bar-chart" />
                                 <span>Reports</span>
@@ -212,8 +181,6 @@ class LoggedInWrapper extends Component {
 const mapStateToProps = state => {
     const { authentication } = state;
     const { loggedIn } = authentication;
-    console.log('mapStateToProps');
-    console.log(state)
     return { 
         districts: state.districts.districts,
         admin: state.admin.admin,
