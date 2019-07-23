@@ -76,7 +76,7 @@ class LoggedInWrapper extends Component {
                 <Select 
                     defaultValue={displayName(this.props.selectedDistrict)}
                     onChange={this.handleChangeDistrict}
-                    style={{minWidth: "7em"}}
+                    style={{minWidth: "8em"}}
                 >
 					{this.state.editableDistricts.map((district, index) => {
 						return (

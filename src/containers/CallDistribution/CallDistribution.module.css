@@ -1,2 +1,9 @@
 .CallDistribution {
 }
+
+.DistributionForm {
+    padding: 24px;
+    background: #fbfbfb;
+    border: 1px solid grey;
+    border-radius: 6px;
+}

@@ -7,11 +7,11 @@ const displayName = (district) => {
         return null;
     }
 
-    if (district.number > 0) {
+    if (district.number >= 0) {
         return `${district.state}-${district.number}`
     }
 
-    return `${district.state}-SEN (${Math.abs(district.number)})`
+    return `${district.state}-Sen (${Math.abs(district.number)})`
 }
 
 const comparator = (d1, d2) => {

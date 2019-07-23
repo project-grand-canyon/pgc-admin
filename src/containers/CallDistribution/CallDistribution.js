@@ -1,20 +1,22 @@
 import React, { Component } from 'react';
-import { Redirect } from 'react-router-dom';
+import { Link, Redirect } from 'react-router-dom';
 import { connect } from 'react-redux';
-import { Button, Card, Icon, InputNumber, List, Modal, message, Skeleton, Form, Popconfirm, Typography, Spin} from 'antd';
+import { Button, Col, InputNumber, Input, Modal, Skeleton, Form, Row, Typography} from 'antd';
 
 import axios from '../../_util/axios-api';
 import { authHeader } from '../../_util/auth/auth-header';
 
-import { isSenatorDistrict, getAssociatedSenators, displayName } from '../../_util/district';
+import styles from './CallDistribution.module.css';
+
+import { isSenatorDistrict, getAssociatedSenators, displayName, comparator as districtComparator } from '../../_util/district';
 
 class CallDistribution extends Component {
 
     state = {
         hydratedDistrict: null,
         associatedSenators: null,
-        savingEdits: false,
-        updatedRequest: null,
+        editing: false,
+        total: null,
     }
 
     componentDidMount() {
@@ -27,39 +29,60 @@ class CallDistribution extends Component {
         if (prevProps.district != this.props.district) {
             this.setState({hydratedDistrict: null});
             this.fetchData();
+        } else if (this.props.form) {
+            if (this.state.total != this.getCurrentTotal()) {
+                this.updateTotal(this.getCurrentTotal());
+            }
         }
     }
 
-    // "callTargets": [
-    //     {
-    //         "targetDistrictId": 8,
-    //         "percentage": 10
-    //     },
-    //     {
-    //         "targetDistrictId": 5,
-    //         "percentage": 90
-    //     }
-    // ],
+    getCurrentTotal = () => {
+        const currentValues = this.props.form.getFieldsValue();
+        const total = Object.keys(currentValues).filter((el)=>{
+            return el != 'hidden'
+        }).map((el)=>{
+            return currentValues[el];
+        }).reduce((el, acc) => {
+            return el + acc;
+        }, 0);
+        return total;
+    }
 
-    fetchData(cb) {
-        if (cb && this.state.hydratedDistrict) {
-            const dis = {...this.state.hydratedDistrict}
-            dis.callTarget = [] // why am i doing this?
-            this.setState({hydratedDistrict: dis},()=>{
-                this.doFetchData(cb)
-            })
-        } else {
+    getCallTargetRequestBodyComponent = () => {
+        const currentValues = this.props.form.getFieldsValue();
+        return Object.keys(currentValues).filter((el)=>{
+            return el != 'hidden'
+        }).map((el)=>{
+            return {
+                "targetDistrictId": el,
+                "percentage": currentValues[el]
+            }
+        })
+    }
+
+    updateTotal = (newTotal) => {
+        this.setState({total: newTotal});
+    }
+
+    fetchData = (cb) => {
+        // if (cb && this.state.hydratedDistrict) {
+            // const dis = {...this.state.hydratedDistrict}
+            // dis.callTarget = [] // why am i doing this?
+            // this.setState({hydratedDistrict: dis},()=>{
+            //     this.doFetchData(cb)
+            // })
+        // } else {
             this.doFetchData(cb)
-        }
+        // }
     }
 
-    doFetchData(cb){
+    doFetchData(cb) {
 
         // TODO: Promise.all
 
         if (this.props.district) {
             const requestOptions = {
-                url: `/districts/${this.props.district.districtId}/hydrated`,
+                url: `/districts/${this.props.district.districtId}`,
                 method: 'GET',
                 headers: { ...authHeader(), 'Content-Type': 'application/json' },
             };
@@ -84,7 +107,6 @@ class CallDistribution extends Component {
                 headers: { ...authHeader(), 'Content-Type': 'application/json' },
             };
             axios(allDistrictsRequestOptions).then((response)=>{
-                console.log(response.data);
                 const associatedSenators = getAssociatedSenators(this.props.district, response.data);
                 this.setState({associatedSenators: associatedSenators});
             }).catch((e) => {
@@ -103,80 +125,115 @@ class CallDistribution extends Component {
                         {displayName(this.state.hydratedDistrict)} ({this.state.hydratedDistrict.repLastName}) Call Distribution
                     </Typography.Title>
                     <Typography.Paragraph>
-                        Use this page to direct calls to the elected officials that represent your district. 
+                        Direct calls to your various elected officials by setting the percentage of your district's overall call volume to the proportion that you'd like each of them to receive.
+                    </Typography.Paragraph>
+                    <Typography.Paragraph>
+                        
                     </Typography.Paragraph>
                 </div>
             }
         </Skeleton>);
     }
 
-    handleSubmit = () => {
-
+    handleSubmit = (e) => {
+        e.preventDefault();
+        const self = this;
+        this.props.form.validateFields((err, values) => {
+            if (!err) {
+                // TODO: use object destructuring to avoid having to reset all this crap.
+                const body = {
+                    "districtId": this.state.hydratedDistrict.districtId,
+                    "state":this.state.hydratedDistrict.state,
+                    "number": this.state.hydratedDistrict.number,
+                    "repFirstName": this.state.hydratedDistrict.repFirstName,
+                    "repLastName": this.state.hydratedDistrict.repLastName,
+                    "repImageUrl": this.state.hydratedDistrict.repImageUrl,
+                    "info": this.state.hydratedDistrict.shortBio,
+                    "callTargets": this.getCallTargetRequestBodyComponent()
+                }
+                this.setState({editing: true},()=>{
+                    const requestOptions = {
+                        url: `/districts/${this.props.district.districtId}/`,
+                        method: 'PUT',
+                        headers: { ...authHeader(), 'Content-Type': 'application/json' },
+                        data: body
+                    };
+                    axios(requestOptions).then((response)=>{
+                    }).catch((e) => {
+                        Modal.error({
+                            title: "Error updating call distribution",
+                            content: e.message,
+                        });
+                    }).then(()=>{
+                        this.fetchData(()=>{self.setState({editing: false})})
+                    })
+                })
+            }
+        });
     }
 
     distribution = () => {
 
-        if (this.state.hydratedDistrict == null || this.state.associatedSenators == null || this.state.savingEdits) {
+        if (this.state.hydratedDistrict == null || this.state.associatedSenators == null || this.state.editing) {
             return <></>
         }
 
         const { getFieldDecorator } = this.props.form;
-        const isLoading = this.state.hydratedDistrict === null;
 
-        const distributableDistricts = this.state.associatedSenators.concat(this.state.hydratedDistrict);
+        const distributableDistricts = this.state.associatedSenators.concat(this.state.hydratedDistrict).sort(districtComparator);
+
+        const formItemLayout = {
+            labelCol: { span: 12},
+            wrapperCol: { span: 4 }
+          };
 
         const rows = distributableDistricts.map((district) => {
-            console.log(displayName(district))
             const currentDistribution = this.state.hydratedDistrict.callTargets.find((target) => {
                 return target.targetDistrictId == district.districtId
             });
-            console.log(currentDistribution && currentDistribution.percentage);
             return (
-                <Form.Item key={district.districtId} label={`${displayName(district)} (${district.repLastName}):`}>
-                    {getFieldDecorator(`d${district.districtId}`, {
+                <Form.Item 
+                    key={district.districtId}
+                    label={(<Typography.Text>{displayName(district)} {district.repLastName} (<a href={`http://www.projectgrandcanyon.com/call/${district.state}/${district.number}`} target="_blank">Call-In Guide</a>)</Typography.Text>)}
+                    >
+                    {getFieldDecorator(`${district.districtId}`, {
                         rules: [
-                            {required: true, message: 'Set a percentage 0-100'},
-                            {type: 'integer', message: 'Set a percentage 0-100'},
-                            {min: 0},
-                            {max: 100}
+                            {required: true, message: 'Set a percentage 0-100'}
                         ],
-                        initialValue: currentDistribution && currentDistribution.percentage || 0
-                    })(<InputNumber />)}
+                        initialValue: currentDistribution && parseInt(currentDistribution.percentage) || 0
+                    })(<InputNumber max={100} min={0} />)}
                 </Form.Item>
             )
         });
 
-        return <Form layout="vertical" onSubmit={this.handleSubmit}>
-                <Skeleton loading={isLoading}>
-                        { this.state.hydratedDistrict &&
-                            <>
-                                <h4>Distros</h4>
-                                {rows}
-                            </>
-                        }
-                </Skeleton>
-                <Skeleton loading={isLoading}>
-                    <Form.Item wrapperCol={{ span: 12, offset: 5 }} >
-                        <Button type="primary" htmlType="submit">
-                            Save
-                        </Button>
-                    </Form.Item>
-                </Skeleton>
-            </Form>
+        const totalColor = this.state.total == 100 ? "green" : "red";
 
-        return <></>;
+        return (
+            <Row>
+                <Col span={22} offset={1}>
+                    <Form className={styles.DistributionForm} {...formItemLayout} hideRequiredMark layout='horizontal' onSubmit={this.handleSubmit}>
+                        {rows}
+                        <Form.Item key="submit" wrapperCol={{ span: 14, offset: 5 }}>
+                            <Button type="primary" htmlType="submit" disabled={this.state.total != 100}>
+                                Save
+                            </Button>
+                        </Form.Item>
+                        <Typography.Text style={{color: totalColor}}>Total: {this.state.total}% </Typography.Text>
+                        {this.state.total != 100 ? <><br /> <Typography.Text style={{color: totalColor}}>Distribution must add to 100%.</Typography.Text></> : null}
+                    </Form>
+                </Col>
+            </Row>
+        );
     }
 
-    render() {
+    render = () => {
         if (isSenatorDistrict(this.props.district)) {
             return <Redirect to='/script'/>;
-          }
-          return <>
-          {this.header()}
-          {this.distribution()}
-          {/* {this.talkingPointsSection()} */}
-          {/* {this.actions()} */}
-      </>;
+        }
+        return <>
+            {this.header()}
+            {this.distribution()}
+        </>;
     }
 }
 
@@ -186,6 +243,10 @@ const mapStateToProps = state => {
     };
 };
 
-const CallDistributionPage = Form.create({ name: 'call_targets_page' })(CallDistribution);
+const CallDistributionPage = Form.create(
+    { 
+        name: 'call_targets_page',
+
+    })(CallDistribution);
 
 export default connect(mapStateToProps)(CallDistributionPage);
