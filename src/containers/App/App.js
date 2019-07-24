@@ -14,6 +14,7 @@ import Login from '../Login/Login';
 import Reports from '../Reports/Reports';
 import Callers from '../Callers/Callers';
 import Schedule from '../Schedule/Schedule';
+import CallDistribution from '../CallDistribution/CallDistribution';
 import Script from '../Script/Script';
 import TalkingPoints from '../TalkingPoints/TalkingPoints';
 import TalkingPointSelection from '../TalkingPoints/TalkingPointSelection/TalkingPointSelection';
@@ -57,6 +58,7 @@ class App extends Component {
               <PrivateRoute path="/reports" component={Reports} />
               <PrivateRoute path="/callers" component={Callers} />
               <PrivateRoute path="/schedule" component={Schedule} />
+              <PrivateRoute path="/distribution" component={CallDistribution} />
               <PrivateRoute path="/script" component={Script} />
               <PrivateRoute path="/talking-points" component={TalkingPoints} />
               <PrivateRoute path="/talking-points/selection" component={TalkingPointSelection} />

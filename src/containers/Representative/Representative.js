@@ -66,13 +66,15 @@ class Representative extends Component {
         e.preventDefault();
         const self = this;
         const formFields = this.props.form.getFieldsValue();
+        // TODO: use object destructuring to avoid re-setting things like callTargets that don't change
         const body = {
             "state":this.state.hydratedDistrict.state,
             "number": this.state.hydratedDistrict.number,
             "repFirstName": formFields.firstName,
             "repLastName": formFields.lastName,
             "info": formFields.shortBio,
-            "repImageUrl": this.state.hydratedDistrict.repImageUrl
+            "repImageUrl": this.state.hydratedDistrict.repImageUrl,
+            "callTargets": this.state.hydratedDistrict.callTargets
         }
 
         this.setState({editing: true},()=>{

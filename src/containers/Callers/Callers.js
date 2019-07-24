@@ -1,14 +1,16 @@
 import React, { Component } from 'react';
+import { Redirect } from 'react-router';
 import { Button, Card, Form, Icon, message, Modal, Popconfirm, Table, Typography } from 'antd';
 
 import axios from '../../_util/axios-api';
-
+import { isSenatorDistrict } from '../../_util/district';
 
 import { authHeader } from '../../_util/auth/auth-header';
 import { connect } from 'react-redux';
 
 import styles from './Callers.module.css';
 import EditCallerModalForm from './EditCallerModal';
+
 
 class Callers extends Component {
 
@@ -208,6 +210,11 @@ class Callers extends Component {
     }
 
     render() {
+
+      if (isSenatorDistrict(this.props.district)) {
+        return <Redirect to='/script'/>;
+      }
+
 		  return (
         <>
           <Typography.Title level={2}>
