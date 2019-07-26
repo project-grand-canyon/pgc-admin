@@ -1,0 +1,60 @@
+# See https://circleci.com/docs/2.0/language-javascript/ for more details
+version: 2
+jobs:
+  build:
+    docker:
+      - image: circleci/node:7.10
+    working_directory: ~/repo
+
+    steps:
+      - checkout
+
+      # Download and cache dependencies
+      - restore_cache:
+          keys:
+            - v1-dependencies-{{ checksum "package.json" }}
+            # fallback to using the latest cache if no exact match is found
+            - v1-dependencies-
+
+      - run: yarn install
+
+      - save_cache:
+          paths:
+            - node_modules
+          key: v1-dependencies-{{ checksum "package.json" }}
+
+      # run tests!
+      - run: yarn test
+
+  deploy-to-prod:
+    docker:
+      - image: circleci/node:7.10
+    working_directory: ~/repo
+
+    steps:
+      - checkout
+      - run: echo "This would deploy to prod"
+
+workflows:
+  version: 2
+
+  build-and-deploy:
+    jobs:
+      - build:
+          # We only run this workflow when things are committed to master.
+          filters:
+            branches:
+              only: master
+      - hold: # Require manual action to pass this step
+          type: approval
+          requires: ["build"]
+      - deploy-to-prod: # Deploys to prod
+          requires: ["hold"]
+
+  pr-build:
+    jobs:
+      - build:
+          # No need to run this on master, since it's covered by the build-and-deploy flow
+          filters:
+            branches:
+              ignore: master
