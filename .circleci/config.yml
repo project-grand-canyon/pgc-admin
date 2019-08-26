@@ -12,19 +12,27 @@ jobs:
       # Download and cache dependencies
       - restore_cache:
           keys:
-            - v1-dependencies-{{ checksum "package.json" }}
+            - v2-dependencies-{{ checksum "package.json" }}
             # fallback to using the latest cache if no exact match is found
-            - v1-dependencies-
+            - v2-dependencies-
 
-      - run: yarn install
+      - run: npm install
 
       - save_cache:
           paths:
             - node_modules
           key: v1-dependencies-{{ checksum "package.json" }}
 
-      # run tests!
-      - run: yarn test
+      - run: npm run build
+      - run: npm test
+
+      # Store the `./build` directory to be used by subsequent steps; this way we don't risk
+      # having the deploy step fail on some npm hiccup or accidentally deploy something different
+      # from what's been tested. We build the artifacts once and use the same set throughout.
+      - persist_to_workspace:
+          root: "."
+          paths:
+            - build
 
   deploy-to-prod:
     docker:
@@ -32,8 +40,9 @@ jobs:
     working_directory: ~/repo
 
     steps:
-      - checkout
-      - run: echo "This would deploy to prod"
+      - attach_workspace:
+          at: "."
+      - run: echo "This will deploy to prod" && ls build
 
 workflows:
   version: 2
