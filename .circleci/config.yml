@@ -23,8 +23,16 @@ jobs:
             - node_modules
           key: v1-dependencies-{{ checksum "package.json" }}
 
-      # run tests!
+      - run: yarn run build
       - run: yarn test
+
+      # Store the `./build` directory to be used by subsequent steps; this way we don't risk
+      # having the deploy step fail on some npm hiccup or accidentally deploy something different
+      # from what's been tested. We build the artifacts once and use the same set throughout.
+      - persist_to_workspace:
+          root: "."
+          paths:
+            - build
 
   deploy-to-prod:
     docker:
@@ -32,8 +40,9 @@ jobs:
     working_directory: ~/repo
 
     steps:
-      - checkout
-      - run: echo "This would deploy to prod"
+      - attach_workspace:
+          at: "."
+      - run: echo "This will deploy to prod" && ls build
 
 workflows:
   version: 2
