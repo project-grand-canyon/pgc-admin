@@ -18,19 +18,17 @@ class LoggedInWrapper extends Component {
         let username = localStorage.getItem('username');
         this.props.dispatch(adminActions.refresh(username));
     }
-    
+
     componentDidUpdate(prevProps, prevState) {
         let sameDistricts = true;
         if (prevProps.districts && this.props.districts) {
-            sameDistricts = prevProps.districts.reduce((acc, el, idx)=>{
-                if (acc) {
-                    return el.districtId == this.props.districts[idx].districtId;
-                }
-            }, prevProps.districts.length == this.props.districts.length)
+            sameDistricts = prevProps.districts.reduce((acc, el, idx) => {
+                return acc && el.districtId === this.props.districts[idx].districtId;
+            }, prevProps.districts.length === this.props.districts.length)
         }
-        if (!sameDistricts || prevProps.admin != this.props.admin) {
+        if (!sameDistricts || prevProps.admin !== this.props.admin) {
             var newEditibleDistricts = []
-            if (!this.props.districts || this.props.districts.length == 0 || !this.props.admin){
+            if (!this.props.districts || this.props.districts.length === 0 || !this.props.admin){
                 // no-op
                 console.log('no-op')
             } else if (this.props.admin.root) {
@@ -38,7 +36,7 @@ class LoggedInWrapper extends Component {
                 newEditibleDistricts = this.props.districts.sort(districtComparator);
             } else {
                 const sortedAndFiltered = this.props.districts.filter(el => {
-                    return this.props.admin.districts.includes(el.districtId) 
+                    return this.props.admin.districts.includes(el.districtId)
                 }).sort(districtComparator);
                 newEditibleDistricts = sortedAndFiltered
             }
@@ -73,7 +71,7 @@ class LoggedInWrapper extends Component {
     getSelectDistrict = () => {
         const hasDistricts = this.state.editableDistricts.length > 0 && this.props.selectedDistrict;
         const selectDistrict = hasDistricts ? (
-                <Select 
+                <Select
                     defaultValue={displayName(this.props.selectedDistrict)}
                     onChange={this.handleChangeDistrict}
                     style={{minWidth: "8em"}}
@@ -100,10 +98,10 @@ class LoggedInWrapper extends Component {
                     <div style={{text: 'white'}}><Typography.Title level={1}>Project Grand Canyon - Admin</Typography.Title></div>
                 </Layout.Header>
                 <Layout>
-                    <Layout.Sider 
+                    <Layout.Sider
                         breakpoint="lg"
                         collapsedWidth="0"
-                        width={250} 
+                        width={250}
                         style={{ background: '#fff' }}>
 				        <span>Editing district: </span>
                         {selectDistrict}
@@ -137,7 +135,7 @@ class LoggedInWrapper extends Component {
                                     <Icon type="phone" />
                                     <span>Call Distribution</span>
                                     <Link to="/distribution" />
-                                </Menu.Item>                                
+                                </Menu.Item>
                             }
                             {isSenatorDistrict(this.props.selectedDistrict) ?  null :
                                 <Menu.Item key="callers">
@@ -164,13 +162,13 @@ class LoggedInWrapper extends Component {
                                 <Link to="/account" />
                             </Menu.Item>
                         </Menu>
-                    </Layout.Sider>                    
+                    </Layout.Sider>
                     <Layout.Content style={{ padding: 24, minHeight: 280}}>
                     {this.props.children}
                     </Layout.Content>
                 </Layout>
                 <Layout.Footer >
-                    <Typography.Text>Questions or feedback? <a href="https://forms.gle/R8xavqpe4zKM2VmK9" target="_blank">Contact Us</a></Typography.Text>
+                    <Typography.Text>Questions or feedback? <a href="https://forms.gle/R8xavqpe4zKM2VmK9" target="_blank" rel="noopener noreferrer">Contact Us</a></Typography.Text>
                     <div style={{text: 'white'}}></div>
                 </Layout.Footer>
             </Layout>
@@ -181,7 +179,7 @@ class LoggedInWrapper extends Component {
 const mapStateToProps = state => {
     const { authentication } = state;
     const { loggedIn } = authentication;
-    return { 
+    return {
         districts: state.districts.districts,
         admin: state.admin.admin,
         selectedDistrict: state.districts.selected,

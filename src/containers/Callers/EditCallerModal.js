@@ -31,11 +31,7 @@ class EditCallerModal extends Component {
     }
 
     render() {
-        const caller = {...this.props};
-        const {
-            getFieldDecorator,
-            onValuesChange,
-          } = this.props.form;
+        const { getFieldDecorator } = this.props.form;
 
         return (<Modal
         maskClosable={false}
@@ -113,8 +109,8 @@ class EditCallerModal extends Component {
     }
 }
 
-const EditCallerModalForm = Form.create({ 
-    name: 'edit_caller_modal_form' }, 
+const EditCallerModalForm = Form.create({
+    name: 'edit_caller_modal_form' },
     )(EditCallerModal);
 
 export default EditCallerModalForm;

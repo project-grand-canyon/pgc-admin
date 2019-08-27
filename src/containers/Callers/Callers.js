@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import { Redirect } from 'react-router';
-import { Button, Card, Form, Icon, message, Modal, Popconfirm, Table, Typography } from 'antd';
+import { Button, Card, Form, message, Modal, Popconfirm, Table, Typography } from 'antd';
+import get from "lodash/get"
 
 import axios from '../../_util/axios-api';
 import { isSenatorDistrict } from '../../_util/district';
@@ -8,9 +9,12 @@ import { isSenatorDistrict } from '../../_util/district';
 import { authHeader } from '../../_util/auth/auth-header';
 import { connect } from 'react-redux';
 
-import styles from './Callers.module.css';
+import './Callers.module.css';
 import EditCallerModalForm from './EditCallerModal';
 
+// TODO We need to replace the <a> tag below with a button to drop the below disable, otherwise
+//      apparently screen readers will misunderstand it
+/* eslint-disable jsx-a11y/anchor-is-valid */
 
 class Callers extends Component {
 
@@ -93,7 +97,7 @@ class Callers extends Component {
             >
               <Button>Send</Button>
             </Popconfirm>
-            
+
           );
         },
       }];
@@ -109,7 +113,7 @@ class Callers extends Component {
       }).catch((e) => {
           Modal.error({
               title: "Notification failed to send",
-              content: e.response && e.response.data && e.response.data.message || "Unrecognized error."
+              content: get(e, ['response', 'data', 'message'], "Unrecognized error.")
           });
           this.setState({fetchError: e.message})
       }).then(()=>{
@@ -152,7 +156,7 @@ class Callers extends Component {
         this.fetchCallers(()=>{this.setState({editingKey: null})});
       })
   }
-    
+
     edit = (key) => {
         console.log(key)
         this.setState({ editingKey: key });
@@ -172,8 +176,8 @@ class Callers extends Component {
                 const callers = allCallers.map(el => {
                   const key = el['callerId'];
                   el.key = key;
-                  el.contactMethodSMS = el.contactMethods.indexOf('sms') != -1;
-                  el.contactMethodEmail = el.contactMethods.indexOf('email') != -1;
+                  el.contactMethodSMS = el.contactMethods.indexOf('sms') !== -1;
+                  el.contactMethodEmail = el.contactMethods.indexOf('email') !== -1;
                   return el;
                 });
                 this.setState({callers: callers});
@@ -190,7 +194,7 @@ class Callers extends Component {
     }
 
     componentDidUpdate(prevProps) {
-        if (prevProps.district != this.props.district) {
+        if (prevProps.district !== this.props.district) {
             this.setState({callers: null});
             this.fetchCallers();
         }
@@ -198,13 +202,13 @@ class Callers extends Component {
 
     editModal = () => {
       const callerForEditing = this.state.callers && this.state.callers.find((el)=>{
-        return el.key == this.state.editingKey
+        return el.key === this.state.editingKey
       })
 
       return <EditCallerModalForm
-        caller={callerForEditing} 
-        display={this.state.editingKey != null} 
-        onEditCaller={(callerDetails) => { this.onEditCaller(callerDetails)}} 
+        caller={callerForEditing}
+        display={this.state.editingKey !== null}
+        onEditCaller={(callerDetails) => { this.onEditCaller(callerDetails)}}
         onCancelEditCaller={this.onCancelEditCaller}
       ></EditCallerModalForm>
     }
@@ -225,7 +229,7 @@ class Callers extends Component {
           </Typography.Paragraph>
           {this.editModal()}
           <Table
-            loading={this.state.callers == null}
+            loading={this.state.callers === null}
             bordered
             dataSource={this.state.callers}
             columns={this.columns}
@@ -240,7 +244,7 @@ class Callers extends Component {
 
 
 const mapStateToProps = state => {
-    return { 
+    return {
         district: state.districts.selected,
     };
 };

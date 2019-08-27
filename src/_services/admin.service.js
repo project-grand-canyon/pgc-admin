@@ -19,7 +19,7 @@ function refresh(username) {
     return axios(requestOptions).then((response)=>{
             const admins = response.data;
             const admin = admins.find((el)=>{
-                return el.userName == username
+                return el.userName === username
             });
             localStorage.setItem('admin', admin)
             return admin;
@@ -28,8 +28,7 @@ function refresh(username) {
 
 function handleBadResponse(error) {
     if (error.response.status >= 400) {
-        const error = error.response.data || error.response.statusText;
-        return Promise.reject(error)
+        return Promise.reject(error.response.data || error.response.statusText)
     }
     return Promise.resolve(error.response);
 

@@ -1,5 +1,5 @@
-import React, { Component } from 'react';
-import styles from './TalkingPointSelection.module.css';
+import React, { Component } from 'react'; // eslint-disable-line no-unused-vars
+import './TalkingPointSelection.module.css';
 
 class TalkingPointSelection extends Component {
     render() {

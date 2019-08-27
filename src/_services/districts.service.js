@@ -19,8 +19,7 @@ function refresh() {
 
 function handleBadResponse(error) {
     if (error.response.status >= 400) {
-        const error = error.response.data || error.response.statusText;
-        return Promise.reject(error)
+        return Promise.reject(error.response.data || error.response.statusText)
     }
     return Promise.resolve(error.response);
 

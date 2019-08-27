@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
-import { Link, Redirect } from 'react-router-dom';
+import { Redirect } from 'react-router-dom';
 import { connect } from 'react-redux';
-import { Button, Col, InputNumber, Input, Modal, Skeleton, Form, Row, Typography} from 'antd';
+import { Button, Col, InputNumber, Modal, Skeleton, Form, Row, Typography} from 'antd';
 
 import axios from '../../_util/axios-api';
 import { authHeader } from '../../_util/auth/auth-header';
@@ -20,17 +20,17 @@ class CallDistribution extends Component {
     }
 
     componentDidMount() {
-        if (this.state.hydratedDistrict == null) {
+        if (this.state.hydratedDistrict === null) {
             this.fetchData();
         }
     }
 
     componentDidUpdate(prevProps) {
-        if (prevProps.district != this.props.district) {
+        if (prevProps.district !== this.props.district) {
             this.setState({hydratedDistrict: null});
             this.fetchData();
         } else if (this.props.form) {
-            if (this.state.total != this.getCurrentTotal()) {
+            if (this.state.total !== this.getCurrentTotal()) {
                 this.updateTotal(this.getCurrentTotal());
             }
         }
@@ -39,7 +39,7 @@ class CallDistribution extends Component {
     getCurrentTotal = () => {
         const currentValues = this.props.form.getFieldsValue();
         const total = Object.keys(currentValues).filter((el)=>{
-            return el != 'hidden'
+            return el !== 'hidden'
         }).map((el)=>{
             return currentValues[el];
         }).reduce((el, acc) => {
@@ -51,7 +51,7 @@ class CallDistribution extends Component {
     getCallTargetRequestBodyComponent = () => {
         const currentValues = this.props.form.getFieldsValue();
         return Object.keys(currentValues).filter((el)=>{
-            return el != 'hidden'
+            return el !== 'hidden'
         }).map((el)=>{
             return {
                 "targetDistrictId": el,
@@ -88,7 +88,7 @@ class CallDistribution extends Component {
             };
             axios(requestOptions).then((response)=>{
                 const district = response.data;
-                if (district.districtId == this.props.district.districtId) {
+                if (district.districtId === this.props.district.districtId) {
                     this.setState({hydratedDistrict: district});
                 }
             }).catch((e) => {
@@ -118,7 +118,7 @@ class CallDistribution extends Component {
 
     header = () => {
         return (
-        <Skeleton loading={this.state.hydratedDistrict == null}>
+        <Skeleton loading={this.state.hydratedDistrict === null}>
             {this.state.hydratedDistrict &&
                 <div style={{padding: "10px"}}>
                     <Typography.Title level={2}>
@@ -128,7 +128,7 @@ class CallDistribution extends Component {
                         Direct calls to your various elected officials by setting the percentage of your district's overall call volume to the proportion that you'd like each of them to receive.
                     </Typography.Paragraph>
                     <Typography.Paragraph>
-                        
+
                     </Typography.Paragraph>
                 </div>
             }
@@ -174,7 +174,7 @@ class CallDistribution extends Component {
 
     distribution = () => {
 
-        if (this.state.hydratedDistrict == null || this.state.associatedSenators == null || this.state.editing) {
+        if (this.state.hydratedDistrict === null || this.state.associatedSenators === null || this.state.editing) {
             return <></>
         }
 
@@ -189,24 +189,24 @@ class CallDistribution extends Component {
 
         const rows = distributableDistricts.map((district) => {
             const currentDistribution = this.state.hydratedDistrict.callTargets.find((target) => {
-                return target.targetDistrictId == district.districtId
+                return target.targetDistrictId === district.districtId
             });
             return (
-                <Form.Item 
+                <Form.Item
                     key={district.districtId}
-                    label={(<Typography.Text>{displayName(district)} {district.repLastName} (<a href={`http://www.projectgrandcanyon.com/call/${district.state}/${district.number}`} target="_blank">Call-In Guide</a>)</Typography.Text>)}
+                    label={(<Typography.Text>{displayName(district)} {district.repLastName} (<a href={`http://www.projectgrandcanyon.com/call/${district.state}/${district.number}`} target="_blank" rel="noopener noreferrer">Call-In Guide</a>)</Typography.Text>)}
                     >
                     {getFieldDecorator(`${district.districtId}`, {
                         rules: [
                             {required: true, message: 'Set a percentage 0-100'}
                         ],
-                        initialValue: currentDistribution && parseInt(currentDistribution.percentage) || 0
+                        initialValue: parseInt(currentDistribution && currentDistribution.percentage) || 0
                     })(<InputNumber max={100} min={0} />)}
                 </Form.Item>
             )
         });
 
-        const totalColor = this.state.total == 100 ? "green" : "red";
+        const totalColor = this.state.total === 100 ? "green" : "red";
 
         return (
             <Row>
@@ -214,12 +214,12 @@ class CallDistribution extends Component {
                     <Form className={styles.DistributionForm} {...formItemLayout} hideRequiredMark layout='horizontal' onSubmit={this.handleSubmit}>
                         {rows}
                         <Form.Item key="submit" wrapperCol={{ span: 14, offset: 5 }}>
-                            <Button type="primary" htmlType="submit" disabled={this.state.total != 100}>
+                            <Button type="primary" htmlType="submit" disabled={this.state.total !== 100}>
                                 Save
                             </Button>
                         </Form.Item>
                         <Typography.Text style={{color: totalColor}}>Total: {this.state.total}% </Typography.Text>
-                        {this.state.total != 100 ? <><br /> <Typography.Text style={{color: totalColor}}>Distribution must add to 100%.</Typography.Text></> : null}
+                        {this.state.total !== 100 ? <><br /> <Typography.Text style={{color: totalColor}}>Distribution must add to 100%.</Typography.Text></> : null}
                     </Form>
                 </Col>
             </Row>
@@ -238,13 +238,13 @@ class CallDistribution extends Component {
 }
 
 const mapStateToProps = state => {
-    return { 
+    return {
         district: state.districts.selected
     };
 };
 
 const CallDistributionPage = Form.create(
-    { 
+    {
         name: 'call_targets_page',
 
     })(CallDistribution);

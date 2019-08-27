@@ -1,10 +1,9 @@
-import React, { Component } from 'react';
+import React, { Component } from 'react'; // eslint-disable-line no-unused-vars
 import axios from '../../_util/axios-api';
 
 import { authHeader } from '../../_util/auth/auth-header';
 
-
-import styles from './Districts.module.css';
+import './Districts.module.css';
 
 class Districts extends Component {
 
@@ -32,11 +31,5 @@ class Districts extends Component {
         return <></>;
     }
 }
-
-const mapStateToProps = state => {
-    return { 
-        district: state.districts.selected,
-    };
-};
 
 export default Districts;

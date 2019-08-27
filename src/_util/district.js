@@ -25,7 +25,7 @@ const comparator = (d1, d2) => {
         return 1;
     } else {
         if (dist1 < 0 && dist2 < 0) {
-            return (dist1 == -1) ? -1 : 1;
+            return (dist1 === -1) ? -1 : 1;
         }
         if (dist1 >= 0 && dist2 >= 0) {
             if (dist1 < dist2) {
@@ -40,7 +40,6 @@ const comparator = (d1, d2) => {
             return -1;
         }
     }
-    return 0;
 }
 
 const getAssociatedSenators = (district, districts) => {
@@ -48,13 +47,13 @@ const getAssociatedSenators = (district, districts) => {
         return []
     }
     return districts.filter(el => {
-        return isSenatorDistrict(el) && el.state == district.state && el.number != district.number;
+        return isSenatorDistrict(el) && el.state === district.state && el.number !== district.number;
     })
 }
 
 export {
-    isSenatorDistrict as isSenatorDistrict,
-    displayName as displayName,
-    comparator as comparator,
-    getAssociatedSenators as getAssociatedSenators,
+    isSenatorDistrict,
+    displayName,
+    comparator,
+    getAssociatedSenators,
 };

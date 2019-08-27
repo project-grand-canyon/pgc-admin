@@ -6,7 +6,7 @@ function refresh(username) {
         dispatch(request());
         adminService.refresh(username)
             .then(
-                admin => { 
+                admin => {
                     dispatch(success(admin));
                 },
                 error => {
@@ -17,7 +17,7 @@ function refresh(username) {
 
     function request() { return { type: adminConstants.REQUEST } }
     function success(admin) { return { type: adminConstants.SUCCESS, admin } }
-    function failure(error) { return { type: adminConstants.FAILURE, error } }    
+    function failure(error) { return { type: adminConstants.FAILURE, error } }
 }
 
 function clear() {
@@ -34,4 +34,4 @@ const adminActions = {
 };
 
 
-export { adminActions as adminActions };
+export { adminActions };

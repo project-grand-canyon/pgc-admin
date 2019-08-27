@@ -1,5 +1,4 @@
 import { userConstants } from '../_constants';
-import { message } from 'antd';
 
 let user = localStorage.getItem('user');
 const initialState = user ? { loggedIn: true, user } : {};
