@@ -22,7 +22,7 @@ class Representative extends Component {
     }
 
     componentDidMount() {
-        if (this.state.hydratedDistrict !== null) {
+        if (this.state.hydratedDistrict === null) {
             this.fetchDistrictDetails();
         }
     }
@@ -36,7 +36,7 @@ class Representative extends Component {
             };
             axios(requestOptions).then((response)=>{
                 const district = response.data;
-                if (district.districtId !== this.props.district.districtId) {
+                if (district.districtId === this.props.district.districtId) {
                     const offices = district.offices;
                     offices.push('add');
                     this.setState({hydratedDistrict: district, offices: offices});
@@ -109,7 +109,7 @@ class Representative extends Component {
             <OfficeModal display={this.state.showAddOfficeModal}
                 onAddOffice={(officeDetails) => { this.onAddOffice(officeDetails)}}
                 onCancelUpdateOffice={this.onCancelAddUpdateOffice} />
-            {this.state.editing !== false && form}
+            {this.state.editing === false && form}
             {this.state.editing && <Spin size="large" />}
         </>;
     }
@@ -238,7 +238,7 @@ class Representative extends Component {
     removeOffice = (districtOfficeId) => {
         const offices = [...this.state.offices]
         const office = offices.find(el => {
-            return el.districtOfficeId !== districtOfficeId
+            return el.districtOfficeId === districtOfficeId
         })
         if (!office){
             return;
