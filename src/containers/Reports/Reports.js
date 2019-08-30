@@ -16,7 +16,7 @@ class Reports extends Component {
     }
 
     componentDidMount() {
-        if (this.state.statistics == null) {
+        if (this.state.statistics === null) {
             this.fetchStatistics();
         }
     }
@@ -42,7 +42,7 @@ class Reports extends Component {
     }
 
     componentDidUpdate(prevProps) {
-        if (prevProps.district != this.props.district) {
+        if (prevProps.district !== this.props.district) {
             this.setState({statistics: null});
             this.fetchStatistics();
         }
@@ -91,7 +91,7 @@ class Reports extends Component {
             <Row style={{marginTop: "40px"}}>
                 <Col>
                     <ResponsiveContainer className="container" height={400} width='100%'>
-                        { statistics ? 
+                        { statistics ?
                             <LineChart
                                 width={500}
                                 height={300}
@@ -117,7 +117,7 @@ class Reports extends Component {
 
 
 const mapStateToProps = state => {
-    return { 
+    return {
         district: state.districts.selected,
     };
 };

@@ -3,6 +3,7 @@ import { Redirect } from 'react-router-dom';
 import moment from 'moment';
 import { connect } from 'react-redux';
 import { Button, Checkbox, Col, Form, Input, List, message, Modal, DatePicker, Row, Select, Skeleton, Spin, Typography } from 'antd';
+import get from "lodash/get"
 
 import axios from '../../_util/axios-api';
 import { authHeader } from '../../_util/auth/auth-header';
@@ -10,8 +11,7 @@ import AddEditTalkingPointModal from './AddEditTalkingPointModal'
 
 import TalkingPointCard from '../../components/TalkingPointCard/TalkingPointCard';
 
-import styles from './TalkingPoints.module.css';
-import { element } from 'prop-types';
+import './TalkingPoints.module.css';
 
 class TalkingPoints extends Component {
 
@@ -100,16 +100,16 @@ class TalkingPoints extends Component {
 
     componentDidUpdate(prevProps, prevState) {
         const filtersForm = this.props.form.getFieldsValue();
-        if (JSON.stringify(filtersForm) != JSON.stringify(this.state.filters)) {
+        if (JSON.stringify(filtersForm) !== JSON.stringify(this.state.filters)) {
             this.handleFilterChange(filtersForm)
         }
-        if (prevProps.districts != this.props.districts || prevProps.district != this.props.district) {
+        if (prevProps.districts !== this.props.districts || prevProps.district !== this.props.district) {
             this.fetchData();
         }
     }
 
     presentableTalkingPoints = () => {
-        if (this.hasTalkingPoints() == false) {
+        if (this.hasTalkingPoints() === false) {
             return;
         }
 
@@ -135,7 +135,7 @@ class TalkingPoints extends Component {
             return true
         }).filter((el)=>{
             if (filters && filters.script){
-                return this.state.liveTalkingPoints.includes(el.talkingPointId)                
+                return this.state.liveTalkingPoints.includes(el.talkingPointId)
             }
             return true;
         }).filter((el)=>{
@@ -149,25 +149,25 @@ class TalkingPoints extends Component {
             }
             return true;
         }).filter((el)=>{
-            if (filters && filters.scope) { 
+            if (filters && filters.scope) {
                 console.log(filters.scope)
                 var shouldShow = filters.scope.length === 0;
                 // "state", "national", "district"
-                if (filters.scope.includes("national") 
+                if (filters.scope.includes("national")
                     && el.scope === "national"
                 ) {
                     shouldShow = true;
                 }
-                if (!shouldShow 
-                    && filters.scope.includes("state") 
-                    && el.scope === "state" 
+                if (!shouldShow
+                    && filters.scope.includes("state")
+                    && el.scope === "state"
                     && el.states.includes(this.props.district.state)
                 ) {
                     shouldShow = true;
                 }
-                if (!shouldShow 
-                    && filters.scope.includes("district") 
-                    && el.scope === "district" 
+                if (!shouldShow
+                    && filters.scope.includes("district")
+                    && el.scope === "district"
                     && el.districts.includes(this.props.district.districtId)
                 ) {
                     shouldShow = true;
@@ -183,14 +183,14 @@ class TalkingPoints extends Component {
         })
 
         return presentableTalkingPoints;
-        
+
     }
 
     handleFilterChange = (filtersForm) => {
-        if (this.hasTalkingPoints() == false) {
+        if (this.hasTalkingPoints() === false) {
             return;
         }
-        
+
         const filters = {...filtersForm};
         this.setState({filters: filters});
     }
@@ -215,9 +215,9 @@ class TalkingPoints extends Component {
             body["referenceUrl"] = values.referenceUrl
         }
 
-        if (values.scope == "state") {
+        if (values.scope === "state") {
             body.states = values.subScope;
-        } else if (values.scope == "district") {
+        } else if (values.scope === "district") {
             body.districts = values.subScope;
         }
 
@@ -241,7 +241,7 @@ class TalkingPoints extends Component {
         }).catch((e) => {
             Modal.error({
                 title: 'Error Adding Talking Point',
-                content: e.response && e.response.data && e.response.data.message || "Unrecognized Error",
+                content: get(e, ['response', 'data', 'message'], "Unrecognized Error"),
                 });
             console.log(e)
         }).then(()=>{
@@ -261,7 +261,7 @@ class TalkingPoints extends Component {
         }).catch((e) => {
             Modal.error({
                 title: 'Error Editing Talking Point',
-                content: e.response && e.response.data && e.response.data.message || "Unrecognized Error",
+                content: get(e, ['response', 'data', 'message'], "Unrecognized Error"),
                 });
             console.log(e)
         }).then(()=>{
@@ -275,9 +275,9 @@ class TalkingPoints extends Component {
 
     addEditTalkingPointModal = () => {
         return this.hasTalkingPoints() ?
-            <AddEditTalkingPointModal 
-                themes={this.state.themes} 
-                display={this.state.wantsToAddNewTalkingPoint || this.state.editingTalkingPointDetails != null} 
+            <AddEditTalkingPointModal
+                themes={this.state.themes}
+                display={this.state.wantsToAddNewTalkingPoint || this.state.editingTalkingPointDetails !== null}
                 handleSave={(vals)=>{this.handleSaveTalkingPoint(vals)}}
                 handleCancel={this.handleCancelAddNewTalkingPoint}
                 districts={this.props.districts}
@@ -321,10 +321,10 @@ class TalkingPoints extends Component {
                 allowClear={true}
                 enterButton
             />
-            <Button 
-                style={{position: "absolute", right: "10px", top:"10px"}} 
-                type="primary" 
-                onClick={this.addNewTalkingPointClicked || !this.hasTalkingPoints()} 
+            <Button
+                style={{position: "absolute", right: "10px", top:"10px"}}
+                type="primary"
+                onClick={this.addNewTalkingPointClicked || !this.hasTalkingPoints()}
                 disabled={this.state.wantsToAddNewTalkingPoint}>
                     Add A New Talking Point
             </Button>
@@ -382,7 +382,7 @@ class TalkingPoints extends Component {
                                 })}
                             </Select>,
                             )}
-                        </Form.Item>   
+                        </Form.Item>
                     </Col>
                     <Col sm={24} md={8} >
                         <Form.Item label="Currently selected for Call-In Script">
@@ -419,7 +419,7 @@ class TalkingPoints extends Component {
             const isInScript = this.state.liveTalkingPoints.includes(talkingPointId);
             const newScript = isInScript ?
                 [...this.state.liveTalkingPoints].filter(el=>{
-                    return el != talkingPointId
+                    return el !== talkingPointId
                 }) :
                 [...this.state.liveTalkingPoints].concat([talkingPointId])
             const updateScriptRequestOptions = {
@@ -445,7 +445,7 @@ class TalkingPoints extends Component {
                     console.log(e.response.data)
                     Modal.error({
                         title: 'Error Updating Call-In Script',
-                        content: e.response && e.response.data && e.response.data.message || "Unrecognized Error"
+                        content: get(e, ['response', 'data', 'message'], "Unrecognized Error")
                     })
                 }).then(()=>{
                     self.fetchData()
@@ -478,19 +478,19 @@ class TalkingPoints extends Component {
                 const districts = item.districts.map((itemEl) => {
                     return this.props.districts.filter((districtEl)=>{
                         return districtEl.districtId === itemEl;
-                    }).map((foundEl) => {        
+                    }).map((foundEl) => {
                         return `${foundEl.state}-${foundEl.number}`
                     })
                 });
-            
+
                 const applicablePlaces = (item.scope === "district") ? districts.join(", ") :
                 (item.scope === "states") ? item.states.join(", ") : "Nationwide";
 
                 return <List.Item>
-                    <TalkingPointCard 
-                        title={theme.name} 
-                        talkingPoint={item} 
-                        applicablePlaces={applicablePlaces} 
+                    <TalkingPointCard
+                        title={theme.name}
+                        talkingPoint={item}
+                        applicablePlaces={applicablePlaces}
                         createdBy={createdBy}
                         isInScript={this.state.liveTalkingPoints.includes(item.talkingPointId)}
                         handleScriptToggle={(id)=>{this.toggleTalkingPointInclusionInScript(id)}}
@@ -503,12 +503,12 @@ class TalkingPoints extends Component {
     }
 
     hasTalkingPoints = () => {
-        return this.state.allTalkingPoints != null 
-            && this.state.themes != null
-            && this.props.districts != null
+        return this.state.allTalkingPoints !== null
+            && this.state.themes !== null
+            && this.props.districts !== null
             && this.props.districts.length > 0
-            && this.state.liveTalkingPoints != null
-            && this.state.admins != null
+            && this.state.liveTalkingPoints !== null
+            && this.state.admins !== null
     }
 }
 

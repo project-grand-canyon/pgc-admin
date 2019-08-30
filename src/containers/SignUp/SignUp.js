@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { Button, Cascader, Col, Empty, Form, Icon, Input, Modal, message, Row, Spin, Typography, TreeSelect } from 'antd';
+import { Button, Col, Empty, Form, Icon, Input, Modal, Row, Spin, Typography, TreeSelect } from 'antd';
 import { withRouter, Redirect } from 'react-router-dom';
 import { connect } from 'react-redux';
 import axios from '../../_util/axios-api';
@@ -11,7 +11,7 @@ import { userActions } from '../../_actions';
 // import styles from './SignUp.module.css';
 
 class SignUp extends Component {
-    
+
     constructor(props) {
         super(props);
         this.props.dispatch(userActions.logout());
@@ -113,7 +113,7 @@ class SignUp extends Component {
             return <Spin size="large" />;
         }
 
-        if (this.state.submissionStage == "successfullySubmitted") {
+        if (this.state.submissionStage === "successfullySubmitted") {
             Modal.success({
                 title: "Sign Up Successful",
                 content: "Your registration must be reviewed by Project Grand Canyon admins prior to activation. You will receive an email when your account has been activated.",
@@ -125,7 +125,7 @@ class SignUp extends Component {
         }
 
         const { getFieldDecorator } = this.props.form;
-        
+
         const treeData = this.state.cascaderDistricts
         const districtSelectionProps = {
             treeData,
@@ -172,7 +172,7 @@ class SignUp extends Component {
                                 {getFieldDecorator("districts", {initialValue: this.empty, rules:[{required: true, message: "Select at least one district"}]})(
                                     <TreeSelect {...districtSelectionProps} />,
                                 )}
-                            </Form.Item> 
+                            </Form.Item>
                             <Form.Item>
                                 <Button type="primary" htmlType="submit">
                                     Register
@@ -183,7 +183,7 @@ class SignUp extends Component {
                 </Row>
                 <Row>
                     <Col>
-                        <Typography.Text>Questions or feedback? <a href="https://forms.gle/R8xavqpe4zKM2VmK9" target="_blank">Contact Us</a></Typography.Text>
+                        <Typography.Text>Questions or feedback? <a href="https://forms.gle/R8xavqpe4zKM2VmK9" target="_blank" rel="noopener noreferrer">Contact Us</a></Typography.Text>
                     </Col>
                 </Row>
             </div>

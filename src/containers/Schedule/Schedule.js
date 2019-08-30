@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import { Typography} from 'antd';
 
-import styles from './Schedule.module.css';
+import './Schedule.module.css';
 
 class Schedule extends Component {
     render() {

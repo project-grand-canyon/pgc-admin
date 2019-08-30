@@ -8,7 +8,7 @@ function login(username, password) {
         dispatch(request({ username }));
         userService.login(username, password)
             .then(
-                user => { 
+                user => {
                     dispatch(success(user, username));
                     dispatch(adminActions.refresh(username))
                     dispatch(districtsActions.refresh());
@@ -39,7 +39,7 @@ function register(user) {
         dispatch(request(user));
         userService.register(user)
             .then(
-                user => { 
+                user => {
                     dispatch(success());
                     window.location.href = '/login';
                 },
@@ -60,4 +60,4 @@ const userActions = {
     register
 };
 
-export { userActions as userActions };
+export { userActions };

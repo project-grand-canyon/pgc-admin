@@ -9,7 +9,7 @@ import axios from '../../_util/axios-api';
 import { authHeader } from '../../_util/auth/auth-header';
 import { connect } from 'react-redux';
 
-import styles from './Representative.module.css';
+import './Representative.module.css';
 
 class Representative extends Component {
 
@@ -22,7 +22,7 @@ class Representative extends Component {
     }
 
     componentDidMount() {
-        if (this.state.hydratedDistrict == null) {
+        if (this.state.hydratedDistrict === null) {
             this.fetchDistrictDetails();
         }
     }
@@ -36,7 +36,7 @@ class Representative extends Component {
             };
             axios(requestOptions).then((response)=>{
                 const district = response.data;
-                if (district.districtId == this.props.district.districtId) {
+                if (district.districtId === this.props.district.districtId) {
                     const offices = district.offices;
                     offices.push('add');
                     this.setState({hydratedDistrict: district, offices: offices});
@@ -56,7 +56,7 @@ class Representative extends Component {
     }
 
     componentDidUpdate(prevProps) {
-        if (prevProps.district != this.props.district) {
+        if (prevProps.district !== this.props.district) {
             this.setState({hydratedDistrict: null});
             this.fetchDistrictDetails();
         }
@@ -102,18 +102,18 @@ class Representative extends Component {
         const dis = this.state.hydratedDistrict
         const form = this.form(isLoading, dis, getFieldDecorator)
         return <>
-            <OfficeModal office={this.state.officeForEditing} 
-                display={this.state.officeForEditing != null} 
-                onUpdateOffice={(officeDetails) => { this.onUpdateOffice(officeDetails)}} 
+            <OfficeModal office={this.state.officeForEditing}
+                display={this.state.officeForEditing !== null}
+                onUpdateOffice={(officeDetails) => { this.onUpdateOffice(officeDetails)}}
                 onCancelUpdateOffice={this.onCancelAddUpdateOffice} />
             <OfficeModal display={this.state.showAddOfficeModal}
                 onAddOffice={(officeDetails) => { this.onAddOffice(officeDetails)}}
                 onCancelUpdateOffice={this.onCancelAddUpdateOffice} />
-            {this.state.editing == false && form}
+            {this.state.editing === false && form}
             {this.state.editing && <Spin size="large" />}
         </>;
     }
-    
+
     form = (isLoading, dis, getFieldDecorator) => {
         return (
         <>
@@ -168,7 +168,7 @@ class Representative extends Component {
                                 <List
                                     grid={{ gutter: 16, xs: 1, sm: 2, lg: 4 }}
                                     dataSource={this.state.offices}
-                                    renderItem={office => ( 
+                                    renderItem={office => (
                                         this.officeListItem(office)
                                     )}
                                 />
@@ -190,10 +190,10 @@ class Representative extends Component {
 
     officeListItem = (office) => {
         if (office === 'add') {
-            return <List.Item 
+            return <List.Item
             key="add"
         >
-            <Card 
+            <Card
                 hoverable
                 title="Add An Office"
                 onClick={ this.launchAddOfficeModal }
@@ -202,17 +202,17 @@ class Representative extends Component {
             </Card>
         </List.Item>
         }
-        return <List.Item 
+        return <List.Item
             key={office.districtOfficeId}
         >
-            <Card 
+            <Card
                 title={office.address.city}
                 actions={[
-                    <Button shape="circle" icon="edit" onClick={ () => { 
-                            this.launchEditOfficeModal(office) 
-                        } 
+                    <Button shape="circle" icon="edit" onClick={ () => {
+                            this.launchEditOfficeModal(office)
+                        }
                     } />,
-                    <Button shape="circle" icon="delete" onClick={ () => { this.removeOffice(office.districtOfficeId) } } /> 
+                    <Button shape="circle" icon="delete" onClick={ () => { this.removeOffice(office.districtOfficeId) } } />
                 ]}
             >
                 {office.phone}
@@ -238,7 +238,7 @@ class Representative extends Component {
     removeOffice = (districtOfficeId) => {
         const offices = [...this.state.offices]
         const office = offices.find(el => {
-            return el.districtOfficeId == districtOfficeId
+            return el.districtOfficeId === districtOfficeId
         })
         if (!office){
             return;
@@ -265,7 +265,7 @@ class Representative extends Component {
                     })
                 })
             }
-        });         
+        });
     }
 
     onCancelAddUpdateOffice = () => {
@@ -349,7 +349,7 @@ class Representative extends Component {
 }
 
 const mapStateToProps = state => {
-    return { 
+    return {
         district: state.districts.selected,
     };
 };

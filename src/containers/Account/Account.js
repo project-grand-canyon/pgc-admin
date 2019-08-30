@@ -4,7 +4,7 @@ import { Button } from 'antd';
 
 import { userActions } from '../../_actions';
 
-import styles from './Account.module.css';
+import './Account.module.css';
 
 class Account extends Component {
 

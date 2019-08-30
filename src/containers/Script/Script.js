@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
 import { Link } from 'react-router-dom';
+import get from "lodash/get"
 
 import { Button, Card, Icon, Input, List, Modal, message, Skeleton, Form, Popconfirm, Typography, Spin} from 'antd';
 
@@ -17,7 +18,7 @@ class Script extends Component {
     }
 
     componentDidMount() {
-        if (this.state.hydratedDistrict == null) {
+        if (this.state.hydratedDistrict === null) {
             this.fetchData();
         }
     }
@@ -43,7 +44,7 @@ class Script extends Component {
             };
             axios(requestOptions).then((response)=>{
                 const district = response.data;
-                if (district.districtId == this.props.district.districtId) {
+                if (district.districtId === this.props.district.districtId) {
                     this.setState({hydratedDistrict: district});
                 }
             }).catch((e) => {
@@ -70,7 +71,7 @@ class Script extends Component {
     }
 
     componentDidUpdate(prevProps) {
-        if (prevProps.district != this.props.district) {
+        if (prevProps.district !== this.props.district) {
             this.setState({hydratedDistrict: null});
             this.fetchData();
         }
@@ -86,7 +87,7 @@ class Script extends Component {
         if (!this.state.hydratedDistrict.requests) {
             return emptyReq;
         }
-        
+
         const sorted = [...this.state.hydratedDistrict.requests].sort((el1, el2)=> {
             if (el1.lastModified < el2.lastModified) {
                 return 1
@@ -101,27 +102,27 @@ class Script extends Component {
     }
 
     scriptItemClicked = (idx, action) => {
-        this.setState({savingEdits: true},() => { 
+        this.setState({savingEdits: true},() => {
             const newDistrict = {...this.state.hydratedDistrict}
             const newScript = [...newDistrict.script]
-            if (action == "up") {
+            if (action === "up") {
                 if (idx > 0) {
                     const temp = newScript[idx]
                     newScript[idx] = newScript[idx-1]
                     newScript[idx-1] = temp
                 }
-            } else if (action == "down") {
+            } else if (action === "down") {
                 if (idx < newScript.length - 1) {
                     const temp = newScript[idx]
                     newScript[idx] = newScript[idx+1]
                     newScript[idx+1] = temp
                 }
-            } else if (action == "remove") {
+            } else if (action === "remove") {
                 if (idx >= 0 && idx <= newScript.length - 1){
                     newScript.splice(idx, 1);
                 }
             }
-            
+
             const updateScriptRequestOptions = {
                 url: `/districts/${this.props.district.districtId}/script`,
                 method: 'PUT',
@@ -133,7 +134,7 @@ class Script extends Component {
             }).catch((e) => {
                 console.log(e)
                 console.log(e.response.data)
-                message.error(e.response && e.response.data && e.response.data.message || "Unrecognized error while updating script")
+                message.error(get(e, ["response","data","message"], "Unrecognized error while updating script"))
             }).then(() => {
                 self.fetchData(()=>{self.setState({savingEdits: false})})
             });
@@ -168,7 +169,7 @@ class Script extends Component {
             }).catch((e) => {
                 console.log(e)
                 console.log(e.response.data)
-                message.error(e.response && e.response.data && e.response.data.message || "Unrecognized error while updating request")
+                message.error(get(e, ["response","data","message"], "Unrecognized error while updating request"))
             }).then(() => {
                 self.fetchData(()=>{self.setState({savingEdits: false})})
             });
@@ -176,10 +177,10 @@ class Script extends Component {
     }
 
     requestSection = () => {
-        if (this.state.hydratedDistrict == null || this.state.themes == null || this.state.savingEdits) {
+        if (this.state.hydratedDistrict === null || this.state.themes === null || this.state.savingEdits) {
             return <></>
         }
-        
+
         const heading = (
             <>
                 <Typography.Title level={3}>Request</Typography.Title>
@@ -221,7 +222,7 @@ class Script extends Component {
     }
 
     talkingPointsSection = () => {
-        if (this.state.hydratedDistrict == null || this.state.themes == null) {
+        if (this.state.hydratedDistrict === null || this.state.themes === null) {
             return <></>
         }
         if (this.state.savingEdits) {
@@ -240,8 +241,8 @@ class Script extends Component {
                 return <List.Item
                     key={item.talkingPointId}
                     actions={[
-                        <Button disabled={idx==0} shape="circle" onClick={e=>{this.scriptItemClicked(idx, "up")}}><Icon type="up-circle" theme="twoTone" /></Button>, 
-                        <Button disabled={idx==this.state.hydratedDistrict.script.length-1} shape="circle" onClick={e=>{this.scriptItemClicked(idx, "down")}}><Icon type="down-circle" theme="twoTone" /></Button>, 
+                        <Button disabled={idx===0} shape="circle" onClick={e=>{this.scriptItemClicked(idx, "up")}}><Icon type="up-circle" theme="twoTone" /></Button>,
+                        <Button disabled={idx===this.state.hydratedDistrict.script.length-1} shape="circle" onClick={e=>{this.scriptItemClicked(idx, "down")}}><Icon type="down-circle" theme="twoTone" /></Button>,
                         <Popconfirm title="Are you sure you want to remove this talking point?" onConfirm={e=>{this.scriptItemClicked(idx, "remove")}} okText="Yes" cancelText="No">
                             <Button shape="circle">
                                 <Icon type="minus-circle" theme="twoTone" twoToneColor="#ae1414" />
@@ -253,7 +254,7 @@ class Script extends Component {
                     title={`${idx + 1}. ${theme.name}`}
                 />
                     <span>{item.content}</span>
-                    
+
                 </List.Item>
             }
             }
@@ -272,7 +273,7 @@ class Script extends Component {
 
     actions = () => {
         return (
-            <Skeleton loading={this.state.hydratedDistrict == null}>
+            <Skeleton loading={this.state.hydratedDistrict === null}>
                 {this.state.hydratedDistrict &&
                 <div style={{padding: "10px", display: "flex", justifyContent: "center"}}>
                     <Button style={{marginRight: "5px"}} ><Link to="/talking-points">Add a Talking Point</Link></Button>
@@ -284,7 +285,7 @@ class Script extends Component {
 
     header = () => {
         return (
-        <Skeleton loading={this.state.hydratedDistrict == null}>
+        <Skeleton loading={this.state.hydratedDistrict === null}>
             {this.state.hydratedDistrict &&
                 <div style={{padding: "10px"}}>
                     <Typography.Title level={2}>
@@ -306,7 +307,7 @@ class Script extends Component {
 }
 
 const mapStateToProps = state => {
-    return { 
+    return {
         district: state.districts.selected,
     };
 };

@@ -3,7 +3,7 @@ import { Redirect } from 'react-router-dom';
 import { connect } from 'react-redux';
 import { Button } from 'antd';
 
-import styles from './Home.module.css';
+import './Home.module.css';
 
 class Home extends Component {
 

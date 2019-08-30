@@ -25,7 +25,7 @@ class Login extends Component {
     }
 
     componentDidUpdate(prevProps, prevState, snapshot) {
-        if (prevProps.login_error != this.props.login_error) {
+        if (prevProps.login_error !== this.props.login_error) {
             if (this.props.login_error){
                 console.log(this.props.login_error.message)
                 message.error(`Login failed with error: ${this.props.login_error.message}`);
@@ -67,7 +67,7 @@ class Login extends Component {
         );
 
         const loginPresentation = (this.props.loggingIn) ? <Spin /> : loginForm;
-        
+
         return (<>
             <div>
                 <Row>
@@ -80,7 +80,7 @@ class Login extends Component {
                 </Row>
                 <Row>
                     <Col>
-                        <Typography.Text>Questions or feedback? <a href="https://forms.gle/R8xavqpe4zKM2VmK9" target="_blank">Contact Us</a></Typography.Text>
+                        <Typography.Text>Questions or feedback? <a href="https://forms.gle/R8xavqpe4zKM2VmK9" target="_blank" rel="noopener noreferrer">Contact Us</a></Typography.Text>
                     </Col>
                 </Row>
             </div>

@@ -1,6 +1,4 @@
 import axios from '../_util/axios-api';
-import { authHeader } from '../_util/auth/auth-header';
-
 
 export const userService = {
     login,
@@ -44,8 +42,7 @@ function handleBadResponse(error) {
     }
     if (error.response.status >= 400) {
         console.log('other')
-        const error = error.response.data || error.response.statusText;
-        return Promise.reject(error)
+        return Promise.reject(error.response.data || error.response.statusText)
     }
     console.log('other other')
     return Promise.resolve(error.response);

@@ -1,9 +1,8 @@
 import React from 'react';
 
-import { Button, Card, Icon, Avatar, Typography } from 'antd';
+import { Card, Icon, Typography } from 'antd';
 
-
-import styles from './TalkingPointCard.module.css';
+import './TalkingPointCard.module.css';
 
 const star = (props) => {
     const icon = <Icon type={props.isInScript ? "check-square" : "border" } onClick={(e)=> {
@@ -32,9 +31,9 @@ const edit = (props) => {
 const references = (props) => {
     const reference = props.talkingPoint.referenceUrl ?
         <Typography.Paragraph copyable={{ text: props.talkingPoint.referenceUrl }} style={{color:"black"}}>
-            <a target="_blank" href={props.talkingPoint.referenceUrl}>Reference URL</a>
+            <a target="_blank" href={props.talkingPoint.referenceUrl} rel="noopener noreferrer">Reference URL</a>
         </Typography.Paragraph> : null;
-    const createdBy = props.createdBy && props.createdBy.email ? 
+    const createdBy = props.createdBy && props.createdBy.email ?
         <Typography.Paragraph copyable={{ text: props.createdBy.email }} style={{color:"black"}}>Created by: {props.createdBy.email} </Typography.Paragraph> : null;
     return <Typography.Paragraph style={{color:"black", textAlign: "left"}}>
         {reference}{createdBy}
@@ -54,7 +53,7 @@ const talkingpointcard = (props) => {
             <Typography.Paragraph style={{color:"black", textAlign: "left"}}>{props.talkingPoint.content}</Typography.Paragraph>
             {references(props)}
         </Card>
-    );  
+    );
 };
 
 export default talkingpointcard;

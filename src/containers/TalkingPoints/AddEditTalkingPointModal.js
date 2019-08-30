@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { Form, Input, Modal, Select, TreeSelect, Tooltip } from 'antd';
+import { Form, Input, Modal, Select, TreeSelect } from 'antd';
 
 import groupBy from '../../_util/groupBy';
 
@@ -39,15 +39,15 @@ class AddEditTalkingPointModal extends Component {
             const districts = this.props.talkingPointUnderEdit['districts'];
             let subScope = null;
 
-            
-            
+
+
 
             if (Array.isArray(states) && states.length) {
                 subScope = states
             } else if (Array.isArray(districts) && districts.length) {
                 subScope = districts
             }
-            
+
             this.props.form.setFieldsValue({
                 scope: this.props.talkingPointUnderEdit['scope'],
                 theme: this.props.talkingPointUnderEdit['themeId'],
@@ -70,7 +70,7 @@ class AddEditTalkingPointModal extends Component {
         return (<Modal
         maskClosable={false}
         visible = {this.props.display}
-        title = {this.props.talkingPointUnderEdit ? "Edit Talking Point" : "Add a Talking Point"} 
+        title = {this.props.talkingPointUnderEdit ? "Edit Talking Point" : "Add a Talking Point"}
         onOk={this.handleOk}
         onCancel={this.handleCancel}
         okText = "Save"
@@ -88,7 +88,7 @@ class AddEditTalkingPointModal extends Component {
                     })}
                 </Select>,
                 )}
-            </Form.Item> 
+            </Form.Item>
             <Form.Item label="Content">
                 {getFieldDecorator('content', {
                     rules: [{required: true, message: 'You must write a message to the Member of Congress'},
@@ -99,7 +99,7 @@ class AddEditTalkingPointModal extends Component {
             <Form.Item label="Reference URL">
                 {getFieldDecorator('referenceUrl', {
                 })(
-                    <Input placeholder="Link to reference like a news article" /> 
+                    <Input placeholder="Link to reference like a news article" />
                 )}
             </Form.Item>
             <Form.Item label="Scope">
@@ -112,7 +112,7 @@ class AddEditTalkingPointModal extends Component {
                     })}
                 </Select>,
                 )}
-            </Form.Item> 
+            </Form.Item>
             {this.subscopeInput(getFieldDecorator)}
         </Form>
       </Modal>);
@@ -125,10 +125,10 @@ class AddEditTalkingPointModal extends Component {
 
         const scope = this.props.form.getFieldValue('scope')
 
-        if (!scope || scope == "national") {
+        if (!scope || scope === "national") {
             return <Form.Item>
             {getFieldDecorator("subScope", {initialValue: this.empty, rules:[{required: false}]})(<></>)}
-            </Form.Item> 
+            </Form.Item>
         }
 
         if (scope === "state") {
@@ -146,7 +146,7 @@ class AddEditTalkingPointModal extends Component {
         if (!this.props.districts) {
             return []
         }
-        
+
         const houseOfRepDistricts = this.props.districts.filter((district) => { return parseInt(district.number) >= 0 });
 
         const districtsByState = groupBy(houseOfRepDistricts, 'state');
@@ -176,7 +176,7 @@ class AddEditTalkingPointModal extends Component {
             {getFieldDecorator("subScope", {initialValue: this.empty, rules:[{required: true, message: "Select at least one district"}]})(
                 <TreeSelect {...tProps} />,
                 )}
-            </Form.Item> 
+            </Form.Item>
     }
 
     states = (getFieldDecorator) => {
@@ -193,18 +193,18 @@ class AddEditTalkingPointModal extends Component {
                 })}
             </Select>,
             )}
-        </Form.Item> 
+        </Form.Item>
     }
 
 }
 
-const AddNewTalkingPointForm = Form.create({ 
-    name: 'add_new_talking_point_form', 
+const AddNewTalkingPointForm = Form.create({
+    name: 'add_new_talking_point_form',
     onValuesChange (props, changedValues, allValues) {
         if (changedValues && changedValues.scope) {
             props.form.resetFields(['subScope'])
         }
-    } 
+    }
 })(AddEditTalkingPointModal);
 
 export default AddNewTalkingPointForm;
