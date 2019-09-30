@@ -1,26 +1,26 @@
 import React, { Component } from 'react';
 import { Redirect } from 'react-router';
-import { Button, Card, Form, message, Modal, Popconfirm, Table, Typography } from 'antd';
-import get from "lodash/get"
+import { Button, Icon, Form, Modal, Popover, Table, Typography } from 'antd';
 
 import axios from '../../_util/axios-api';
 import { isSenatorDistrict } from '../../_util/district';
+import { callerStatus, monthsMissedCount } from '../../_util/caller';
 
 import { authHeader } from '../../_util/auth/auth-header';
 import { connect } from 'react-redux';
 
 import './Callers.module.css';
-import EditCallerModalForm from './EditCallerModal';
-
-// TODO We need to replace the <a> tag below with a button to drop the below disable, otherwise
-//      apparently screen readers will misunderstand it
-/* eslint-disable jsx-a11y/anchor-is-valid */
+import CallerDetailModal from './CallerDetailModal';
 
 class Callers extends Component {
 
     state = {
 		  callers: null,
-		  editingKey: null,
+      callerDetail: {}
+    }
+
+    isCallerInFocus = (key) => {
+      return this.state.callerDetail && this.state.callerDetail['caller'] && this.state.callerDetail['caller']['callerId'] === key
     }
 
     componentDidMount(){
@@ -38,183 +38,189 @@ class Callers extends Component {
         key: 'lastName',
         sorter: (a, b) => { return a.lastName.localeCompare(b.lastName)}
     },{
-        title: 'Contact By SMS',
-		    dataIndex: 'contactMethodSMS',
-        key: 'contactMethodSMS',
-        render: val => (val ? 'Yes' : 'No')
-	},{
-        title: 'Contact By Email',
-		    dataIndex: 'contactMethodEmail',
-        key: 'contactMethodEmail',
-        render: val => (val ? 'Yes' : 'No')
+        title: 'Call Status',
+        dataIndex: 'status',
+		    key: 'status',
+        render: (status) => {
+          return this.callStatusIcon(status);
+        },
+        sorter: (a, b) => {
+          const orderedList = ["CURRENT", "WAITING", "BRAND_NEW", "PAUSED", "LAPSED"];   
+          const aIndex = orderedList.indexOf(a.status.status);
+          const bIndex = orderedList.indexOf(b.status.status);       
+          const aScore = aIndex === -1 ? orderedList.length : aIndex;
+          const bScore = bIndex === -1 ? orderedList.length : bIndex;
+          const diff = bScore - aScore;
+          if (diff !== 0 || a.status.status !== "LAPSED") {
+            return diff;
+          }
+          return a.status.monthsMissedCount - b.status.monthsMissedCount;
+        }
     },{
-        title: 'Email',
-        dataIndex: 'email',
-		    key: 'email'
-    },{
-        title: 'Phone',
-        dataIndex: 'phone',
-		    key: 'phone'
-    },{
-        title: 'Zip Code',
-        dataIndex: 'zipCode',
-        key: 'zipCode'
-    },{
-        title: 'Paused',
-        dataIndex: 'paused',
-		    key: 'paused',
-        render: val => (val ? 'Yes' : 'No')
-    },{
-        title: 'Edit',
+        title: 'Details',
         dataIndex: 'operation1',
         render: (text, record) => {
-          const isEditing = this.isEditing(record);
           return (
             <div>
-              {isEditing ? (
-                <></>
+              { this.isCallerInFocus(record.key) ? (
+                <Typography.Text>Details</Typography.Text>
               ) : (
-                <a onClick={() => this.edit(record.key)}>Edit</a>
+                <Button onClick={() => this.showDetailModal(record.key)}>Details</Button>
               )}
             </div>
           );
         },
-      },{
-        title: 'Send Notification',
-        dataIndex: 'operation2',
-        render: (_, record) => {
+      }
+    ];
+
+    callStatusIcon = (status) => {
+      switch (status.status) {
+        case('CURRENT'): return <Popover content="This is an active caller." title="Current" trigger="hover"><Icon type="smile" theme="twoTone" twoToneColor="#52c41a" /></Popover>
+        case('BRAND_NEW'): return <Popover content="This person hasn't been asked to call yet." title="Brand New" trigger="hover"> <Icon type="smile" theme="twoTone" /></Popover>
+        case('PAUSED'): return <Popover content="This person has paused call notifications. They are not participating in Project Grand Canyon." title="Paused" trigger="hover"> <Icon type="pause-circle" theme="twoTone" twoToneColor="tan" /></Popover>
+        case('WAITING'): return <Popover content="This person just recently got their notification, and they haven't made their call yet." title="Waiting For Call" trigger="hover"> <Icon type="message" theme="twoTone" twoToneColor="tan" /></Popover>
+        case('LAPSED'): 
+        return <Popover content={`This person has not called for ${status.monthsMissedCount} ${status.monthsMissedCount === 1 ? "month" : "months"}`} title="Lapsed" trigger="hover">
+          {
+            (status.monthsMissedCount > 3) ?
+            (
+              <div style={{display: "inherit"}}>
+                <Icon type="phone" theme="twoTone" twoToneColor="red" />
+                <Typography.Text type="danger">{` x${status.monthsMissedCount}`}</Typography.Text>
+              </div>
+            ) : (
+                  <div style={{display: "inherit"}}>
+                    { 
+                      Array(status.monthsMissedCount).fill().map((el, idx)=>{
+                        return <Icon key={idx} type="phone" theme="twoTone" twoToneColor="red" />
+                      })
+                    }
+                  </div>
+            )
+          }
+          </Popover>
+        default:
           return (
-            <Popconfirm
-              title={<Card title="Are you sure?" bordered={false}>
-              <p>Callers already get automatic call-in notifications once per month.</p>
-              <p>Use this button for troubleshooting when a caller missed their automatic notification, etc.</p>
-            </Card>}
-              placement="left"
-              icon={<></>}
-              onConfirm={(e)=>{this.sendNotification(record.callerId)}}
-              okText="Send"
-              cancelText="Cancel"
-            >
-              <Button>Send</Button>
-            </Popconfirm>
-
+            <>
+              <Icon type="stop" theme="twoTone" twoToneColor="red" />
+              <Typography.Text type="danger"> Error</Typography.Text>
+            </>
           );
-        },
-      }];
+      }
+    }
 
-    sendNotification = (callerId) => {
-      const requestOptions = {
-        url: `/reminders/${callerId}`,
-        method: 'PUT',
-        headers: { ...authHeader(), 'Content-Type': 'application/json' }
-      };
-      axios(requestOptions).then((response)=>{
-        message.success("Notification sent successfully.")
-      }).catch((e) => {
-          Modal.error({
-              title: "Notification failed to send",
-              content: get(e, ['response', 'data', 'message'], "Unrecognized error.")
-          });
-          this.setState({fetchError: e.message})
-      }).then(()=>{
-        this.fetchCallers(()=>{this.setState({editingKey: null})});
+    onUnfocusCaller = (cb) => {
+      this.setState({callerDetail:null}, () => {
+        cb && cb()
       })
     }
 
-    isEditing = record => record.key === this.state.editingKey;
-
-    onCancelEditCaller = () => {
-      this.setState({editingKey:null})
-  }
-
-    onEditCaller = (callerDetails) => {
-      const updatedCaller = {
-        firstName: callerDetails.firstName,
-        lastName: callerDetails.lastName,
-        contactMethods: callerDetails.contactMethods,
-        phone: callerDetails.phone,
-        email: callerDetails.email,
-        districtId: callerDetails.districtId,
-        zipCode: callerDetails.zipCode,
-        paused: callerDetails.paused
+    showDetailModal = (key) => {
+      const caller = this.state.callers && this.state.callers.find((el)=>{
+        return el.key === key
+      });
+      
+      if(caller) {
+        this.setState({ 
+          callerDetail: {
+            caller: caller
+          } 
+        }, () => {
+          this.fetchCallerHistory();
+        });
       }
-      const requestOptions = {
-        url: `/callers/${callerDetails.key}`,
-        method: 'PUT',
-        headers: { ...authHeader(), 'Content-Type': 'application/json' },
-        data: updatedCaller
-      };
-      axios(requestOptions).then((response)=>{
-        // no-op
-      }).catch((e) => {
-          Modal.error({
-              title: "Error Updating Caller",
-              content: e.message,
-          });
-          this.setState({fetchError: e.message})
-      }).then(()=>{
-        this.fetchCallers(()=>{this.setState({editingKey: null})});
-      })
-  }
-
-    edit = (key) => {
-        console.log(key)
-        this.setState({ editingKey: key });
     }
 
     fetchCallers(cb) {
         const district = this.props.district;
         if (district) {
             const requestOptions = {
-                url: `/callers?districtId=${district.districtId}`, // TODO: only get callers for a district
+                url: `/callers?districtId=${district.districtId}`,
                 method: 'GET',
                 headers: { ...authHeader(), 'Content-Type': 'application/json' },
             };
             axios(requestOptions).then((response)=>{
-              console.log('got it')
                 const allCallers = response.data;
                 const callers = allCallers.map(el => {
                   const key = el['callerId'];
                   el.key = key;
                   el.contactMethodSMS = el.contactMethods.indexOf('sms') !== -1;
                   el.contactMethodEmail = el.contactMethods.indexOf('email') !== -1;
+                  el.status = {
+                    status: callerStatus(el),
+                    monthsMissedCount: monthsMissedCount(el)
+                  };
                   return el;
                 });
-                this.setState({callers: callers});
+                this.setState({callers: callers, callerDetail: null});
             }).catch((e) => {
                 Modal.error({
                     title: "Error Loading Page",
                     content: e.message,
                 });
-                this.setState({fetchError: e.message})
+                this.setState({callerDetail: null})
             }).then(()=>{
               cb && cb()
             })
         }
     }
 
+    fetchCallerHistory() {
+      const district = this.props.district;
+      const caller = this.state.callerDetail && this.state.callerDetail.caller;
+      if (district && caller) {
+        const callHistoryRequestOptions = {
+          url: `/calls/${caller['callerId']}`,
+          method: 'GET',
+          headers: { ...authHeader(), 'Content-Type': 'application/json' }
+        };
+        const reminderHistoryRequestOptions = {
+          url: `/reminders/${caller['callerId']}`,
+          method: 'GET',
+          headers: { ...authHeader(), 'Content-Type': 'application/json' }
+        };
+        const callerDetail = {...this.state.callerDetail};
+        Promise.all([
+          axios(callHistoryRequestOptions), 
+          axios(reminderHistoryRequestOptions)
+        ]).then(values => {
+          callerDetail['calls'] = values[0].data;
+          callerDetail['reminders'] = values[1].data;
+        }).catch( e => {
+          callerDetail['callReminderError'] = e.message;
+        }).then(()=>{
+          this.setState({
+            callerDetail: callerDetail
+          });
+        });
+      }
+  }
+
     componentDidUpdate(prevProps) {
         if (prevProps.district !== this.props.district) {
-            this.setState({callers: null});
+            this.setState({callerDetail: null, callers: null});
             this.fetchCallers();
         }
     }
 
-    editModal = () => {
-      const callerForEditing = this.state.callers && this.state.callers.find((el)=>{
-        return el.key === this.state.editingKey
-      })
-
-      return <EditCallerModalForm
-        caller={callerForEditing}
-        display={this.state.editingKey !== null}
+    detailModal = () => {
+      const caller = this.state.callerDetail && this.state.callerDetail['caller']
+      return <CallerDetailModal
+        caller={this.state.callerDetail}
+        display={caller != null}
         onEditCaller={(callerDetails) => { this.onEditCaller(callerDetails)}}
-        onCancelEditCaller={this.onCancelEditCaller}
-      ></EditCallerModalForm>
+        onUnfocusCaller={this.onUnfocusCaller}
+        onSave={this.onSavedCaller}
+      ></CallerDetailModal>
+    }
+
+    onSavedCaller = () => {
+      this.onUnfocusCaller(()=>{
+        this.fetchCallers()
+      })
     }
 
     render() {
-
       if (isSenatorDistrict(this.props.district)) {
         return <Redirect to='/script'/>;
       }
@@ -224,17 +230,14 @@ class Callers extends Component {
           <Typography.Title level={2}>
             Callers for District
           </Typography.Title>
-          <Typography.Paragraph>
-            Use this page to edit caller info and pause notifications if they want a break.
-          </Typography.Paragraph>
-          {this.editModal()}
+          {this.detailModal()}
           <Table
             loading={this.state.callers === null}
             bordered
             dataSource={this.state.callers}
             columns={this.columns}
             pagination={{
-              onChange: this.onCancelEditCaller,
+              onChange: (page)=>{this.onUnfocusCaller()},
             }}
           />
         </>
