@@ -22,13 +22,13 @@ const callerStatus = (caller) => {
 }
 
 function refDate(caller) {
-    const created = new Date(caller.created)
+    const created = caller.created;
     const createdDate = created.getUTCDate();
     if (createdDate > caller.reminderDayOfMonth) {
         created.setUTCMonth(created.getUTCMonth()+1)
     }
     created.setUTCDate(caller.reminderDayOfMonth)
-    return caller.lastCallTimestamp == null ? created : new Date(caller.lastCallTimestamp);
+    return caller.lastCallTimestamp == null ? created : caller.lastCallTimestamp;
 }
 
 const monthsMissedCount = (caller) => {
@@ -37,9 +37,8 @@ const monthsMissedCount = (caller) => {
         return 0;
     }
 
-    const now = new Date();
-    const numberOfMonthsLapsed = monthDiff(refDate(caller), now);
-
+    const endRange = caller.lastReminderTimestamp ? caller.lastReminderTimestamp : new Date();
+    const numberOfMonthsLapsed = monthDiff(refDate(caller), endRange);
     // we'll count < 1 month as a missed Month
     return numberOfMonthsLapsed === 0 ? 1 : numberOfMonthsLapsed;
 }

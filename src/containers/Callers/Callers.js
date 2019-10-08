@@ -144,6 +144,10 @@ class Callers extends Component {
                 const callers = allCallers.map(el => {
                   const key = el['callerId'];
                   el.key = key;
+                  el.created = new Date(el.created.replace(/-/g, "/") + " UTC");
+                  el.lastModified = new Date(el.lastModified.replace(/-/g, "/") + " UTC");
+                  el.lastCallTimestamp = el.lastCallTimestamp ? new Date(el.lastCallTimestamp.replace(/-/g, "/") + " UTC") : null;
+                  el.lastReminderTimestamp = el.lastReminderTimestamp ? new Date(el.lastReminderTimestamp.replace(/-/g, "/") + " UTC") : null;
                   el.contactMethodSMS = el.contactMethods.indexOf('sms') !== -1;
                   el.contactMethodEmail = el.contactMethods.indexOf('email') !== -1;
                   el.status = {
@@ -184,8 +188,16 @@ class Callers extends Component {
           axios(callHistoryRequestOptions), 
           axios(reminderHistoryRequestOptions)
         ]).then(values => {
-          callerDetail['calls'] = values[0].data;
-          callerDetail['reminders'] = values[1].data;
+          callerDetail['calls'] = values[0].data.map((el)=>{
+            el.created = new Date(el.created.replace(/-/g, "/") + " UTC")
+            return el
+          });
+          callerDetail['reminders'] = values[1].data.map((el)=>{
+            el.timeSent = new Date(el.timeSent.replace(/-/g, "/") + " UTC")
+            return el
+          });
+          console.log("caller detail");
+          console.log(callerDetail);
         }).catch( e => {
           callerDetail['callReminderError'] = e.message;
         }).then(()=>{

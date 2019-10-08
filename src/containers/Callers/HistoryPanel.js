@@ -9,22 +9,22 @@ class HistoryPanel extends Component {
         const standardizedReminders = this.props.reminderHistory ? 
             this.props.reminderHistory.map((el)=>{
                 return {
-                    timestamp: new Date(el.timeSent),
-                    timestampStr: new Date(el.timeSent + " UTC").toDateString(),
+                    timestamp: el.timeSent,
+                    timestampStr: el.timeSent.toDateString(),
                     type: "Notification"
                 }
             }) : [];
         const standardizedCalls = this.props.callHistory ? 
             this.props.callHistory.map((el)=>{
                 return {
-                    timestamp: new Date(el.created),
-                    timestampStr: new Date(el.created + " UTC").toDateString(),
+                    timestamp: el.created,
+                    timestampStr: el.created.toDateString(),
                     type: "Call"
                 }
             }) : [];
         const concatenated = standardizedReminders.concat(standardizedCalls).concat({
-            timestamp: new Date(this.props.caller.created),
-            timestampStr: new Date(this.props.caller.created + " UTC").toDateString(),
+            timestamp: this.props.caller.created,
+            timestampStr: this.props.caller.created.toDateString(),
             type: "Sign Up"
         });
         
