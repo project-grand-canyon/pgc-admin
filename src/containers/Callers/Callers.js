@@ -50,7 +50,7 @@ class Callers extends Component {
           const bIndex = orderedList.indexOf(b.status.status);       
           const aScore = aIndex === -1 ? orderedList.length : aIndex;
           const bScore = bIndex === -1 ? orderedList.length : bIndex;
-          const diff = bScore - aScore;
+          const diff = aScore - bScore;
           if (diff !== 0 || a.status.status !== "LAPSED") {
             return diff;
           }
