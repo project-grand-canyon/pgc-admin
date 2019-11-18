@@ -45,7 +45,7 @@ class Callers extends Component {
     },{
         title: 'Call Status',
         dataIndex: 'status',
-		    key: 'status',
+        key: 'status',
         render: (status) => {
           return this.callStatusIcon(status);
         },
@@ -64,6 +64,8 @@ class Callers extends Component {
     },{
         title: 'Details',
         dataIndex: 'operation1',
+        fixed: 'right',
+        width: 50,
         render: (text, record) => {
           return (
             <div>
@@ -253,6 +255,8 @@ class Callers extends Component {
             bordered
             dataSource={this.state.callers}
             columns={this.columns}
+            scroll={{ x: 300 }}
+            scrollToFirstRowOnChange
             pagination={{
               onChange: (page)=>{this.onUnfocusCaller()},
             }}
