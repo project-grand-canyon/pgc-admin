@@ -38,6 +38,11 @@ class Callers extends Component {
         key: 'lastName',
         sorter: (a, b) => { return a.lastName.localeCompare(b.lastName)}
     },{
+      title: 'Call Day',
+      dataIndex: 'reminderDayOfMonth',
+      key: 'reminderDayOfMonth',
+      sorter: (a, b) => { return a.reminderDayOfMonth - b.reminderDayOfMonth}
+    },{
         title: 'Call Status',
         dataIndex: 'status',
 		    key: 'status',
