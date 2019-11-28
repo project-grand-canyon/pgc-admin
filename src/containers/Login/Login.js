@@ -42,6 +42,7 @@ class Login extends Component {
         const { getFieldDecorator } = this.props.form;
 
         const loginForm = (
+            <>
             <Form onSubmit={this.handleSubmit} className="login-form">
                 <Form.Item>
                     {getFieldDecorator('userName', {
@@ -64,6 +65,8 @@ class Login extends Component {
                     &nbsp;or <a href="/signup">Sign Up</a>
                 </Form.Item>
             </Form>
+            <a href="/request_password_reset">Forgot Password?</a>
+            </>
         );
 
         const loginPresentation = (this.props.loggingIn) ? <Spin /> : loginForm;
@@ -72,7 +75,7 @@ class Login extends Component {
             <div>
                 <Row>
                     <Col span={12} offset={6}>
-                        <h2>Login</h2>
+                    <Typography.Title level={2}>Login</Typography.Title>
                     </Col>
                     <Col span={12} offset={6}>
                         {loginPresentation}

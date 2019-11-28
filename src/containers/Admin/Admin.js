@@ -132,7 +132,9 @@ class Admin extends Component {
                 key: admin.email,
                 root: admin.root
             }
-        })
+        }).sort((a, b) => { 
+            return a.email.localeCompare(b.email)
+        });
     }
 
     getByDistrictSource() {

@@ -22,6 +22,8 @@ import TalkingPointSelection from '../TalkingPoints/TalkingPointSelection/Talkin
 import Representative from '../Representative/Representative';
 import Account from '../Account/Account';
 import Districts from '../Districts/Districts';
+import RequestPasswordReset from '../RequestPasswordReset/RequestPasswordReset';
+import FinishPasswordReset from '../FinishPasswordReset/FinishPasswordReset';
 
 import styles from './App.module.css';
 
@@ -57,6 +59,8 @@ class App extends Component {
             <Switch>
               <Route path="/" exact component={Home} />
               <Route path="/signup" component={SignUp} />
+              <Route path="/request_password_reset" component={RequestPasswordReset} />
+              <Route path="/finish_password_reset" component={FinishPasswordReset} />
               <Route path="/login" component={Login} />
               <PrivateRoute path="/dashboard" exact component={Dashboard} />
               <PrivateRoute path="/reports" component={Reports} />
