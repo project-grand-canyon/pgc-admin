@@ -154,6 +154,11 @@ class LoggedInWrapper extends Component {
                                 <span>Representative</span>
                                 <Link to="/representative" />
                             </Menu.Item>
+                            <Menu.Item key="admins">
+                                <Icon type="global" />
+                                <span>Admins</span>
+                                <Link to="/admins" />
+                            </Menu.Item>
                         </Menu>
                         <Menu>
                             <Menu.Item key="account">

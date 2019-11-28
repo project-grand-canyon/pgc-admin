@@ -7,6 +7,7 @@ import ReactGA from 'react-ga';
 import ScrollToTop from '../ScrollToTop/ScrollToTop';
 import PrivateRoute from '../../components/PrivateRoute/PrivateRoute';
 
+import Admin from '../Admin/Admin'
 import Home from '../Home/Home';
 import Dashboard from '../Dashboard/Dashboard';
 import SignUp from '../SignUp/SignUp';
@@ -66,6 +67,7 @@ class App extends Component {
               <PrivateRoute path="/talking-points" component={TalkingPoints} />
               <PrivateRoute path="/talking-points/selection" component={TalkingPointSelection} />
               <PrivateRoute path="/representative/" component={Representative} />
+              <PrivateRoute path="/admins/" component={Admin} />
               <PrivateRoute path="/account" component={Account} />
               <PrivateRoute path="/districts" component={Districts} />
               <Route render={() => {return <h2>404</h2>}} />

@@ -11,7 +11,9 @@ const displayName = (district) => {
         return `${district.state}-${district.number}`
     }
 
-    return `${district.state}-Sen (${Math.abs(district.number)})`
+    const junsen = Math.abs(district.number) === 1 ? "Sen." : "Jun.";
+
+    return `${district.state}-${junsen} Senator`
 }
 
 const comparator = (d1, d2) => {
