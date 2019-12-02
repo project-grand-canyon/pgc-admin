@@ -201,6 +201,9 @@ class AddEditTalkingPointModal extends Component {
 const AddNewTalkingPointForm = Form.create({
     name: 'add_new_talking_point_form',
     onValuesChange (props, changedValues, allValues) {
+        if (Object.keys(changedValues).indexOf('content') != -1) {
+            props.form.validateFields(['content']);
+        }
         if (changedValues && changedValues.scope) {
             props.form.resetFields(['subScope'])
         }
