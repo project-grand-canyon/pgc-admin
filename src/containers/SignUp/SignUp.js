@@ -5,7 +5,7 @@ import { connect } from 'react-redux';
 import axios from '../../_util/axios-api';
 import groupBy from '../../_util/groupBy';
 import { authHeader } from '../../_util/auth/auth-header';
-
+import { displayName } from '../../_util/district';
 import { userActions } from '../../_actions';
 
 // import styles from './SignUp.module.css';
@@ -27,15 +27,8 @@ class SignUp extends Component {
 
     componentDidMount = () => {
         axios.get('districts').then((response)=>{
-
-            const houseOfRepDistricts = response.data.filter((district) => { return parseInt(district.number) >= 0 });
-
-            this.setState({
-                congressionalDistricts: houseOfRepDistricts
-            });
-
-            const districtsByState = groupBy(houseOfRepDistricts, 'state');
-            console.log(districtsByState);
+            const districts = response.data;
+            const districtsByState = groupBy(districts, 'state');
             const cascaderDistricts = Object.keys(districtsByState).sort().map((state)=>{
                 return {
                     value: state,
@@ -46,7 +39,7 @@ class SignUp extends Component {
                     }).map((district) =>{
                         return {
                             value: district.districtId,
-                            title: `${state}-${district.number} (${district.repLastName})`,
+                            title: `${displayName(district)} (${district.repLastName})`,
                             selectable: true
                         }
                     })
@@ -132,6 +125,7 @@ class SignUp extends Component {
             allowClear: true,
             multiple: true,
             treeCheckable: false,
+            treeDefaultExpandAll: true,
             showCheckedStrategy: TreeSelect.SHOW_ALL,
             prefix: (<Icon type="environment" placeholder="Districts"/>)
         };
