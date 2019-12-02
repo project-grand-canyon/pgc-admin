@@ -154,6 +154,8 @@ class AddEditTalkingPointModal extends Component {
             return {
                 value: state,
                 title: state,
+                selectable: false,
+                disableCheckbox: true,
                 children: districtsByState[state].sort((a, b)=> {
                     return parseInt(a.number) - parseInt(b.number)
                 }).map((district) =>{
@@ -168,6 +170,7 @@ class AddEditTalkingPointModal extends Component {
         const tProps = {
             treeData,
             allowClear: true,
+            multiple: true,
             treeCheckable: true,
             showCheckedStrategy: TreeSelect.SHOW_PARENT,
             searchPlaceholder: 'Please select'
