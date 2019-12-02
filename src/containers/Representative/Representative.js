@@ -1,10 +1,10 @@
 import React, { Component } from 'react';
-import { Card, List, Modal, Skeleton, Form, Input, Button, Spin, Typography} from 'antd';
+import { Button, Card, Col, Form, Input, List, Modal, Row, Skeleton, Spin, Typography} from 'antd';
 
 import OfficeModal from './OfficeModal';
 
 import axios from '../../_util/axios-api';
-
+import { displayName } from '../../_util/district';
 
 import { authHeader } from '../../_util/auth/auth-header';
 import { connect } from 'react-redux';
@@ -65,34 +65,41 @@ class Representative extends Component {
     handleSubmit = (e) => {
         e.preventDefault();
         const self = this;
-        const formFields = this.props.form.getFieldsValue();
-        // TODO: use object destructuring to avoid re-setting things like callTargets that don't change
-        const body = {
-            "state":this.state.hydratedDistrict.state,
-            "number": this.state.hydratedDistrict.number,
-            "repFirstName": formFields.firstName,
-            "repLastName": formFields.lastName,
-            "repImageUrl": this.state.hydratedDistrict.repImageUrl,
-            "callTargets": this.state.hydratedDistrict.callTargets
-        }
-
-        this.setState({editing: true},()=>{
-            const requestOptions = {
-                url: `/districts/${this.props.district.districtId}/`,
-                method: 'PUT',
-                headers: { ...authHeader(), 'Content-Type': 'application/json' },
-                data: body
-            };
-            axios(requestOptions).then((response)=>{
-            }).catch((e) => {
-                Modal.error({
-                    title: "Error updating district",
-                    content: e.message,
-                });
-            }).then(()=>{
-                this.fetchDistrictDetails(()=>{self.setState({editing: false})})
-            })
-        })
+        const { validateFieldsAndScroll } = this.props.form;
+        validateFieldsAndScroll(null, {force: true}, (errors, formFields) => {
+            if (errors == null) {
+                // TODO: use object destructuring to avoid re-setting things like callTargets that don't change
+                const body = {
+                    "state":this.state.hydratedDistrict.state,
+                    "number": this.state.hydratedDistrict.number,
+                    "repFirstName": formFields.firstName,
+                    "repLastName": formFields.lastName,
+                    "repImageUrl": formFields.repImageUrl,
+                    "callTargets": this.state.hydratedDistrict.callTargets
+                }
+        
+                this.setState({editing: true},()=>{
+                    const requestOptions = {
+                        url: `/districts/${this.props.district.districtId}/`,
+                        method: 'PUT',
+                        headers: { ...authHeader(), 'Content-Type': 'application/json' },
+                        data: body
+                    };
+                    axios(requestOptions).then((response)=>{
+                    }).catch((e) => {
+                        Modal.error({
+                            title: "Error updating district",
+                            content: e.message,
+                        });
+                    }).then(()=>{
+                        this.fetchDistrictDetails(()=>{self.setState({editing: false})})
+                    })
+                })
+            }
+        
+        
+        
+        });
     }
 
     render() {
@@ -120,7 +127,7 @@ class Representative extends Component {
                 <div>
                     {dis &&
                         <>
-                        <Typography.Title level={2}>Representative {dis.repLastName} ({dis.state}-{dis.number})</Typography.Title>
+                        <Typography.Title level={2}>{displayName(dis)}</Typography.Title>
                         <Typography.Paragraph>
                             Use this page to edit information about your representative/district.
                         </Typography.Paragraph>
@@ -128,51 +135,70 @@ class Representative extends Component {
                     }
                 </div>
             </Skeleton>
-            <Form layout="vertical" onSubmit={this.handleSubmit}>
-                <Skeleton loading={isLoading} title={false}>
-                    {dis && (
-                    <Form.Item label="First Name">
-                        {getFieldDecorator('firstName', {
-                            rules: [{required: true, message: 'Representative\'s first name'}],
-                            initialValue: dis.repFirstName
-                        })(<Input />)}
-                    </Form.Item>
-                    )}
-                </Skeleton>
-                <Skeleton loading={isLoading} title={false}>
-                    {dis && (
-                    <Form.Item label="Last Name">
-                        {getFieldDecorator('lastName', {
-                            rules: [{required: true, message: 'Representative\'s last name'}],
-                            initialValue: dis.repLastName
-                        })(<Input />)}
-                    </Form.Item>
-                    )}
-                </Skeleton>
-                <Skeleton loading={isLoading}>
-                        { this.state.offices &&
-                            <>
-                                <h4>Offices</h4>
-                                <List
-                                    grid={{ gutter: 16, xs: 1, sm: 2, lg: 4 }}
-                                    dataSource={this.state.offices}
-                                    renderItem={office => (
-                                        this.officeListItem(office)
-                                    )}
-                                />
-                            </>
-                        }
-                </Skeleton>
-                <Skeleton loading={isLoading}>
-                    <Form.Item
-                        wrapperCol={{ span: 12, offset: 5 }}
-                        >
-                        <Button type="primary" htmlType="submit">
-                            Save
-                        </Button>
-                    </Form.Item>
-                </Skeleton>
-            </Form>
+            <Row>
+                <Col sm={24} md={16}>
+                    <Form layout="vertical" onSubmit={this.handleSubmit}>
+                        <Skeleton loading={isLoading} title={false}>
+                            {dis && (
+                            <Form.Item label="First Name">
+                                {getFieldDecorator('firstName', {
+                                    rules: [{required: true, message: 'Representative\'s first name'}],
+                                    initialValue: dis.repFirstName
+                                })(<Input />)}
+                            </Form.Item>
+                            )}
+                        </Skeleton>
+                        <Skeleton loading={isLoading} title={false}>
+                            {dis && (
+                            <Form.Item label="Last Name">
+                                {getFieldDecorator('lastName', {
+                                    rules: [{required: true, message: 'Representative\'s last name'}],
+                                    initialValue: dis.repLastName
+                                })(<Input />)}
+                            </Form.Item>
+                            )}
+                        </Skeleton>
+                        <Skeleton loading={isLoading} title={false}>
+                            {dis && (
+                            <Form.Item label="Photo URL">
+                                {getFieldDecorator('repImageUrl', {
+                                    rules: [{required: true, message: 'A link to the Representative\'s photo'},
+                                            {type: 'url', message: 'Must be a valid URL. For example, http://www.person4congress.com/photo.jpg'}
+                                    ],
+                                    initialValue: dis.repImageUrl
+                                })(<Input />)}
+                            </Form.Item>
+                            )}
+                        </Skeleton>
+                        <Skeleton loading={isLoading}>
+                                { this.state.offices &&
+                                    <>
+                                        <h4>Offices</h4>
+                                        <List
+                                            grid={{ gutter: 16, xs: 1, sm: 2, lg: 4 }}
+                                            dataSource={this.state.offices}
+                                            renderItem={office => (
+                                                this.officeListItem(office)
+                                            )}
+                                        />
+                                    </>
+                                }
+                        </Skeleton>
+                        <Skeleton loading={isLoading}>
+                            <Form.Item
+                                wrapperCol={{ span: 12, offset: 5 }}
+                                >
+                                <Button type="primary" htmlType="submit">
+                                    Save
+                                </Button>
+                            </Form.Item>
+                        </Skeleton>
+                    </Form>
+                </Col>
+                <Col sm={24} md={8}>
+                    {dis && (<img alt={`${displayName(dis)} legislator photo`} src={`${dis.repImageUrl}`} />)}
+                </Col>
+            </Row>
         </>)
     }
 
