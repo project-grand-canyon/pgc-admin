@@ -72,7 +72,6 @@ class Representative extends Component {
             "number": this.state.hydratedDistrict.number,
             "repFirstName": formFields.firstName,
             "repLastName": formFields.lastName,
-            "info": formFields.shortBio,
             "repImageUrl": this.state.hydratedDistrict.repImageUrl,
             "callTargets": this.state.hydratedDistrict.callTargets
         }
@@ -147,17 +146,6 @@ class Representative extends Component {
                             rules: [{required: true, message: 'Representative\'s last name'}],
                             initialValue: dis.repLastName
                         })(<Input />)}
-                    </Form.Item>
-                    )}
-                </Skeleton>
-                <Skeleton loading={isLoading} title={false}>
-                    {dis && (
-                    <Form.Item label="Short Bio">
-                        {getFieldDecorator('shortBio', {
-                            rules: [{required: true, message: 'A couple of sentences about the Representative.'},
-                                    {max: 512, message:'The message must not exceed 512 characters.'}],
-                            initialValue: dis.info
-                        })(<Input.TextArea rows={3} />)}
                     </Form.Item>
                     )}
                 </Skeleton>
