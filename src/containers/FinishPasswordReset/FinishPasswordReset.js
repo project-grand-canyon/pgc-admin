@@ -7,7 +7,7 @@ class FinishPasswordReset extends Component {
 
     state = {
         requestStage: "verifying",
-        email: null,
+        userName: null,
         token: null
     }
 
@@ -40,13 +40,13 @@ class FinishPasswordReset extends Component {
             data: `"${token}"`
         };
         axios(requestOptions).then((response)=>{
-            if (response.status !== 200 || (!response.data || !response.data.email)) {
+            if (response.status !== 200 || (!response.data || !response.data.userName)) {
                 throw Error("Non-200 response");
             }
-            const email = response.data.email;
+            const userName = response.data.userName;
             this.setState({
                 requestStage: "verified",
-                email: email
+                userName: userName
             })
         }).catch((error) => {
             this.setState({
@@ -57,7 +57,7 @@ class FinishPasswordReset extends Component {
     }
 
     doReset(formValues) {
-        if (this.state.token === null || this.state.email === null) {
+        if (this.state.token === null || this.state.userName === null) {
             this.setState({
                 requestStage: "bad-token"
             });
@@ -88,8 +88,8 @@ class FinishPasswordReset extends Component {
     }
 
     getSuccess() {
-        return <Alert message="Password Was Successfully Reset"
-        description={<Typography.Text>You can now <a href="/login">login</a>.</Typography.Text>}
+        return <Alert message={`Success`}
+    description={<Typography.Text>Password Was successfully reset for username <Typography.Text underline code>{this.state.userName}</Typography.Text>. You can now <a href="/login">login</a>.</Typography.Text>}
         type="success"></Alert>
     }
 
@@ -109,7 +109,7 @@ class FinishPasswordReset extends Component {
         const { getFieldDecorator } = this.props.form;
         return (
             <>
-                <Typography.Text>Resetting for: {this.state.email}</Typography.Text>
+                <Typography.Text>Resetting for username: {this.state.userName}</Typography.Text>
                 <Form onSubmit={this.handleSubmit} className="login-form">
                     <Form.Item label="Enter a New Password">
                         {getFieldDecorator('password', {
