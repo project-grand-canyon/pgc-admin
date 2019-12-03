@@ -16,7 +16,9 @@ export function districts(state = initialState, action) {
 				refreshed: true
 			};
 		case districtsConstants.FAILURE:
-			return {};
+			return {
+				error: action.error
+			};
 		case districtsConstants.SELECT:
 			return {
 				...state,

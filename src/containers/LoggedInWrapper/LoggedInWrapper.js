@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import { Link, Redirect, withRouter } from 'react-router-dom';
-import { Select, Spin, Icon, Layout, Menu, Typography } from 'antd';
+import { Select, Spin, Icon, Layout, Menu, Typography, Modal } from 'antd';
 import { connect } from 'react-redux';
 
 import { districtsActions, adminActions } from '../../_actions';
@@ -48,6 +48,12 @@ class LoggedInWrapper extends Component {
         } else if (!this.props.selectedDistrict && this.state.editableDistricts.length > 0) {
             this.selectFirstEditableDistrict();
         }
+
+        if (this.props.districtFetchError !== null && this.props.districtFetchError !== prevProps.districtFetchError) {
+            let message = JSON.stringify(this.props.districtFetchError);
+            Modal.error({title: "Loading Error", content: (<><Typography.Paragraph>Logging out and back in will probably fix it.</Typography.Paragraph><Typography.Paragraph>{message}</Typography.Paragraph></>)})
+        }
+
     }
 
     selectFirstEditableDistrict = () => {
@@ -70,7 +76,11 @@ class LoggedInWrapper extends Component {
 
     getSelectDistrict = () => {
         const hasDistricts = this.state.editableDistricts.length > 0 && this.props.selectedDistrict;
-        const selectDistrict = hasDistricts ? (
+        
+        let selectDistrict;
+        
+        if (hasDistricts) {
+            selectDistrict = (
                 <Select
                     defaultValue={displayName(this.props.selectedDistrict)}
                     onChange={this.handleChangeDistrict}
@@ -83,8 +93,13 @@ class LoggedInWrapper extends Component {
 						)
 					})}
 				</Select>
-          ) : <Spin />;
-          return selectDistrict;
+            )
+                } else if (this.props.districtFetchError) {
+                    selectDistrict = <Typography.Text>Error</Typography.Text>;
+                } else {
+                    selectDistrict = <Spin />;
+                }
+            return selectDistrict;
     }
 
     render() {
@@ -186,6 +201,7 @@ const mapStateToProps = state => {
     const { loggedIn } = authentication;
     return {
         districts: state.districts.districts,
+        districtFetchError: state.districts.error,
         admin: state.admin.admin,
         selectedDistrict: state.districts.selected,
         loggedIn

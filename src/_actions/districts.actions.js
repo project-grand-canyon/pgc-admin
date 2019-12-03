@@ -15,7 +15,7 @@ function refresh() {
                     dispatch(success(districts));
                 },
                 error => {
-                    dispatch(failure(error.toString()));
+                    dispatch(failure(error));
                 }
             );
     };
