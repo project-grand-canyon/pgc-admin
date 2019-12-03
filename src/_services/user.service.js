@@ -38,7 +38,7 @@ function handleBadResponse(error) {
     if (error.response.status === 401) {
         logout();
         console.log('401')
-        return Promise.reject(new Error('Unauthorized/Invalid Credentials'))
+        return Promise.reject(new Error('Wrong username/password'))
     }
     if (error.response.status >= 400) {
         console.log('other')
