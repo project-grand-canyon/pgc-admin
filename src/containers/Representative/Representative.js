@@ -196,7 +196,7 @@ class Representative extends Component {
                     </Form>
                 </Col>
                 <Col sm={24} md={8}>
-                    {dis && (<img alt={`${displayName(dis)} legislator photo`} src={`${dis.repImageUrl}`} />)}
+                    {dis && (<img alt={`${displayName(dis)} legislator`} src={`${dis.repImageUrl}`} />)}
                 </Col>
             </Row>
         </>)
