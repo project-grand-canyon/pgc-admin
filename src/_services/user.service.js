@@ -13,7 +13,6 @@ function login(username, password) {
         data: { 'userName': username, 'password': password }
     };
     return axios(requestOptions).then((response)=>{
-            console.log('login service: login - got response');
             const token = response.data.accessToken;
             const expiration = Date.now() + (1000 * response.data.expiresIn);
             localStorage.setItem('user', token);

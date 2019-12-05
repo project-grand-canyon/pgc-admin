@@ -19,7 +19,7 @@ function refresh(username) {
     return axios(requestOptions).then((response)=>{
             const admins = response.data;
             const admin = admins.find((el)=>{
-                return el.userName === username
+                return el.userName.toLowerCase() === username.toLowerCase()
             });
             localStorage.setItem('admin', admin)
             return admin;
