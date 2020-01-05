@@ -12,7 +12,6 @@ export function admin(state = initialState, action) {
 				refreshing: true
 			};
 		case adminConstants.SUCCESS:
-			console.log(action);
 		  return {
 				admin: action.admin,
 				refreshed: true

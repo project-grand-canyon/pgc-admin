@@ -6,7 +6,7 @@ import { store } from './_util/auth/store';
 
 import * as serviceWorker from './serviceWorker';
 import App from './containers/App/App';
-
+import "typeface-ubuntu";
 import './index.css';
 
 const app = (

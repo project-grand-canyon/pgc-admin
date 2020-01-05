@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import { Link, Redirect, withRouter } from 'react-router-dom';
-import { Select, Spin, Icon, Layout, Menu, Typography, Modal } from 'antd';
+import { Select, Spin, Icon, Layout, Menu, Typography, Modal, Row, Col } from 'antd';
 import { connect } from 'react-redux';
 
 import { districtsActions, adminActions } from '../../_actions';
@@ -30,9 +30,7 @@ class LoggedInWrapper extends Component {
             var newEditibleDistricts = []
             if (!this.props.districts || this.props.districts.length === 0 || !this.props.admin){
                 // no-op
-                console.log('no-op')
             } else if (this.props.admin.root) {
-                console.log('root')
                 newEditibleDistricts = this.props.districts.sort(districtComparator);
             } else {
                 const sortedAndFiltered = this.props.districts.filter(el => {
@@ -109,8 +107,12 @@ class LoggedInWrapper extends Component {
         }
         return(
             <Layout>
-                <Layout.Header style={{background: 'white'}}>
-                    <div style={{text: 'white'}}><Typography.Title level={1}>Project Grand Canyon - Admin</Typography.Title></div>
+                <Layout.Header style={{background: 'white', lineHeight: '64px' }}>
+                    <Row type="flex" justify="space-around" align="middle" style={{height: "100%"}}>
+                        <Col>
+                            <Typography.Title level={1} style={{margin: "0"}}>Monthly Calling Campaign - Admin</Typography.Title>
+                        </Col>
+                    </Row>
                 </Layout.Header>
                 <Layout>
                     <Layout.Sider
@@ -118,8 +120,10 @@ class LoggedInWrapper extends Component {
                         collapsedWidth="0"
                         width={250}
                         style={{ background: '#fff' }}>
-				        <span>Editing district: </span>
-                        {selectDistrict}
+				        <div style={{textAlign: "center"}}>
+                            <span>Editing district: </span>
+                            {selectDistrict}
+                        </div>
                         <Menu
                         mode="inline"
                         defaultSelectedKeys={['1']}
@@ -183,13 +187,18 @@ class LoggedInWrapper extends Component {
                             </Menu.Item>
                         </Menu>
                     </Layout.Sider>
-                    <Layout.Content style={{ padding: 24, minHeight: 280}}>
+                    <Layout.Content style={{ padding: "24px 48px", minHeight: 280}}>
                     {this.props.children}
                     </Layout.Content>
                 </Layout>
-                <Layout.Footer >
-                    <Typography.Text>Questions or feedback? <a href="https://forms.gle/R8xavqpe4zKM2VmK9" target="_blank" rel="noopener noreferrer">Contact Us</a></Typography.Text>
-                    <div style={{text: 'white'}}></div>
+                <Layout.Footer style={{textAlign: "center"}}>
+                    <Row type="flex" justify="center">
+                    <Col >
+                        <Typography.Text>Questions or feedback? <a href="https://forms.gle/R8xavqpe4zKM2VmK9" target="_blank" rel="noopener noreferrer">Contact Us</a></Typography.Text>
+                    </Col>
+                    </Row>
+                    
+                    
                 </Layout.Footer>
             </Layout>
         );

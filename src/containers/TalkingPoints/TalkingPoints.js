@@ -2,20 +2,19 @@ import React, { Component } from 'react';
 import { Redirect } from 'react-router-dom';
 import moment from 'moment';
 import { connect } from 'react-redux';
-import { Button, Checkbox, Col, Form, Input, List, message, Modal, DatePicker, Row, Select, Skeleton, Spin, Typography } from 'antd';
+import { Button, Checkbox, Col, Form, Icon, Input, List, message, Modal, DatePicker, Row, Select, Skeleton, Spin, Typography } from 'antd';
 import get from "lodash/get"
 
 import axios from '../../_util/axios-api';
 import { authHeader } from '../../_util/auth/auth-header';
 import AddEditTalkingPointModal from './AddEditTalkingPointModal'
 
-import TalkingPointCard from '../../components/TalkingPointCard/TalkingPointCard';
-
 import './TalkingPoints.module.css';
 
 class TalkingPoints extends Component {
 
     state = {
+        loading: true,
         allTalkingPoints: null,
         themes: null,
         searchTerm: null,
@@ -33,32 +32,42 @@ class TalkingPoints extends Component {
     }
 
     fetchData = (cb) => {
-
-        // TODO: Promise.all
-
         if (!this.props.districts || !this.props.district) {
             return;
         }
 
-        const adminsRequestOptions = {
-            url: `/admins`,
-            method: 'GET',
-            headers: { ...authHeader(), 'Content-Type': 'application/json' },
-        };
-        axios(adminsRequestOptions).then((response)=>{
-                this.setState({admins: response.data})
-            }).catch((e) => {
-                console.log(e)
-            })
-
-        const talkingPointRequestOptions = {
-            url: `/talkingpoints`,
-            method: 'GET',
-            headers: { ...authHeader(), 'Content-Type': 'application/json' },
-        };
-        axios(talkingPointRequestOptions).then((response)=>{
-
-                const sortedTPs = response.data.sort((el1, el2)=>{
+        this.setState({loading: true}, () => {
+            const adminsRequestOptions = {
+                url: `/admins`,
+                method: 'GET',
+                headers: { ...authHeader(), 'Content-Type': 'application/json' },
+            };
+            const getAdmins = axios(adminsRequestOptions);
+            const talkingPointRequestOptions = {
+                url: `/talkingpoints`,
+                method: 'GET',
+                headers: { ...authHeader(), 'Content-Type': 'application/json' },
+            };
+            const getTPs = axios(talkingPointRequestOptions);
+            const themesRequestOptions = {
+                url: `/themes`,
+                method: 'GET',
+                headers: { ...authHeader(), 'Content-Type': 'application/json' },
+            };
+            const getThemes = axios(themesRequestOptions);
+            const liveTalkingPointsRequestOptions = {
+                url: `districts/${this.props.district.districtId}/script`,
+                method: 'GET',
+                headers: { ...authHeader(), 'Content-Type': 'application/json' },
+            };
+            const getLiveTPs = axios(liveTalkingPointsRequestOptions);
+            
+            Promise.all([getAdmins, getTPs, getThemes, getLiveTPs]).then((response)=>{
+                const admins = response[0].data;
+                const talkingPoints = response[1].data;
+                const themes = response[2].data;
+                const liveTPs = response[3].data;
+                const sortedTPs = talkingPoints.sort((el1, el2)=>{
                     const d1 = new Date(el1.created)
                     const d2 = new Date(el2.created)
                     if (d1 < d2) {
@@ -67,35 +76,27 @@ class TalkingPoints extends Component {
                         return -1
                     }
                 })
-
-                this.setState({allTalkingPoints: sortedTPs});
-            }).catch((e) => {
-                console.log(e)
-            })
-
-        const themesRequestOptions = {
-            url: `/themes`,
-            method: 'GET',
-            headers: { ...authHeader(), 'Content-Type': 'application/json' },
-        };
-        axios(themesRequestOptions).then((response)=>{
-            this.setState({themes: response.data});
-        }).catch((e) => {
-            console.log(e)
-        })
-
-        const liveTalkingPointsRequestOptions = {
-            url: `districts/${this.props.district.districtId}/script`,
-            method: 'GET',
-            headers: { ...authHeader(), 'Content-Type': 'application/json' },
-        };
-        axios(liveTalkingPointsRequestOptions).then((response)=>{
-                this.setState({liveTalkingPoints: response.data});
+    
+                this.setState({
+                    allTalkingPoints: sortedTPs,
+                    admins: admins,
+                    themes: themes,
+                    liveTalkingPoints: liveTPs
+                }, () => {
+                    this.setState({
+                        loading: false
+                    });
+                });
             }).catch((e) => {
                 console.log(e)
             }).then(()=>{
-                cb && cb()
+                this.setState({
+                    loading: false
+                }, () => {
+                    cb && cb()
+                });
             })
+        });
     }
 
     componentDidUpdate(prevProps, prevState) {
@@ -114,7 +115,6 @@ class TalkingPoints extends Component {
         }
 
         const filters = this.state.filters;
-
         const presentableTalkingPoints = [...this.state.allTalkingPoints].filter(el =>{
             if (filters && filters.creationDate && filters.creationDate.length > 0) {
                 const creationDateRange = this.state.filters.creationDate;
@@ -150,7 +150,6 @@ class TalkingPoints extends Component {
             return true;
         }).filter((el)=>{
             if (filters && filters.scope) {
-                console.log(filters.scope)
                 var shouldShow = filters.scope.length === 0;
                 // "state", "national", "district"
                 if (filters.scope.includes("national")
@@ -180,10 +179,11 @@ class TalkingPoints extends Component {
                 return el.content.toLowerCase().includes(this.state.searchTerm.toLowerCase())
             }
             return true;
+        }).map((el, idx)=> {
+            el['bg'] = idx % 2 === 0 ? "white" : 'rgba(0,0,0,0)';
+            return el
         })
-
-        return presentableTalkingPoints;
-
+        return presentableTalkingPoints.slice(0, 30)
     }
 
     handleFilterChange = (filtersForm) => {
@@ -301,7 +301,8 @@ class TalkingPoints extends Component {
 
         return <>
             {this.header()}
-            <Skeleton loading={this.hasTalkingPoints() === false}>
+            <Spin spinning={this.state.loading} size="large" />
+            <Skeleton loading={this.state.loading}>
                 {this.addEditTalkingPointModal()}
                 {this.searchbar()}
                 {this.filterBox()}
@@ -311,7 +312,7 @@ class TalkingPoints extends Component {
     }
 
     searchbar = () => {
-        return (<div style={{margin: "10px", position: "relative"}}>
+        return (<div style={{ padding: "10px 0", position: "relative"}}>
             <Typography.Title level={3}>Search</Typography.Title>
             <Input.Search
                 style={{ width: 280 }}
@@ -337,7 +338,7 @@ class TalkingPoints extends Component {
         }
         const { getFieldDecorator } = this.props.form;
         return(
-            <div style={{margin: "10px", border: "1px solid black", padding: "10px"}}>
+            <div style={{border: "1px solid black", padding: "10px"}}>
             <Typography.Title level={3}>Filters</Typography.Title>
             <Form onSubmit={this.handleFilter}>
                 <Row>
@@ -356,7 +357,7 @@ class TalkingPoints extends Component {
                         </Form.Item>
                     </Col>
                 </Row>
-                <Row>
+                <Row gutter={[{ xs: 8, sm: 16, md: 24, lg: 32 }, 20]}>
                     <Col sm={24} md={8} >
                         <Form.Item label="Relevance">
                             {getFieldDecorator("scope", {})(
@@ -461,12 +462,14 @@ class TalkingPoints extends Component {
         if (this.state.editing) {
             return <Spin size="large" />
         }
-        return <List
-            grid={{
-                gutter: 16, xs: 1, lg: 2, xxl: 3
-            }}
+        return <List 
+            style={{margin: "10px 0"}}
+            bordered={false}
+            itemLayout="vertical"
+            // grid={{
+            //     gutter: [{ xs: 8, sm: 16, md: 24, lg: 32 }, 20], column: 1       
+            // }}
         header={<Typography.Title level={3}>Search Results</Typography.Title>}
-            bordered
             dataSource={this.presentableTalkingPoints()}
             renderItem={item => {
                 const theme = this.state.themes.find((el) => {
@@ -475,29 +478,45 @@ class TalkingPoints extends Component {
                 const createdBy = this.state.admins.find((el)=> {
                     return el.adminId === item.createdBy
                 })
-                const districts = item.districts.map((itemEl) => {
-                    return this.props.districts.filter((districtEl)=>{
-                        return districtEl.districtId === itemEl;
-                    }).map((foundEl) => {
-                        return `${foundEl.state}-${foundEl.number}`
-                    })
-                });
 
-                const applicablePlaces = (item.scope === "district") ? districts.join(", ") :
-                (item.scope === "states") ? item.states.join(", ") : "Nationwide";
+                const reference = item.referenceUrl ?
+                    <Typography.Text copyable={{ text: item.referenceUrl }}>
+                        <a target="_blank" href={item.referenceUrl} rel="noopener noreferrer">Reference URL</a>
+                    </Typography.Text> : null;
 
-                return <List.Item>
-                    <TalkingPointCard
+                const createdDate = new Date(item.created.replace(/-/g, "/") + " UTC");
+                const createdByDesc = createdBy && createdBy.email ?
+                <><Typography.Text style={{fontStyle: "italic"}}>Created on {createdDate.toDateString()} by: </Typography.Text><Typography.Text style={{fontStyle: "italic", color: "#0081C7"}} copyable={{ text: createdBy.email }}>{createdBy.email} </Typography.Text></>
+                     : null;
+                const description = createdByDesc
+
+                const isInScript = this.state.liveTalkingPoints.includes(item.talkingPointId)
+                return <List.Item
+                    style={{background: item.bg, padding: "10px"}}
+                    key={item.talkingPointId}
+                    extra={reference}
+                    actions={[
+                        <span>
+                            <Icon style={{ marginRight: 8, color: "#0081C7" }} type={isInScript ? "check-square" : "border"} onClick={(e)=> {
+                                this.toggleTalkingPointInclusionInScript(item.talkingPointId)
+                            } }/>
+                            <Typography.Text>In Script</Typography.Text>
+                        </span>,
+                        <span>
+                            <Icon style={{ marginRight: 8 }} type="edit" theme="twoTone" twoToneColor="#0081C7" onClick={(e)=> {
+                                this.initiateEditTalkingPoint(item)
+                            } } />
+                            <Typography.Text>Edit</Typography.Text>
+                        </span> 
+                    ]}
+                >
+                    <List.Item.Meta
                         title={theme.name}
-                        talkingPoint={item}
-                        applicablePlaces={applicablePlaces}
-                        createdBy={createdBy}
-                        isInScript={this.state.liveTalkingPoints.includes(item.talkingPointId)}
-                        handleScriptToggle={(id)=>{this.toggleTalkingPointInclusionInScript(id)}}
-                        handleEditTalkingPoint={(details)=>{this.initiateEditTalkingPoint(details)}}
+                        description= {description}
                     />
+                        <Typography.Paragraph>{item.content}</Typography.Paragraph>
                 </List.Item>
-            }
+                }
             }
         />
     }

@@ -194,7 +194,7 @@ class CallDistribution extends Component {
             return (
                 <Form.Item
                     key={district.districtId}
-                    label={(<Typography.Text>{displayName(district)} {district.repLastName} (<a href={`http://www.projectgrandcanyon.com/call/${district.state}/${district.number}`} target="_blank" rel="noopener noreferrer">Call-In Guide</a>)</Typography.Text>)}
+                    label={(<Typography.Text>{displayName(district)} {district.repLastName} (<a href={`http://www.cclcalls.org/call/${district.state}/${district.number}`} target="_blank" rel="noopener noreferrer">Call-In Guide</a>)</Typography.Text>)}
                     >
                     {getFieldDecorator(`${district.districtId}`, {
                         rules: [

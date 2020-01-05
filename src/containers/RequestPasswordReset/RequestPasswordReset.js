@@ -107,7 +107,7 @@ class RequestPasswordReset extends Component {
                     </Col>
                 </Row>
                 <Row>
-                    <Col>
+                    <Col offset={6}>
                         <Typography.Text>Questions or feedback? <a href="https://forms.gle/R8xavqpe4zKM2VmK9" target="_blank" rel="noopener noreferrer">Contact Us</a></Typography.Text>
                     </Col>
                 </Row>

@@ -109,7 +109,7 @@ class SignUp extends Component {
         if (this.state.submissionStage === "successfullySubmitted") {
             Modal.success({
                 title: "Sign Up Successful",
-                content: "Your registration must be reviewed by Project Grand Canyon admins prior to activation. You will receive an email when your account has been activated.",
+                content: "Your registration must be reviewed by Monthly Calling Campaign admins prior to activation. You will receive an email when your account has been activated.",
                 onOk: (e) => {return new Promise((resolve, reject) => {
                     this.setState({submissionStage: "unsubmitted"})
                     return resolve();
@@ -132,7 +132,7 @@ class SignUp extends Component {
         return (<>
             <div>
                 <Row>
-                    <Col span={20} offset={2}>
+                    <Col span={12} offset={6}>
                         <Typography.Title level={2}>Register to be a Talking Points Manager</Typography.Title>
                         <Typography.Paragraph>As a Talking Points Manager, you will be responsible for updating the talking points and the Member of Congress details for your congressional district(s).</Typography.Paragraph>
                     </Col>
@@ -176,7 +176,7 @@ class SignUp extends Component {
                     </Col>
                 </Row>
                 <Row>
-                    <Col>
+                    <Col offset={6}>
                         <Typography.Text>Questions or feedback? <a href="https://forms.gle/R8xavqpe4zKM2VmK9" target="_blank" rel="noopener noreferrer">Contact Us</a></Typography.Text>
                     </Col>
                 </Row>

@@ -277,7 +277,7 @@ class Script extends Component {
                 {this.state.hydratedDistrict &&
                 <div style={{padding: "10px", display: "flex", justifyContent: "center"}}>
                     <Button style={{marginRight: "5px"}} ><Link to="/talking-points">Add a Talking Point</Link></Button>
-                    <Button style={{marginLeft: "5px"}} target="_blank" href={`http://www.projectgrandcanyon.com/call/${this.state.hydratedDistrict.state.toLowerCase()}/${this.state.hydratedDistrict.number}`}>View the Live Script</Button>
+                    <Button style={{marginLeft: "5px"}} target="_blank" href={`http://www.cclcalls.org/call/${this.state.hydratedDistrict.state.toLowerCase()}/${this.state.hydratedDistrict.number}`}>View the Live Script</Button>
                 </div>}
             </Skeleton>
         )

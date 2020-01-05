@@ -8,7 +8,6 @@ import ScrollToTop from '../ScrollToTop/ScrollToTop';
 import PrivateRoute from '../../components/PrivateRoute/PrivateRoute';
 
 import Admin from '../Admin/Admin'
-import Home from '../Home/Home';
 import Dashboard from '../Dashboard/Dashboard';
 import SignUp from '../SignUp/SignUp';
 import Login from '../Login/Login';
@@ -57,7 +56,7 @@ class App extends Component {
       <ScrollToTop>
         <div className={styles.App}>
             <Switch>
-              <Route path="/" exact component={Home} />
+              <Route path="/" exact component={Login} />
               <Route path="/signup" component={SignUp} />
               <Route path="/request_password_reset" component={RequestPasswordReset} />
               <Route path="/finish_password_reset" component={FinishPasswordReset} />

@@ -21,7 +21,7 @@ function refresh(username) {
             const admin = admins.find((el)=>{
                 return el.userName.toLowerCase() === username.toLowerCase()
             });
-            localStorage.setItem('admin', admin)
+            localStorage.setItem('admin', JSON.stringify(admin))
             return admin;
         }).catch(handleBadResponse)
 }

@@ -13,7 +13,6 @@ class Account extends Component {
     }
 
     render() {
-        console.log('account render');
         return (
             <>
                 <Button type="danger" onClick={this.logout}>Logout</Button>

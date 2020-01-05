@@ -47,6 +47,7 @@ class Callers extends Component {
         dataIndex: 'status',
         key: 'status',
         render: (status) => {
+          console.log(status)
           return this.callStatusIcon(status);
         },
         sorter: (a, b) => {
@@ -81,10 +82,11 @@ class Callers extends Component {
     ];
 
     callStatusIcon = (status) => {
+      console.log(status);
       switch (status.status) {
         case('CURRENT'): return <Popover content="This is an active caller." title="Current" trigger="hover"><Icon type="smile" theme="twoTone" twoToneColor="#52c41a" /></Popover>
         case('BRAND_NEW'): return <Popover content="This person hasn't been asked to call yet." title="Brand New" trigger="hover"> <Icon type="smile" theme="twoTone" /></Popover>
-        case('PAUSED'): return <Popover content="This person has paused call notifications. They are not participating in Project Grand Canyon." title="Paused" trigger="hover"> <Icon type="pause-circle" theme="twoTone" twoToneColor="tan" /></Popover>
+        case('PAUSED'): return <Popover content="This person has paused call notifications. They are not participating in the Monthly Calling Campaign." title="Paused" trigger="hover"> <Icon type="pause-circle" theme="twoTone" twoToneColor="tan" /></Popover>
         case('WAITING'): return <Popover content="This person just recently got their notification, and they haven't made their call yet." title="Waiting For Call" trigger="hover"> <Icon type="message" theme="twoTone" twoToneColor="tan" /></Popover>
         case('LAPSED'): 
         return <Popover content={`This person has not called for ${status.monthsMissedCount} ${status.monthsMissedCount === 1 ? "month" : "months"}`} title="Lapsed" trigger="hover">
@@ -98,7 +100,7 @@ class Callers extends Component {
             ) : (
                   <div style={{display: "inherit"}}>
                     { 
-                      Array(status.monthsMissedCount).fill().map((el, idx)=>{
+                      Array(status.monthsMissedCount > 1 ? status.monthsMissedCount : 1).fill().map((el, idx)=>{
                         return <Icon key={idx} type="phone" theme="twoTone" twoToneColor="red" />
                       })
                     }
@@ -203,8 +205,6 @@ class Callers extends Component {
             el.timeSent = new Date(el.timeSent.replace(/-/g, "/") + " UTC")
             return el
           });
-          console.log("caller detail");
-          console.log(callerDetail);
         }).catch( e => {
           callerDetail['callReminderError'] = e.message;
         }).then(()=>{

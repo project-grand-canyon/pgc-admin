@@ -13,7 +13,6 @@ class Districts extends Component {
     }
 
     componentDidMount() {
-        console.log('hi');
         const requestOptions = {
             url: `/districts/${this.props.district}`,
             method: 'GET',
@@ -27,7 +26,6 @@ class Districts extends Component {
     }
 
     render() {
-        console.log('hi');
         return <></>;
     }
 }

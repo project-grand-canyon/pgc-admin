@@ -54,7 +54,6 @@ class AddEditTalkingPointModal extends Component {
                 content: this.props.talkingPointUnderEdit['content']
             });
             if (subScope){
-                console.log(subScope)
                 this.props.form.setFieldsValue({subScope: subScope})
             }
             if (this.props.talkingPointUnderEdit.referenceUrl) {

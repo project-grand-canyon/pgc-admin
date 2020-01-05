@@ -23,26 +23,20 @@ function login(username, password) {
 
 function logout() {
     // remove user from local storage to log user out
-    console.log('login service: logout');
     localStorage.removeItem('user');
     localStorage.removeItem('username')
 }
 
 function handleBadResponse(error) {
-    console.log(error.message)
     if (!error.response) {
-        console.log('blank')
         return Promise.reject(error)
     }
     if (error.response.status === 401) {
         logout();
-        console.log('401')
         return Promise.reject(new Error('Wrong username/password'))
     }
     if (error.response.status >= 400) {
-        console.log('other')
         return Promise.reject(error.response.data || error.response.statusText)
     }
-    console.log('other other')
     return Promise.resolve(error.response);
 }

@@ -36,7 +36,7 @@ class Home extends Component {
 
         return (
             <>
-                <h1>Project Grand Canyon Admin</h1>
+                <h1>CCL's Monthly Calling Congress Campaign Admin Portal</h1>
                 {links}
             </>
         );

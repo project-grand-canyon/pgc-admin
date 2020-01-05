@@ -7,7 +7,7 @@ class Dashboard extends Component {
     render() {
         return (
             <>
-                <Typography.Title level={2}>Welcome to the Project Grand Canyon Admin Dashboard</Typography.Title>
+                <Typography.Title level={2}>Welcome to the Monthly Calling Campaign Admin Dashboard</Typography.Title>
                 <Skeleton loading={this.props.selectedDistrict == null}>
                     {this.props.selectedDistrict &&
                         <Typography.Paragraph>
@@ -15,7 +15,7 @@ class Dashboard extends Component {
                         </Typography.Paragraph>
                     }
                 </Skeleton>
-                <Typography.Paragraph>If you have any questions, contact the developer, Ben Boral, at 512-565-8543 or boralben@gmail.com.</Typography.Paragraph>
+                <Typography.Paragraph>If you have any questions, contact us as admin-support@cclcalls.org.</Typography.Paragraph>
             </>
             );
     }

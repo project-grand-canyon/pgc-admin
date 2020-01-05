@@ -10,11 +10,15 @@ class Admin extends Component {
         admins: null,
         districts: null,
         fetchError: null,
+        currentUser: null,
         mode: 'district'
     };
 
     componentDidMount(){
         this.fetchAdmins();
+        // this.setState({currentUser: }, () => {
+        //     this.fetchAdmins();
+        // })
     }
 
     fetchAdmins(){
@@ -36,7 +40,6 @@ class Admin extends Component {
             .then((responses)=>{
                 const admins = responses[0].data.filter((admin)=>{return admin.loginEnabled});
                 const districts = responses[1].data;
-                
                 this.setState({
                     admins: admins,
                     districts: districts,
@@ -196,6 +199,15 @@ class Admin extends Component {
             scroll={{ x: 300 }}
             scrollToFirstRowOnChange
             pagination={false}
+            onRow={(record, rowIndex) => {
+                return {
+                  onClick: event => {
+                      console.log(record)
+                      console.log(rowIndex)
+                      console.log(event)
+                  }
+                };
+              }}
         />)
     }
 
