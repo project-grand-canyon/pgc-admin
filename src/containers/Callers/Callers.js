@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import { Redirect } from 'react-router';
-import { Button, Icon, Form, Modal, Popover, Table, Typography } from 'antd';
+import { Button, Icon, Input, Form, Modal, Popover, Table, Typography } from 'antd';
 
 import axios from '../../_util/axios-api';
 import { isSenatorDistrict } from '../../_util/district';
@@ -15,8 +15,10 @@ import CallerDetailModal from './CallerDetailModal';
 class Callers extends Component {
 
     state = {
-		  callers: null,
-      callerDetail: {}
+      districtCallers: null,
+      allCallers: null,
+      callerDetail: {},
+      searchTerm:  null
     }
 
     isCallerInFocus = (key) => {
@@ -47,7 +49,6 @@ class Callers extends Component {
         dataIndex: 'status',
         key: 'status',
         render: (status) => {
-          console.log(status)
           return this.callStatusIcon(status);
         },
         sorter: (a, b) => {
@@ -82,7 +83,6 @@ class Callers extends Component {
     ];
 
     callStatusIcon = (status) => {
-      console.log(status);
       switch (status.status) {
         case('CURRENT'): return <Popover content="This is an active caller." title="Current" trigger="hover"><Icon type="smile" theme="twoTone" twoToneColor="#52c41a" /></Popover>
         case('BRAND_NEW'): return <Popover content="This person hasn't been asked to call yet." title="Brand New" trigger="hover"> <Icon type="smile" theme="twoTone" /></Popover>
@@ -125,7 +125,7 @@ class Callers extends Component {
     }
 
     showDetailModal = (key) => {
-      const caller = this.state.callers && this.state.callers.find((el)=>{
+      const caller = this.state.districtCallers && this.state.districtCallers.find((el)=>{
         return el.key === key
       });
       
@@ -140,7 +140,7 @@ class Callers extends Component {
       }
     }
 
-    fetchCallers(cb) {
+    fetchCallers() {
         const district = this.props.district;
         if (district) {
             const requestOptions = {
@@ -165,17 +165,44 @@ class Callers extends Component {
                   };
                   return el;
                 });
-                this.setState({callers: callers, callerDetail: null});
+                this.setState({districtCallers: callers, callerDetail: null});
             }).catch((e) => {
                 Modal.error({
                     title: "Error Loading Page",
                     content: e.message,
                 });
                 this.setState({callerDetail: null})
-            }).then(()=>{
-              cb && cb()
-            })
+            });
         }
+        const allRequestOptions = {
+          url: `/callers`,
+          method: 'GET',
+          headers: { ...authHeader(), 'Content-Type': 'application/json' },
+      };
+      axios(allRequestOptions).then((response)=>{
+          const allCallers = response.data;
+          const callers = allCallers.map(el => {
+            const key = el['callerId'];
+            el.key = key;
+            el.created = new Date(el.created.replace(/-/g, "/") + " UTC");
+            el.lastModified = new Date(el.lastModified.replace(/-/g, "/") + " UTC");
+            el.lastCallTimestamp = el.lastCallTimestamp ? new Date(el.lastCallTimestamp.replace(/-/g, "/") + " UTC") : null;
+            el.lastReminderTimestamp = el.lastReminderTimestamp ? new Date(el.lastReminderTimestamp.replace(/-/g, "/") + " UTC") : null;
+            el.contactMethodSMS = el.contactMethods.indexOf('sms') !== -1;
+            el.contactMethodEmail = el.contactMethods.indexOf('email') !== -1;
+            el.status = {
+              status: callerStatus(el),
+              monthsMissedCount: monthsMissedCount(el)
+            };
+            return el;
+          });
+          this.setState({allCallers: callers});
+      }).catch((e) => {
+          Modal.error({
+              title: "Error Loading Full Caller List",
+              content: e.message,
+          });
+      });
     }
 
     fetchCallerHistory() {
@@ -239,6 +266,41 @@ class Callers extends Component {
       })
     }
 
+    allCallersJsx = () => {
+      if (this.props.user && this.props.user.root){
+        const callers = this.state.allCallers && this.state.allCallers.filter ( el => {
+          if (!this.state.searchTerm) {
+            return true
+          }
+          return el.firstName.indexOf(this.state.searchTerm) !== -1 ||
+          el.lastName.indexOf(this.state.searchTerm) !== -1 ||
+          (el.email && el.email.indexOf(this.state.searchTerm) !== -1) ||
+          (el.phone && el.phone.indexOf(this.state.searchTerm) !== -1)
+        })
+      return (
+        <>
+          <Typography.Title level={2}>
+            All Callers
+          </Typography.Title>
+          <Input allowClear onChange={(e => {this.setState({searchTerm: e.target.value})})} placeholder="Search by name, email, or phone number" />
+          <Table
+            loading={this.state.allCallers === null}
+            bordered
+            dataSource={callers}
+            columns={this.columns}
+            scroll={{ x: 300 }}
+            scrollToFirstRowOnChange
+            pagination={{
+              onChange: (page)=>{this.onUnfocusCaller()},
+            }}
+          />
+        </>
+      )
+    } else {
+      return null
+    }
+  }
+
     render() {
       if (isSenatorDistrict(this.props.district)) {
         return <Redirect to='/script'/>;
@@ -251,9 +313,9 @@ class Callers extends Component {
           </Typography.Title>
           {this.detailModal()}
           <Table
-            loading={this.state.callers === null}
+            loading={this.state.districtCallers === null}
             bordered
-            dataSource={this.state.callers}
+            dataSource={this.state.districtCallers}
             columns={this.columns}
             scroll={{ x: 300 }}
             scrollToFirstRowOnChange
@@ -261,15 +323,19 @@ class Callers extends Component {
               onChange: (page)=>{this.onUnfocusCaller()},
             }}
           />
+          {this.allCallersJsx()}
         </>
 		  );
 		}
 }
 
 
+
+
 const mapStateToProps = state => {
     return {
         district: state.districts.selected,
+        user: state.admin.admin
     };
 };
 
