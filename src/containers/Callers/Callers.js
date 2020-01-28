@@ -125,9 +125,11 @@ class Callers extends Component {
     }
 
     showDetailModal = (key) => {
-      const caller = this.state.districtCallers && this.state.districtCallers.find((el)=>{
+      const caller = (this.state.districtCallers && this.state.districtCallers.find((el)=>{
         return el.key === key
-      });
+      })) || (this.state.allCallers && this.state.allCallers.find((el)=>{
+        return el.key === key
+      }));
       
       if(caller) {
         this.setState({ 
@@ -174,12 +176,14 @@ class Callers extends Component {
                 this.setState({callerDetail: null})
             });
         }
+
+      if (this.props.user && this.props.user.root) {
         const allRequestOptions = {
           url: `/callers`,
           method: 'GET',
           headers: { ...authHeader(), 'Content-Type': 'application/json' },
-      };
-      axios(allRequestOptions).then((response)=>{
+        };
+        axios(allRequestOptions).then((response)=>{
           const allCallers = response.data;
           const callers = allCallers.map(el => {
             const key = el['callerId'];
@@ -197,12 +201,13 @@ class Callers extends Component {
             return el;
           });
           this.setState({allCallers: callers});
-      }).catch((e) => {
+        }).catch((e) => {
           Modal.error({
               title: "Error Loading Full Caller List",
               content: e.message,
           });
-      });
+        });
+      }
     }
 
     fetchCallerHistory() {
