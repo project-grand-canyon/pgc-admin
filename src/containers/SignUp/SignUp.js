@@ -134,7 +134,7 @@ class SignUp extends Component {
                 <Row>
                     <Col span={12} offset={6}>
                         <Typography.Title level={2}>Register to be a Talking Points Manager</Typography.Title>
-                        <Typography.Paragraph>As a Talking Points Manager, you will be responsible for updating the talking points and the Member of Congress details for your congressional district(s).</Typography.Paragraph>
+                        <Typography.Paragraph>As an MCC Admin, you will be able to, (1) freshen the talking points for your callers, (2) help to get your new callers in the habit of calling, and (3) keep your veteran callers in the habit of calling. If you notice that someone hasn't called in a few months, call and ask if they can recommend how to make the system work better for them. Or if they'd like to be removed from the caller list.</Typography.Paragraph>
                     </Col>
                     <Col span={12} offset={6}>
                         <Form onSubmit={this.handleSubmit} className="SignUp-form">
