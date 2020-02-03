@@ -29,12 +29,11 @@ class CallerDetailModal extends Component {
     }
 
     historyTimeline = () => {
-        const reminderHistory = this.props.caller && this.props.caller.reminders;
-        const callHistory = this.props.caller && this.props.caller.calls;
+        const history = this.props.caller && this.props.caller.history;
         const caller = this.props.caller && this.props.caller.caller;
         return (
-            <Skeleton active loading={!reminderHistory || !callHistory || !caller}>
-                  {callHistory && reminderHistory && caller ? <HistoryPanel callHistory={callHistory} reminderHistory={reminderHistory} caller={caller} /> : <></> }
+            <Skeleton active loading={!history || !caller}>
+                <HistoryPanel history={history} caller={caller} />
             </Skeleton>
         )
     }

@@ -2,6 +2,8 @@ import React, { Component } from 'react';
 import { Redirect } from 'react-router';
 import { Button, Icon, Input, Form, Modal, Popover, Table, Typography } from 'antd';
 
+import _ from 'lodash'
+import { DateTime } from 'luxon'
 import axios from '../../_util/axios-api';
 import { isSenatorDistrict } from '../../_util/district';
 import { callerStatus, Status } from '../../_util/caller';
@@ -239,21 +241,31 @@ class Callers extends Component {
         Promise.all([
           axios(callHistoryRequestOptions), 
           axios(reminderHistoryRequestOptions)
-        ]).then(values => {
-          callerDetail['calls'] = values[0].data.map((el)=>{
-            el.created = new Date(el.created.replace(/-/g, "/") + " UTC")
-            return el
-          });
-          callerDetail['reminders'] = values[1].data.map((el)=>{
-            el.timeSent = new Date(el.timeSent.replace(/-/g, "/") + " UTC")
-            return el
-          });
+        ]).then(([calls, reminders]) => {
+          const createHistoryItem = (timestamp, type) => {
+            const dateTime = DateTime.fromSQL(timestamp)
+
+            return {
+              timestamp: dateTime.valueOf(),
+              timestampDisplay: dateTime.toLocaleString(),
+              type,
+            }
+          }
+
+          const signUpHistory = [ createHistoryItem(caller.created, "Sign Up") ]
+          const callHistory = _.map(calls.data, ({ created }) => createHistoryItem(created, "Call"))
+          const reminderHistory = _.map(reminders.data, ({ timeSent }) => createHistoryItem(timeSent, "Notification"))
+
+          callerDetail.history = _([])
+            .concat(signUpHistory, callHistory, reminderHistory)
+            .sortBy('timestamp')
+            .reverse()
+            .value()
+>>>>>>> Update History Panel to handle new datetime
         }).catch( e => {
-          callerDetail['callReminderError'] = e.message;
+          callerDetail.callReminderError = e.message;
         }).then(()=>{
-          this.setState({
-            callerDetail: callerDetail
-          });
+          this.setState({ callerDetail })
         });
       }
   }
