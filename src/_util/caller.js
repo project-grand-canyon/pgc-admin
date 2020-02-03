@@ -6,12 +6,19 @@ const isPaused = ({ paused }) => paused
 
 const isBrandNew = ({ lastReminderTimestamp }) => !lastReminderTimestamp
 
-const isCurrent = ({ lastCallTimestamp, lastReminderTimestamp }) => lastCallTimestamp > lastReminderTimestamp
+const isCurrent = ({ lastCallTimestamp, lastReminderTimestamp }) => {
+    const lastCallDateTime = DateTime.fromSQL(lastCallTimestamp)
+    const lastReminderDateTime = DateTime.fromSQL(lastReminderTimestamp)
+
+    // If there was a call after the lastest reminder, then the caller is current
+    return lastCallDateTime.diff(lastReminderDateTime) >= 0
+}
 
 const isWaiting = ({ lastCallTimestamp, created }) => {
     const lastCallDateTime = DateTime.fromSQL(lastCallTimestamp || created)
     const now = DateTime.local()
     const daysSinceLastNotification = now.diff(lastCallDateTime).as('days')
+
     return daysSinceLastNotification <= WAIT_FOR_CALL_AFTER_NOTIFICATION_DAYS
 }
 
