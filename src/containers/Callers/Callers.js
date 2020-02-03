@@ -7,6 +7,7 @@ import { DateTime } from 'luxon'
 import axios from '../../_util/axios-api';
 import { isSenatorDistrict } from '../../_util/district';
 import { callerStatus, Status } from '../../_util/caller';
+import { HistoryType } from './constants'
 
 import { authHeader } from '../../_util/auth/auth-header';
 import { connect } from 'react-redux';
@@ -254,9 +255,9 @@ class Callers extends Component {
             }
           }
 
-          const signUpHistory = [ createHistoryItem(caller.created, "Sign Up") ]
-          const callHistory = _.map(calls.data, ({ created }) => createHistoryItem(created, "Call"))
-          const reminderHistory = _.map(reminders.data, ({ timeSent }) => createHistoryItem(timeSent, "Notification"))
+          const signUpHistory = [ createHistoryItem(caller.created, HistoryType.SIGN_UP) ]
+          const callHistory = _.map(calls.data, ({ created }) => createHistoryItem(created, HistoryType.CALL))
+          const reminderHistory = _.map(reminders.data, ({ timeSent }) => createHistoryItem(timeSent, HistoryType.NOTIFICATION))
 
           callerDetail.history = _([])
             .concat(signUpHistory, callHistory, reminderHistory)

@@ -1,6 +1,15 @@
 import React from 'react';
-import { Button, Card, Divider, message, Popconfirm, Timeline, Typography } from 'antd';
+import { 
+    Button, 
+    Card, 
+    Divider, 
+    message, 
+    Popconfirm, 
+    Timeline, 
+    Typography,
+} from 'antd';
 import { authHeader } from '../../_util/auth/auth-header';
+import { HistoryType } from './constants'
 import axios from '../../_util/axios-api';
 
 const sendNotification = (callerId) => {
@@ -20,9 +29,23 @@ const HistoryPanel = ({
     history,
     caller,
 }) => { 
-    const events = history.map((el, idx)=> {
-        const color = el.type === "Call" ? "green" : "blue";
-        return  <Timeline.Item color={color} key={idx}>{el.type} on {el.timestampDisplay}</Timeline.Item>
+    const events = history.map((item, idx)=> {
+        // TODO: Possibly use an icon here, or expand on the colors
+        let color
+
+        if (item.type === HistoryType.CALL) { 
+            color = 'green' 
+        } else if (item.type === HistoryType.NOTIFICATION) { 
+            color = 'gray'
+        } else if (item.type === HistoryType.SIGN_UP) {
+            color = 'blue'
+        }
+
+        return  (
+            <Timeline.Item key={idx} color={color}>
+                {item.type} on {item.timestampDisplay}
+            </Timeline.Item>
+        )
     });
 
     return (
@@ -40,7 +63,6 @@ const HistoryPanel = ({
                     </Card>
                 }
                 placement="top"
-                icon={<></>}
                 onConfirm={(e)=>{sendNotification(caller.callerId)}}
                 okText="Send"
                 cancelText="Cancel"
