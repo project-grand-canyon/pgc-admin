@@ -14,6 +14,7 @@
     "lodash": "^4.17.15",
     "react": "^16.12.0",
     "react-app-rewired": "^2.1.5",
+    "luxon": "^1.22.0",
     "react-dom": "^16.7.0",
     "react-ga": "^2.5.7",
     "react-redux": "^6.0.0",

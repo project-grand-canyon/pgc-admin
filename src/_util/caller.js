@@ -1,60 +1,57 @@
+import { DateTime } from 'luxon'
+
 const WAIT_FOR_CALL_AFTER_NOTIFICATION_DAYS = 5; 
 
-const callerStatus = (caller) => {
-    if (caller.paused) {
-        return "PAUSED";
-    }
-    if (caller.lastReminderTimestamp == null) {
-        return "BRAND_NEW";
-    }
-    if (caller.lastCallTimestamp > caller.lastReminderTimestamp) {
-        return "CURRENT";
-    }
+const isPaused = ({ paused }) => paused
 
-    const now = new Date();
-    const daysSinceLastNotification = dayDiff(refDate(caller), now)
+const isBrandNew = ({ lastReminderTimestamp }) => !lastReminderTimestamp
 
-    if (daysSinceLastNotification <= WAIT_FOR_CALL_AFTER_NOTIFICATION_DAYS) {
-        return "WAITING"
-    }
+const isCurrent = ({ lastCallTimestamp, lastReminderTimestamp }) => lastCallTimestamp > lastReminderTimestamp
 
-    return "LAPSED"
+const isWaiting = ({ lastCallTimestamp, created }) => {
+    const lastCallDateTime = DateTime.fromSQL(lastCallTimestamp || created)
+    const now = DateTime.local()
+    const daysSinceLastNotification = now.diff(lastCallDateTime).as('days')
+    return daysSinceLastNotification <= WAIT_FOR_CALL_AFTER_NOTIFICATION_DAYS
 }
 
-function refDate(caller) {
-    const created = caller.created;
-    const createdDate = created.getUTCDate();
-    if (createdDate > caller.reminderDayOfMonth) {
-        created.setUTCMonth(created.getUTCMonth()+1)
+
+const callerMonthsLapsed = ({ lastCallTimestamp, lastReminderTimestamp }) => {
+    const lastCallDate = DateTime.fromSQL(lastCallTimestamp)
+    const lastReminderDate = DateTime.fromSQL(lastReminderTimestamp) 
+    const lapseDuration = lastReminderDate.diff(lastCallDate)
+
+    return Math.floor(lapseDuration.as('months'))
+}
+
+export const Status = {
+    LAPSED: "LAPSED",
+    PAUSED: "PAUSED",
+    BRAND_NEW: "BRAND_NEW",
+    CURRENT: "CURRENT",
+    WAITING: "WAITING",
+}
+
+export const callerStatus = caller => {
+    let status = Status.LAPSED
+    let monthsMissedCount = 0
+
+    if (isPaused(caller)) {
+        status = Status.PAUSED
+    } else if (isBrandNew(caller)) {
+        status = Status.BRAND_NEW
+    } else if (isCurrent(caller)) {
+        status = Status.CURRENT
+    } else if (isWaiting(caller)) {
+        status = Status.WAITING
     }
-    created.setUTCDate(caller.reminderDayOfMonth)
-    return caller.lastCallTimestamp == null ? created : caller.lastCallTimestamp;
-}
 
-const monthsMissedCount = (caller) => {
-    const status = callerStatus(caller);
-    if (status !== "LAPSED") {
-        return 0;
+    if (status === Status.LAPSED) {
+        monthsMissedCount = callerMonthsLapsed(caller)
     }
 
-    const endRange = caller.lastReminderTimestamp ? caller.lastReminderTimestamp : new Date();
-    const numberOfMonthsLapsed = monthDiff(refDate(caller), endRange);
-    // we'll count < 1 month as a missed Month
-    return numberOfMonthsLapsed === 0 ? 1 : numberOfMonthsLapsed;
+    return {
+        status,
+        monthsMissedCount,
+    }
 }
-
-function monthDiff(dateFrom, dateTo) {
-    return dateTo.getUTCMonth() - dateFrom.getUTCMonth() + 
-      (12 * (dateTo.getUTCFullYear() - dateFrom.getUTCFullYear()))
-}
-
-function dayDiff(dateFrom, dateTo) {
-    const diff = dateTo.getTime() - dateFrom.getTime()
-    const days = diff/(1000 * 60 * 60 * 24)
-    return days
-}
-
-export {
-    callerStatus,
-    monthsMissedCount
-};
