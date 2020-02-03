@@ -171,6 +171,7 @@ class Callers extends Component {
                 headers: { ...authHeader(), 'Content-Type': 'application/json' },
             };
             axios(requestOptions).then(({ data }) => {
+                // TODO: Possibly move this into reducer logic if Redux is implemented
                 const callers = (data || []).map(caller => {
                   return {
                     ...caller,
@@ -242,6 +243,7 @@ class Callers extends Component {
           axios(callHistoryRequestOptions), 
           axios(reminderHistoryRequestOptions)
         ]).then(([calls, reminders]) => {
+          // TODO: Possibly move this into reducer logic if Redux is implemented
           const createHistoryItem = (timestamp, type) => {
             const dateTime = DateTime.fromSQL(timestamp)
 

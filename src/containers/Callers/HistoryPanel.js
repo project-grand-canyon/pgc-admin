@@ -3,8 +3,6 @@ import { Button, Card, Divider, message, Popconfirm, Timeline, Typography } from
 import { authHeader } from '../../_util/auth/auth-header';
 import axios from '../../_util/axios-api';
 
-// TODO: remove `toDateString`
-
 const sendNotification = (callerId) => {
     const requestOptions = {
       url: `/reminders/${callerId}`,
