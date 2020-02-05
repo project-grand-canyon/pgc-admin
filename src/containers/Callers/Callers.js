@@ -173,7 +173,7 @@ class Callers extends Component {
             };
             axios(requestOptions).then(({ data }) => {
                 // TODO: Possibly move this into reducer logic if Redux is implemented
-                const callers = (data || []).map(caller => {
+                const districtCallers = (data || []).map(caller => {
                   return {
                     ...caller,
                     key: caller.callerId,
@@ -182,7 +182,7 @@ class Callers extends Component {
                     status: callerStatus(caller),
                   }
                 });
-                this.setState({callers, callerDetail: null});
+                this.setState({districtCallers, callerDetail: null});
             }).catch((e) => {
                 Modal.error({
                     title: "Error Loading Page",
@@ -198,24 +198,17 @@ class Callers extends Component {
           method: 'GET',
           headers: { ...authHeader(), 'Content-Type': 'application/json' },
         };
-        axios(allRequestOptions).then((response)=>{
-          const allCallers = response.data;
-          const callers = allCallers.map(el => {
-            const key = el['callerId'];
-            el.key = key;
-            el.created = new Date(el.created.replace(/-/g, "/") + " UTC");
-            el.lastModified = new Date(el.lastModified.replace(/-/g, "/") + " UTC");
-            el.lastCallTimestamp = el.lastCallTimestamp ? new Date(el.lastCallTimestamp.replace(/-/g, "/") + " UTC") : null;
-            el.lastReminderTimestamp = el.lastReminderTimestamp ? new Date(el.lastReminderTimestamp.replace(/-/g, "/") + " UTC") : null;
-            el.contactMethodSMS = el.contactMethods.indexOf('sms') !== -1;
-            el.contactMethodEmail = el.contactMethods.indexOf('email') !== -1;
-            el.status = {
-              status: callerStatus(el),
-              monthsMissedCount: monthsMissedCount(el)
-            };
-            return el;
+        axios(allRequestOptions).then(({ data }) => {
+          const allCallers = (data || []).map(caller => {
+            return {
+              ...caller,
+              key: caller.callerId,
+              contactMethodSMS: caller.contactMethods.indexOf('sms') !== -1,
+              contactMethodEmail: caller.contactMethods.indexOf('email') !== -1,
+              status: callerStatus(caller),
+            }
           });
-          this.setState({allCallers: callers});
+          this.setState({allCallers});
         }).catch((e) => {
           Modal.error({
               title: "Error Loading Full Caller List",
@@ -264,7 +257,6 @@ class Callers extends Component {
             .sortBy('timestamp')
             .reverse()
             .value()
->>>>>>> Update History Panel to handle new datetime
         }).catch( e => {
           callerDetail.callReminderError = e.message;
         }).then(()=>{
@@ -359,9 +351,6 @@ class Callers extends Component {
 		  );
 		}
 }
-
-
-
 
 const mapStateToProps = state => {
     return {
