@@ -2,9 +2,12 @@ import React, { Component } from 'react';
 import { Redirect } from 'react-router';
 import { Button, Icon, Input, Form, Modal, Popover, Table, Typography } from 'antd';
 
+import _ from 'lodash'
+import { DateTime } from 'luxon'
 import axios from '../../_util/axios-api';
 import { isSenatorDistrict } from '../../_util/district';
-import { callerStatus, monthsMissedCount } from '../../_util/caller';
+import { callerStatus, Status } from '../../_util/caller';
+import { HistoryType } from './constants'
 
 import { authHeader } from '../../_util/auth/auth-header';
 import { connect } from 'react-redux';
@@ -52,13 +55,13 @@ class Callers extends Component {
           return this.callStatusIcon(status);
         },
         sorter: (a, b) => {
-          const orderedList = ["CURRENT", "WAITING", "BRAND_NEW", "PAUSED", "LAPSED"];   
+          const orderedList = [Status.CURRENT, Status.WAITING, Status.BRAND_NEW, Status.PAUSED, Status.LAPSED];   
           const aIndex = orderedList.indexOf(a.status.status);
           const bIndex = orderedList.indexOf(b.status.status);       
           const aScore = aIndex === -1 ? orderedList.length : aIndex;
           const bScore = bIndex === -1 ? orderedList.length : bIndex;
           const diff = aScore - bScore;
-          if (diff !== 0 || a.status.status !== "LAPSED") {
+          if (diff !== 0 || a.status.status !== Status.LAPSED) {
             return diff;
           }
           return a.status.monthsMissedCount - b.status.monthsMissedCount;
@@ -82,32 +85,50 @@ class Callers extends Component {
       }
     ];
 
-    callStatusIcon = (status) => {
-      switch (status.status) {
-        case('CURRENT'): return <Popover content="This is an active caller." title="Current" trigger="hover"><Icon type="smile" theme="twoTone" twoToneColor="#52c41a" /></Popover>
-        case('BRAND_NEW'): return <Popover content="This person hasn't been asked to call yet." title="Brand New" trigger="hover"> <Icon type="smile" theme="twoTone" /></Popover>
-        case('PAUSED'): return <Popover content="This person has paused call notifications. They are not participating in the Monthly Calling Campaign." title="Paused" trigger="hover"> <Icon type="pause-circle" theme="twoTone" twoToneColor="tan" /></Popover>
-        case('WAITING'): return <Popover content="This person just recently got their notification, and they haven't made their call yet." title="Waiting For Call" trigger="hover"> <Icon type="message" theme="twoTone" twoToneColor="tan" /></Popover>
-        case('LAPSED'): 
-        return <Popover content={`This person has not called for ${status.monthsMissedCount} ${status.monthsMissedCount === 1 ? "month" : "months"}`} title="Lapsed" trigger="hover">
-          {
-            (status.monthsMissedCount > 3) ?
-            (
-              <div style={{display: "inherit"}}>
-                <Icon type="phone" theme="twoTone" twoToneColor="red" />
-                <Typography.Text type="danger">{` x${status.monthsMissedCount}`}</Typography.Text>
-              </div>
-            ) : (
-                  <div style={{display: "inherit"}}>
-                    { 
-                      Array(status.monthsMissedCount > 1 ? status.monthsMissedCount : 1).fill().map((el, idx)=>{
-                        return <Icon key={idx} type="phone" theme="twoTone" twoToneColor="red" />
-                      })
-                    }
-                  </div>
-            )
-          }
-          </Popover>
+    callStatusIcon = ({ monthsMissedCount, status }) => {
+      switch (status) {
+        case(Status.CURRENT): 
+          return (
+            <Popover content="This is an active caller." title="Current" trigger="hover">
+              <Icon type="smile" theme="twoTone" twoToneColor="#52c41a" />
+            </Popover>
+          )
+        case(Status.BRAND_NEW): 
+          return (
+            <Popover content="This person hasn't been asked to call yet." title="Brand New" trigger="hover">
+              <Icon type="smile" theme="twoTone" />
+            </Popover>
+          )
+        case(Status.PAUSED): 
+          return (
+            <Popover content="This person has paused call notifications. They are not participating in Project Grand Canyon." 
+              title="Paused" 
+              trigger="hover"
+            > 
+              <Icon type="pause-circle" theme="twoTone" twoToneColor="tan" />
+            </Popover>
+          )
+        case(Status.WAITING): 
+          return (
+            <Popover content="This person just recently got their notification, and they haven't made their call yet." 
+              title="Waiting For Call" 
+              trigger="hover"
+            > 
+              <Icon type="message" theme="twoTone" twoToneColor="tan" />
+            </Popover>
+          )
+        case(Status.LAPSED): 
+          return (
+            <Popover title="Lapsed" 
+              content={`This person has not called for ${monthsMissedCount} ${monthsMissedCount === 1 ? "month" : "months"}`} 
+              trigger="hover"
+            >
+              <Icon type="phone" theme="twoTone" twoToneColor="red" />
+              {monthsMissedCount > 1 && (
+                <Typography.Text type="danger">&nbsp;&times;&nbsp;{monthsMissedCount}</Typography.Text>
+              )}
+            </Popover>
+          )
         default:
           return (
             <>
@@ -150,24 +171,18 @@ class Callers extends Component {
                 method: 'GET',
                 headers: { ...authHeader(), 'Content-Type': 'application/json' },
             };
-            axios(requestOptions).then((response)=>{
-                const allCallers = response.data;
-                const callers = allCallers.map(el => {
-                  const key = el['callerId'];
-                  el.key = key;
-                  el.created = new Date(el.created.replace(/-/g, "/") + " UTC");
-                  el.lastModified = new Date(el.lastModified.replace(/-/g, "/") + " UTC");
-                  el.lastCallTimestamp = el.lastCallTimestamp ? new Date(el.lastCallTimestamp.replace(/-/g, "/") + " UTC") : null;
-                  el.lastReminderTimestamp = el.lastReminderTimestamp ? new Date(el.lastReminderTimestamp.replace(/-/g, "/") + " UTC") : null;
-                  el.contactMethodSMS = el.contactMethods.indexOf('sms') !== -1;
-                  el.contactMethodEmail = el.contactMethods.indexOf('email') !== -1;
-                  el.status = {
-                    status: callerStatus(el),
-                    monthsMissedCount: monthsMissedCount(el)
-                  };
-                  return el;
+            axios(requestOptions).then(({ data }) => {
+                // TODO: Possibly move this into reducer logic if Redux is implemented
+                const districtCallers = (data || []).map(caller => {
+                  return {
+                    ...caller,
+                    key: caller.callerId,
+                    contactMethodSMS: caller.contactMethods.indexOf('sms') !== -1,
+                    contactMethodEmail: caller.contactMethods.indexOf('email') !== -1,
+                    status: callerStatus(caller),
+                  }
                 });
-                this.setState({districtCallers: callers, callerDetail: null});
+                this.setState({districtCallers, callerDetail: null});
             }).catch((e) => {
                 Modal.error({
                     title: "Error Loading Page",
@@ -183,24 +198,17 @@ class Callers extends Component {
           method: 'GET',
           headers: { ...authHeader(), 'Content-Type': 'application/json' },
         };
-        axios(allRequestOptions).then((response)=>{
-          const allCallers = response.data;
-          const callers = allCallers.map(el => {
-            const key = el['callerId'];
-            el.key = key;
-            el.created = new Date(el.created.replace(/-/g, "/") + " UTC");
-            el.lastModified = new Date(el.lastModified.replace(/-/g, "/") + " UTC");
-            el.lastCallTimestamp = el.lastCallTimestamp ? new Date(el.lastCallTimestamp.replace(/-/g, "/") + " UTC") : null;
-            el.lastReminderTimestamp = el.lastReminderTimestamp ? new Date(el.lastReminderTimestamp.replace(/-/g, "/") + " UTC") : null;
-            el.contactMethodSMS = el.contactMethods.indexOf('sms') !== -1;
-            el.contactMethodEmail = el.contactMethods.indexOf('email') !== -1;
-            el.status = {
-              status: callerStatus(el),
-              monthsMissedCount: monthsMissedCount(el)
-            };
-            return el;
+        axios(allRequestOptions).then(({ data }) => {
+          const allCallers = (data || []).map(caller => {
+            return {
+              ...caller,
+              key: caller.callerId,
+              contactMethodSMS: caller.contactMethods.indexOf('sms') !== -1,
+              contactMethodEmail: caller.contactMethods.indexOf('email') !== -1,
+              status: callerStatus(caller),
+            }
           });
-          this.setState({allCallers: callers});
+          this.setState({allCallers});
         }).catch((e) => {
           Modal.error({
               title: "Error Loading Full Caller List",
@@ -228,21 +236,31 @@ class Callers extends Component {
         Promise.all([
           axios(callHistoryRequestOptions), 
           axios(reminderHistoryRequestOptions)
-        ]).then(values => {
-          callerDetail['calls'] = values[0].data.map((el)=>{
-            el.created = new Date(el.created.replace(/-/g, "/") + " UTC")
-            return el
-          });
-          callerDetail['reminders'] = values[1].data.map((el)=>{
-            el.timeSent = new Date(el.timeSent.replace(/-/g, "/") + " UTC")
-            return el
-          });
+        ]).then(([calls, reminders]) => {
+          // TODO: Possibly move this into reducer logic if Redux is implemented
+          const createHistoryItem = (timestamp, type) => {
+            const dateTime = DateTime.fromSQL(timestamp)
+
+            return {
+              timestamp: dateTime.valueOf(),
+              timestampDisplay: dateTime.toLocaleString(),
+              type,
+            }
+          }
+
+          const signUpHistory = [ createHistoryItem(caller.created, HistoryType.SIGN_UP) ]
+          const callHistory = _.map(calls.data, ({ created }) => createHistoryItem(created, HistoryType.CALL))
+          const reminderHistory = _.map(reminders.data, ({ timeSent }) => createHistoryItem(timeSent, HistoryType.NOTIFICATION))
+
+          callerDetail.history = _([])
+            .concat(signUpHistory, callHistory, reminderHistory)
+            .sortBy('timestamp')
+            .reverse()
+            .value()
         }).catch( e => {
-          callerDetail['callReminderError'] = e.message;
+          callerDetail.callReminderError = e.message;
         }).then(()=>{
-          this.setState({
-            callerDetail: callerDetail
-          });
+          this.setState({ callerDetail })
         });
       }
   }
@@ -333,9 +351,6 @@ class Callers extends Component {
 		  );
 		}
 }
-
-
-
 
 const mapStateToProps = state => {
     return {
