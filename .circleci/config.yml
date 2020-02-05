@@ -45,12 +45,12 @@ jobs:
       - attach_workspace:
           at: "."
       - aws-s3/sync:
-        arguments: |
-          --acl public-read \
-          --cache-control "max-age=86400"
-        from: build/
-        overwrite: true
-        to: 's3://admin.cclcalls.org/'
+          arguments: |
+            --acl public-read \
+            --cache-control "max-age=86400"
+          from: build/
+          overwrite: true
+          to: 's3://admin.cclcalls.org/'
 
 workflows:
   version: 2
