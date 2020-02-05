@@ -42,7 +42,9 @@ jobs:
     steps:
       - attach_workspace:
           at: "."
-      - run: echo "This will deploy to prod" && ls build
+      - run: ls -al
+      # - run: aws s3 rm s3://admin.cclcalls.org  --recursive 
+      # - run: aws s3 cp ./build/ s3://admin.cclcalls.org/ --recursive --profile cclcalls-admin-ci
 
 workflows:
   version: 2
@@ -53,7 +55,9 @@ workflows:
           # We only run this workflow when things are committed to master.
           filters:
             branches:
-              only: master
+              only: 
+                - master
+                - fix-ci
       - hold: # Require manual action to pass this step
           type: approval
           requires: ["build"]
