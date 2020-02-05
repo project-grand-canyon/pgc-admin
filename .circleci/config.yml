@@ -63,7 +63,6 @@ workflows:
             branches:
               only: 
                 - master
-                - fix-ci
       - hold: # Require manual action to pass this step
           type: approval
           requires: ["build"]
