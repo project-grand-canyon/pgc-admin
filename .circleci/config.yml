@@ -42,9 +42,8 @@ jobs:
     steps:
       - attach_workspace:
           at: "."
-      - run: ls -al
-      # - run: aws s3 rm s3://admin.cclcalls.org  --recursive 
-      # - run: aws s3 cp ./build/ s3://admin.cclcalls.org/ --recursive --profile cclcalls-admin-ci
+      - run: aws s3 rm s3://admin.cclcalls.org  --recursive 
+      - run: aws s3 cp /build/ s3://admin.cclcalls.org/ --recursive
 
 workflows:
   version: 2
