@@ -1,5 +1,7 @@
 # See https://circleci.com/docs/2.0/language-javascript/ for more details
-version: 2
+version: 2.1
+orbs:
+  aws-s3: circleci/aws-s3@1.0.15
 jobs:
   build:
     docker:
@@ -36,13 +38,19 @@ jobs:
 
   deploy-to-prod:
     docker:
-      - image: circleci/node:12.6
+      - image: 'cimg/python:3.6'
     working_directory: ~/repo
 
     steps:
       - attach_workspace:
           at: "."
-      - run: echo "This will deploy to prod" && ls build
+      - aws-s3/sync:
+          arguments: |
+            --acl public-read \
+            --cache-control "max-age=86400"
+          from: build/
+          overwrite: true
+          to: 's3://admin.cclcalls.org/'
 
 workflows:
   version: 2
@@ -53,7 +61,8 @@ workflows:
           # We only run this workflow when things are committed to master.
           filters:
             branches:
-              only: master
+              only: 
+                - master
       - hold: # Require manual action to pass this step
           type: approval
           requires: ["build"]
