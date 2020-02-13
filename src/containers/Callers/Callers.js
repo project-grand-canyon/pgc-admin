@@ -52,7 +52,6 @@ class Callers extends Component {
       dataIndex: 'status',
       key: 'status',
       render: (status) => {
-        console.log(status)
         return this.callStatusIcon(status);
       },
       sorter: (a, b) => {
