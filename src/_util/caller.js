@@ -23,12 +23,12 @@ const isWaiting = ({ lastCallTimestamp, created }) => {
 }
 
 
-const callerMonthsLapsed = ({ lastCallTimestamp, lastReminderTimestamp }) => {
-    const lastCallDate = DateTime.fromSQL(lastCallTimestamp)
+const callerMonthsLapsed = ({ lastCallTimestamp, lastReminderTimestamp, created }) => {
+    const lastCallDate = lastCallTimestamp !== null ? DateTime.fromSQL(lastCallTimestamp) : DateTime.fromSQL(created)
     const lastReminderDate = DateTime.fromSQL(lastReminderTimestamp) 
     const lapseDuration = lastReminderDate.diff(lastCallDate)
-
-    return Math.floor(lapseDuration.as('months'))
+    const numMonths = Math.floor(lapseDuration.as('months'))
+    return numMonths
 }
 
 export const Status = {

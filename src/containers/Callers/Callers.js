@@ -48,24 +48,25 @@ class Callers extends Component {
       key: 'reminderDayOfMonth',
       sorter: (a, b) => { return a.reminderDayOfMonth - b.reminderDayOfMonth}
     },{
-        title: 'Call Status',
-        dataIndex: 'status',
-        key: 'status',
-        render: (status) => {
-          return this.callStatusIcon(status);
-        },
-        sorter: (a, b) => {
-          const orderedList = [Status.CURRENT, Status.WAITING, Status.BRAND_NEW, Status.PAUSED, Status.LAPSED];   
-          const aIndex = orderedList.indexOf(a.status.status);
-          const bIndex = orderedList.indexOf(b.status.status);       
-          const aScore = aIndex === -1 ? orderedList.length : aIndex;
-          const bScore = bIndex === -1 ? orderedList.length : bIndex;
-          const diff = aScore - bScore;
-          if (diff !== 0 || a.status.status !== Status.LAPSED) {
-            return diff;
-          }
-          return a.status.monthsMissedCount - b.status.monthsMissedCount;
+      title: 'Call Status',
+      dataIndex: 'status',
+      key: 'status',
+      render: (status) => {
+        console.log(status)
+        return this.callStatusIcon(status);
+      },
+      sorter: (a, b) => {
+        const orderedList = [Status.CURRENT, Status.WAITING, Status.BRAND_NEW, Status.PAUSED, Status.LAPSED];   
+        const aIndex = orderedList.indexOf(a.status.status);
+        const bIndex = orderedList.indexOf(b.status.status);       
+        const aScore = aIndex === -1 ? orderedList.length : aIndex;
+        const bScore = bIndex === -1 ? orderedList.length : bIndex;
+        const diff = aScore - bScore;
+        if (diff !== 0 || a.status.status !== Status.LAPSED) {
+          return diff;
         }
+        return a.status.monthsMissedCount - b.status.monthsMissedCount;
+      }
     },{
         title: 'Details',
         dataIndex: 'operation1',
