@@ -62,7 +62,7 @@ class Login extends Component {
                     <Button type="primary" htmlType="submit">
                         Log in
                     </Button>
-                    &nbsp;or <a href="/signup">Sign Up</a>
+                    &nbsp;or <Button href="/signup">Sign Up</Button>
                 </Form.Item>
             </Form>
             <a href="/request_password_reset">Forgot Password?</a>
