@@ -6,7 +6,7 @@ import _ from 'lodash'
 import { DateTime } from 'luxon'
 import axios from '../../_util/axios-api';
 import { isSenatorDistrict } from '../../_util/district';
-import { callerStatus, Status } from '../../_util/caller';
+import { callerStatus, Status, sortedByStatus } from '../../_util/caller';
 import { HistoryType } from './constants'
 
 import { authHeader } from '../../_util/auth/auth-header';
@@ -54,18 +54,7 @@ class Callers extends Component {
       render: (status) => {
         return this.callStatusIcon(status);
       },
-      sorter: (a, b) => {
-        const orderedList = [Status.CURRENT, Status.WAITING, Status.BRAND_NEW, Status.PAUSED, Status.LAPSED];   
-        const aIndex = orderedList.indexOf(a.status.status);
-        const bIndex = orderedList.indexOf(b.status.status);       
-        const aScore = aIndex === -1 ? orderedList.length : aIndex;
-        const bScore = bIndex === -1 ? orderedList.length : bIndex;
-        const diff = aScore - bScore;
-        if (diff !== 0 || a.status.status !== Status.LAPSED) {
-          return diff;
-        }
-        return a.status.monthsMissedCount - b.status.monthsMissedCount;
-      }
+      sorter: sortedByStatus
     },{
         title: 'Details',
         dataIndex: 'operation1',
