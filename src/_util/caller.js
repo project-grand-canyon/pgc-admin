@@ -14,21 +14,34 @@ const isCurrent = ({ lastCallTimestamp, lastReminderTimestamp }) => {
     return lastCallDateTime.diff(lastReminderDateTime) >= 0
 }
 
-const isWaiting = ({ lastCallTimestamp, created }) => {
-    const lastCallDateTime = DateTime.fromSQL(lastCallTimestamp || created)
+const isWaiting = ({ lastReminderTimestamp, created }) => {
+    const lastReminderDateTime = DateTime.fromSQL(lastReminderTimestamp || created)
     const now = DateTime.local()
-    const daysSinceLastNotification = now.diff(lastCallDateTime).as('days')
+    const daysSinceLastNotification = now.diff(lastReminderDateTime).as('days')
 
     return daysSinceLastNotification <= WAIT_FOR_CALL_AFTER_NOTIFICATION_DAYS
 }
 
 
-const callerMonthsLapsed = ({ lastCallTimestamp, lastReminderTimestamp }) => {
-    const lastCallDate = DateTime.fromSQL(lastCallTimestamp)
+const callerMonthsLapsed = ({ lastCallTimestamp, lastReminderTimestamp, created }) => {
+    const lastCallDate = DateTime.fromSQL(lastCallTimestamp || created)
     const lastReminderDate = DateTime.fromSQL(lastReminderTimestamp) 
     const lapseDuration = lastReminderDate.diff(lastCallDate)
+    const numMonths = Math.floor(lapseDuration.as('months'))
+    return numMonths
+}
 
-    return Math.floor(lapseDuration.as('months'))
+export const sortedByStatus = (a, b) => {
+    const orderedList = [Status.CURRENT, Status.WAITING, Status.BRAND_NEW, Status.PAUSED, Status.LAPSED];   
+    const aIndex = orderedList.indexOf(a.status.status);
+    const bIndex = orderedList.indexOf(b.status.status);       
+    const aScore = aIndex === -1 ? orderedList.length : aIndex;
+    const bScore = bIndex === -1 ? orderedList.length : bIndex;
+    const diff = aScore - bScore;
+    if (diff !== 0 || a.status.status !== Status.LAPSED) {
+        return diff;
+    }
+    return a.status.monthsMissedCount - b.status.monthsMissedCount;
 }
 
 export const Status = {
