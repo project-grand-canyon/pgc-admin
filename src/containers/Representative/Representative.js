@@ -65,41 +65,65 @@ class Representative extends Component {
 
     handleSubmit = (e) => {
         e.preventDefault();
-        const self = this;
         const { validateFieldsAndScroll } = this.props.form;
         validateFieldsAndScroll(null, {force: true}, (errors, formFields) => {
-            if (errors == null) {
-                // TODO: use object destructuring to avoid re-setting things like callTargets that don't change
-                const body = {
-                    "state":this.state.hydratedDistrict.state,
-                    "number": this.state.hydratedDistrict.number,
-                    "repFirstName": formFields.firstName,
-                    "repLastName": formFields.lastName,
-                    "repImageUrl": formFields.repImageUrl,
-                    "callTargets": this.state.hydratedDistrict.callTargets
-                }
-        
-                this.setState({editing: true},()=>{
-                    const requestOptions = {
-                        url: `/districts/${this.props.district.districtId}/`,
-                        method: 'PUT',
-                        headers: { ...authHeader(), 'Content-Type': 'application/json' },
-                        data: body
-                    };
-                    axios(requestOptions).then((response)=>{
-                    }).catch((e) => {
-                        Modal.error({
-                            title: "Error updating district",
-                            content: e.message,
-                        });
-                    }).then(()=>{
-                        this.fetchDistrictDetails(()=>{self.setState({editing: false})})
-                    })
-                })
+            if (errors != null) {
+                return;
             }
-        
-        
-        
+            const {hydratedDistrict} = this.state;
+            const putBody = {
+                "state":hydratedDistrict.state,
+                "number": hydratedDistrict.number,
+                "repFirstName": formFields.firstName,
+                "repLastName": formFields.lastName,
+                "repImageUrl": formFields.repImageUrl,
+                "status": formFields.status,
+                "callTargets": hydratedDistrict.callTargets
+            }
+
+            const updateDistrict = () => { this.putUpdate(putBody) };
+            if (hydratedDistrict.status === 'active' && formFields.status === 'covid_paused') {
+                this.showCovidConfirmation(updateDistrict);
+            } else {
+                updateDistrict();
+            }
+        });
+    }
+
+    showCovidConfirmation = (onCompetion) => {
+        Modal.confirm({
+            title: 'Confirm district status change',
+            content: `
+                Upon saving this change, monthly notifications for every caller in this
+                district will cease. A message will immediately be sent to all callers in
+                the district informing them that their monthly reminders are paused
+                due to COVID-19. Are you sure you want to change the status?
+            `,
+            okText: 'Confirm',
+            onOk() {
+                onCompetion();
+            }
+          });
+    }
+
+    putUpdate = (putBody) => {
+        const self = this;
+        this.setState({editing: true},()=>{
+            const requestOptions = {
+                url: `/districts/${this.props.district.districtId}/`,
+                method: 'PUT',
+                headers: { ...authHeader(), 'Content-Type': 'application/json' },
+                data: putBody
+            };
+            axios(requestOptions).then((response)=>{
+            }).catch((e) => {
+                Modal.error({
+                    title: "Error updating district",
+                    content: e.message,
+                });
+            }).then(()=>{
+                this.fetchDistrictDetails(()=>{self.setState({editing: false})})
+            })
         });
     }
 

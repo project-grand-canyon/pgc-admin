@@ -1,5 +1,5 @@
 import React from 'react';
-import { Button, Card, Col, Form, Input, List, Modal, Row, Skeleton, Spin, Typography, Select} from 'antd';
+import { Form, Select} from 'antd';
 
 const statusFormItem = ({ district, getFieldDecorator }) => {
     return (
