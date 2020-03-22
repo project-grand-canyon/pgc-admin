@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import { Button, Card, Col, Form, Input, List, Modal, Row, Skeleton, Spin, Typography} from 'antd';
 
 import OfficeModal from './OfficeModal';
+import StatusFormItem from './StatusFormItem';
 
 import axios from '../../_util/axios-api';
 import { displayName } from '../../_util/district';
@@ -182,6 +183,11 @@ class Representative extends Component {
                                             )}
                                         />
                                     </>
+                                }
+                        </Skeleton>
+                        <Skeleton loading={isLoading}>
+                                { dis &&
+                                    <StatusFormItem getFieldDecorator={getFieldDecorator} district={dis} />
                                 }
                         </Skeleton>
                         <Skeleton loading={isLoading}>
