@@ -8,7 +8,6 @@ import StatusFormItem from './StatusFormItem';
 import axios from '../../_util/axios-api';
 import { displayName } from '../../_util/district';
 import { authHeader } from '../../_util/auth/auth-header';
-import { districtsActions } from '../../_actions/districts.actions';
 
 import './Representative.module.css';
 
@@ -125,7 +124,6 @@ class Representative extends Component {
                 });
             }).then(()=>{
                 this.fetchDistrictDetails(()=>{self.setState({editing: false})})
-                this.props.dispatch(districtsActions.refresh());
             })
         });
     }
