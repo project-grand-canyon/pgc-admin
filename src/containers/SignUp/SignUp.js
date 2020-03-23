@@ -108,8 +108,8 @@ class SignUp extends Component {
 
         if (this.state.submissionStage === "successfullySubmitted") {
             Modal.success({
-                title: "Sign Up Successful",
-                content: "Your registration must be reviewed by Monthly Calling Campaign admins prior to activation. You will receive an email when your account has been activated.",
+                title: "Application Successful",
+                content: "Your application must be reviewed by Monthly Calling Campaign admins prior to activation. You will receive an email when your account has been activated.",
                 onOk: (e) => {return new Promise((resolve, reject) => {
                     this.setState({submissionStage: "unsubmitted"})
                     return resolve();
@@ -133,7 +133,7 @@ class SignUp extends Component {
             <div>
                 <Row>
                     <Col span={12} offset={6}>
-                        <Typography.Title level={2}>Monthly Calling Campaign Admin</Typography.Title>
+                        <Typography.Title level={2}>Apply to be a Monthly Calling Campaign Admin</Typography.Title>
                         <Typography.Paragraph>As an MCC Admin, you will be able to, (1) freshen the talking points for your callers, (2) help to get your new callers in the habit of calling, and (3) keep your veteran callers in the habit of calling. If you notice that someone hasn't called in a few months, call and ask if they can recommend how to make the system work better for them. Or if they'd like to be removed from the caller list.</Typography.Paragraph>
                     </Col>
                     <Col span={12} offset={6}>
@@ -169,7 +169,7 @@ class SignUp extends Component {
                             </Form.Item>
                             <Form.Item>
                                 <Button type="primary" htmlType="submit">
-                                    Register
+                                    Apply
                                 </Button>
                             </Form.Item>
                         </Form>
