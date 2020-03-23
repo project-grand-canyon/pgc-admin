@@ -71,14 +71,14 @@ class Representative extends Component {
                 return;
             }
             const { state, number, callTargets, status: previousStatus } = this.state.hydratedDistrict
-            const { firstName, lastName, repImageUrl, status } = formFields
+            const { firstName: repFirstName, lastName: repLastName, repImageUrl, status } = formFields
             
             const putBody = {
                 state,
                 number,
                 callTargets,
-                firstName,
-                lastName,
+                repFirstName,
+                repLastName,
                 repImageUrl,
                 status,
             }
