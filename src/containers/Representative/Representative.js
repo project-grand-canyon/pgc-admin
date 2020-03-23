@@ -1,4 +1,5 @@
 import React, { Component } from 'react';
+import { connect } from 'react-redux';
 import { Button, Card, Col, Form, Input, List, Modal, Row, Skeleton, Spin, Typography} from 'antd';
 
 import OfficeModal from './OfficeModal';
@@ -6,9 +7,8 @@ import StatusFormItem from './StatusFormItem';
 
 import axios from '../../_util/axios-api';
 import { displayName } from '../../_util/district';
-
 import { authHeader } from '../../_util/auth/auth-header';
-import { connect } from 'react-redux';
+import { districtsActions } from '../../_actions/districts.actions';
 
 import './Representative.module.css';
 
@@ -125,6 +125,7 @@ class Representative extends Component {
                 });
             }).then(()=>{
                 this.fetchDistrictDetails(()=>{self.setState({editing: false})})
+                this.props.dispatch(districtsActions.refresh());
             })
         });
     }
