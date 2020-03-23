@@ -2,10 +2,27 @@ import React, { Component } from 'react';
 import { Link, Redirect, withRouter } from 'react-router-dom';
 import { Select, Spin, Icon, Layout, Menu, Typography, Modal, Row, Col } from 'antd';
 import { connect } from 'react-redux';
+import styled from '@emotion/styled';
 
 import { districtsActions, adminActions } from '../../_actions';
 
 import {isSenatorDistrict, displayName, comparator as districtComparator } from '../../_util/district';
+
+const AlertText = styled(Typography.Text)`
+    color: red;
+    font-weight: bold;
+`
+
+const CovidAlert = ({ district }) => {
+    if (district && district.status === "covid_paused") {
+        return (
+            <div style={{padding: "10px"}}>
+                <AlertText>Call notifications are paused for this district due to COVID-19. Update this setting in the Representatives tab.</AlertText>
+            </div>
+        )
+    }
+    return null
+};
 
 class LoggedInWrapper extends Component {
 
@@ -124,6 +141,7 @@ class LoggedInWrapper extends Component {
                             <span>Editing district: </span>
                             {selectDistrict}
                         </div>
+                        <CovidAlert district={this.props.selectedDistrict} />
                         <Menu
                         mode="inline"
                         defaultSelectedKeys={['1']}
