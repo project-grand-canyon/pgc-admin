@@ -70,7 +70,7 @@ class Representative extends Component {
             if (errors != null) {
                 return;
             }
-            const { state, number, callTargets } = this.state.hydratedDistrict
+            const { state, number, callTargets, status: previousStatus } = this.state.hydratedDistrict
             const { firstName, lastName, repImageUrl, status } = formFields
             
             const putBody = {
@@ -84,7 +84,7 @@ class Representative extends Component {
             }
 
             const updateDistrict = () => { this.putUpdate(putBody) };
-            if (hydratedDistrict.status === 'active' && formFields.status === 'covid_paused') {
+            if (previousStatus === 'active' && formFields.status === 'covid_paused') {
                 this.showCovidConfirmation(updateDistrict);
             } else {
                 updateDistrict();
