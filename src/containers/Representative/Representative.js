@@ -70,15 +70,17 @@ class Representative extends Component {
             if (errors != null) {
                 return;
             }
-            const {hydratedDistrict} = this.state;
+            const { state, number, callTargets } = this.state.hydratedDistrict
+            const { firstName, lastName, repImageUrl, status } = formFields
+            
             const putBody = {
-                "state":hydratedDistrict.state,
-                "number": hydratedDistrict.number,
-                "repFirstName": formFields.firstName,
-                "repLastName": formFields.lastName,
-                "repImageUrl": formFields.repImageUrl,
-                "status": formFields.status,
-                "callTargets": hydratedDistrict.callTargets
+                state,
+                number,
+                callTargets,
+                firstName,
+                lastName,
+                repImageUrl,
+                status,
             }
 
             const updateDistrict = () => { this.putUpdate(putBody) };
