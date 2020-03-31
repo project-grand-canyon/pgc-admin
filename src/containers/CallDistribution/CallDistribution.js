@@ -140,17 +140,17 @@ class CallDistribution extends Component {
         const self = this;
         this.props.form.validateFields((err, values) => {
             if (!err) {
-                // TODO: use object destructuring to avoid having to reset all this crap.
+                const {districtId, state, number, repFirstName, repLastName, repImageUrl, status} = this.state.hydratedDistrict
                 const body = {
-                    "districtId": this.state.hydratedDistrict.districtId,
-                    "state":this.state.hydratedDistrict.state,
-                    "number": this.state.hydratedDistrict.number,
-                    "repFirstName": this.state.hydratedDistrict.repFirstName,
-                    "repLastName": this.state.hydratedDistrict.repLastName,
-                    "repImageUrl": this.state.hydratedDistrict.repImageUrl,
-                    "info": this.state.hydratedDistrict.shortBio,
-                    "callTargets": this.getCallTargetRequestBodyComponent()
+                    districtId,
+                    state,
+                    number,
+                    repFirstName,
+                    repLastName,
+                    repImageUrl,
+                    status
                 }
+                body["callTargets"] = this.getCallTargetRequestBodyComponent()
                 this.setState({editing: true},()=>{
                     const requestOptions = {
                         url: `/districts/${this.props.district.districtId}/`,
