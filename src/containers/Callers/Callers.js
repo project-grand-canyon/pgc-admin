@@ -1,12 +1,13 @@
 import React, { Component } from 'react';
 import { Redirect } from 'react-router';
 import { Button, Icon, Input, Form, Modal, Popover, Table, Typography } from 'antd';
+import fileDownload from 'js-file-download';
 
 import _ from 'lodash'
 import { DateTime } from 'luxon'
 import axios from '../../_util/axios-api';
 import { isSenatorDistrict } from '../../_util/district';
-import { callerStatus, Status, sortedByStatus } from '../../_util/caller';
+import { callerStatus, Status, sortedByStatus, asCsv } from '../../_util/caller';
 import { HistoryType } from './constants'
 
 import { authHeader } from '../../_util/auth/auth-header';
@@ -147,10 +148,23 @@ class Callers extends Component {
             caller: caller
           } 
         }, () => {
-          this.fetchCallerHistory();
-        });
-      }
+          this.fetchCallerHistory(this.state.callerDetail, (err, history) => {
+            const callerDetail = {...this.state.callerDetail}
+            if (err) {
+              callerDetail.callReminderError = err.message;
+            } else {
+              const {signUpHistory, callHistory, reminderHistory} = {...history};
+              callerDetail.history = _([])
+                .concat(signUpHistory, callHistory, reminderHistory)
+                .sortBy('timestamp')
+                .reverse()
+                .value()
+            }
+            this.setState({ callerDetail })  
+        })
+      })
     }
+  }
 
     fetchCallers() {
         const district = this.props.district;
@@ -207,9 +221,9 @@ class Callers extends Component {
       }
     }
 
-    fetchCallerHistory() {
+    fetchCallerHistory(callerDetail, completion) {
       const district = this.props.district;
-      const caller = this.state.callerDetail && this.state.callerDetail.caller;
+      const caller = callerDetail && callerDetail.caller;
       if (district && caller) {
         const callHistoryRequestOptions = {
           url: `/calls/${caller['callerId']}`,
@@ -221,7 +235,6 @@ class Callers extends Component {
           method: 'GET',
           headers: { ...authHeader(), 'Content-Type': 'application/json' }
         };
-        const callerDetail = {...this.state.callerDetail};
         Promise.all([
           axios(callHistoryRequestOptions), 
           axios(reminderHistoryRequestOptions)
@@ -240,17 +253,17 @@ class Callers extends Component {
           const signUpHistory = [ createHistoryItem(caller.created, HistoryType.SIGN_UP) ]
           const callHistory = _.map(calls.data, ({ created }) => createHistoryItem(created, HistoryType.CALL))
           const reminderHistory = _.map(reminders.data, ({ timeSent }) => createHistoryItem(timeSent, HistoryType.NOTIFICATION))
+          const history = {
+            signUpHistory,
+            callHistory,
+            reminderHistory
+          }
 
-          callerDetail.history = _([])
-            .concat(signUpHistory, callHistory, reminderHistory)
-            .sortBy('timestamp')
-            .reverse()
-            .value()
+          completion(null, history)
+
         }).catch( e => {
-          callerDetail.callReminderError = e.message;
-        }).then(()=>{
-          this.setState({ callerDetail })
-        });
+          completion(e)
+        })
       }
   }
 
@@ -324,6 +337,17 @@ class Callers extends Component {
             Callers for District
           </Typography.Title>
           {this.detailModal()}
+
+          <Button
+            disabled={this.state.districtCallers === null}
+            onClick= { (event) => {
+              const data = asCsv(this.state.districtCallers)
+              fileDownload(data, `${this.props.district.state}${this.props.district.number}.csv`);
+            }}
+          >
+            Download as CSV
+          </Button>
+
           <Table
             loading={this.state.districtCallers === null}
             bordered
