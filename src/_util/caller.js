@@ -77,7 +77,7 @@ export const callerStatus = caller => {
     }
 }
 
-export const asCsv = callers => {
+export const asCsv = (callers) => {
 
     const header = [
         {id: "firstName", title: "First Name"},
@@ -87,11 +87,11 @@ export const asCsv = callers => {
         {id: "email", title: "Email"},
         {id: "zipCode", title: "ZIP"},
         {id: "paused", title: "Active/Paused"},
-        // {id: "totalCalls", title: "Total Calls Made"},
+        {id: "totalCalls", title: "Total Calls Made"},
         {id: "lastCallTimestamp" , title: "Last Call Date"},
         {id: "lastReminderTimestamp", title: "Last Reminder Date"},
         {id: "reminderDayOfMonth", title: "Reminder Day of Month"},
-        // {id: "history", title: "History"} //json log of sign up, reminder, and call-in timestamps
+        {id: "history", title: "History"} //json log of sign up, reminder, and call-in timestamps
     ];
 
     const csvStringifier = createObjectCsvStringifier({

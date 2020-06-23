@@ -6,6 +6,7 @@ import {
   Input,
   Form,
   Modal,
+  message,
   Popover,
   Table,
   Typography,
@@ -32,6 +33,7 @@ class Callers extends Component {
     allCallers: null,
     callerDetail: {},
     searchTerm: null,
+    generatingCsv: false,
   };
 
   isCallerInFocus = (key) => {
@@ -195,28 +197,35 @@ class Callers extends Component {
           },
         },
         () => {
-          this.fetchCallerHistory(this.state.callerDetail, (err, history) => {
-            const callerDetail = { ...this.state.callerDetail };
-            if (err) {
-              callerDetail.callReminderError = err.message;
-            } else {
-              const { signUpHistory, callHistory, reminderHistory } = {
-                ...history,
-              };
-              callerDetail.history = _([])
-                .concat(signUpHistory, callHistory, reminderHistory)
-                .sortBy("timestamp")
-                .reverse()
-                .value();
+          getCallerHistories(
+            [this.state.callerDetail.caller],
+            (err, history) => {
+              const callerDetail = { ...this.state.callerDetail };
+              if (err) {
+                callerDetail.callReminderError = err.message;
+              } else {
+                callerDetail.history = this.makeTimeline(history[0]);
+              }
+              this.setState({ callerDetail });
             }
-            this.setState({ callerDetail });
-          });
+          );
         }
       );
     }
   };
 
-  fetchCallers() {
+  makeTimeline = (history) => {
+    const { signUpHistory, callHistory, reminderHistory } = {
+      ...history,
+    };
+    return _([])
+      .concat(signUpHistory, callHistory, reminderHistory)
+      .sortBy("timestamp")
+      .reverse()
+      .value();
+  };
+
+  fetchCallers = () => {
     if (this.props.district) {
       getDistrictCallers(this.props.district, (err, callers) => {
         if (err) {
@@ -243,19 +252,7 @@ class Callers extends Component {
         }
       });
     }
-  }
-
-  fetchCallerHistory(callerDetail, completion) {
-    console.log(callerDetail);
-    getCallerHistories([callerDetail.caller], (err, history) => {
-      console.log("caller history res");
-      if (err) {
-        completion(err);
-      } else {
-        completion(null, history[0]); // in this case, there is only one, and we care only about the first response
-      }
-    });
-  }
+  };
 
   componentDidUpdate(prevProps) {
     if (prevProps.district !== this.props.district) {
@@ -282,6 +279,39 @@ class Callers extends Component {
   onSavedCaller = () => {
     this.onUnfocusCaller(() => {
       this.fetchCallers();
+    });
+  };
+
+  onClickDownloadAsCsv = (event) => {
+    if (!this.state.districtCallers) {
+      message.error("Could not generate a CSV");
+      return;
+    }
+
+    const hide = message.loading("Generating a CSV", 0);
+    getCallerHistories([...this.state.districtCallers], (err, histories) => {
+      if (err) {
+        message.error(`Could not generate a CSV - ${err.message}`);
+      } else {
+        hide();
+
+        const enrichedCallers = this.state.districtCallers.map(
+          (caller, index) => {
+            const history = histories[index];
+            caller.paused = caller.paused ? "Paused" : "Active"
+            caller.totalCalls = history.callHistory.length;
+            caller.history = JSON.stringify(this.makeTimeline(history));
+            return caller;
+          }
+        );
+
+        const data = asCsv(enrichedCallers);
+        fileDownload(
+          data,
+          `${this.props.district.state}${this.props.district.number}.csv`
+        );
+        message.success(`CSV has downloaded!`);
+      }
     });
   };
 
@@ -342,13 +372,7 @@ class Callers extends Component {
 
         <Button
           disabled={this.state.districtCallers === null}
-          onClick={(event) => {
-            const data = asCsv(this.state.districtCallers);
-            fileDownload(
-              data,
-              `${this.props.district.state}${this.props.district.number}.csv`
-            );
-          }}
+          onClick={this.onClickDownloadAsCsv}
         >
           Download as CSV
         </Button>

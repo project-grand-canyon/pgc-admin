@@ -34,7 +34,6 @@ export function getAllCallers(completion) {
 }
 
 export function getCallerHistories(callers, completion) {
-    console.log(callers)
     const poolLimit = 3
     return asyncPool(poolLimit, callers, getCallerHistory)
     .then((results) => {
