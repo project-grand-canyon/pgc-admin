@@ -290,28 +290,28 @@ class Callers extends Component {
 
     const hide = message.loading("Generating a CSV", 0);
     getCallerHistories([...this.state.districtCallers], (err, histories) => {
+      hide();
       if (err) {
         message.error(`Could not generate a CSV - ${err.message}`);
-      } else {
-        hide();
-
-        const enrichedCallers = this.state.districtCallers.map(
-          (caller, index) => {
-            const history = histories[index];
-            caller.paused = caller.paused ? "Paused" : "Active"
-            caller.totalCalls = history.callHistory.length;
-            caller.history = JSON.stringify(this.makeTimeline(history));
-            return caller;
-          }
-        );
-
-        const data = asCsv(enrichedCallers);
-        fileDownload(
-          data,
-          `${this.props.district.state}${this.props.district.number}.csv`
-        );
-        message.success(`CSV has downloaded!`);
+        return;
       }
+
+      const enrichedCallers = this.state.districtCallers.map(
+        (caller, index) => {
+          const history = histories[index];
+          caller.paused = caller.paused ? "Paused" : "Active";
+          caller.totalCalls = history.callHistory.length;
+          caller.history = JSON.stringify(this.makeTimeline(history));
+          return caller;
+        }
+      );
+
+      const data = asCsv(enrichedCallers);
+      fileDownload(
+        data,
+        `${this.props.district.state}${this.props.district.number}.csv`
+      );
+      message.success(`CSV has downloaded!`);
     });
   };
 
