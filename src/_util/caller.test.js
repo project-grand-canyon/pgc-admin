@@ -1,8 +1,9 @@
 import { DateTime} from 'luxon'
 import { cloneDeep } from 'lodash'
 
+
 const callers = require('../fixtures/callers.json');
-const { callerStatus, Status, sortedByStatus } = require('./caller')
+const { callerStatus, Status, sortedByStatus, asCsv } = require('./caller')
 
 const _allCallers = callers.map(caller => {
     return {
@@ -82,3 +83,16 @@ describe('sortedByStatus', () => {
         expect(sortedByStatus(_currentCaller, _currentCaller)).toBe(0);
     });
 });
+
+describe('asCsv', () => {
+    // test('bla', () => {
+    //     console.log('1')
+    //     const actual = asCsv(callers)
+    //     console.log('2')
+    //     const expected = generate(callers)
+    //     console.log('3')
+    //     expect(actual).toEqual(expected);
+    //     console.log('4')
+    //     expect(4).toBe(5);
+    // });
+})

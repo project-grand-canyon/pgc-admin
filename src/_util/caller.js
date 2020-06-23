@@ -1,4 +1,5 @@
 import { DateTime } from 'luxon'
+import { createObjectCsvStringifier } from 'csv-writer'
 
 const WAIT_FOR_CALL_AFTER_NOTIFICATION_DAYS = 5; 
 
@@ -74,4 +75,29 @@ export const callerStatus = caller => {
         status,
         monthsMissedCount,
     }
+}
+
+export const asCsv = (callers) => {
+
+    const header = [
+        {id: "firstName", title: "First Name"},
+        {id: "lastName", title: "Last Name"},
+        {id: "contactMethods", title: "Contact Methods"},
+        {id: "phone", title: "Phone"},
+        {id: "email", title: "Email"},
+        {id: "zipCode", title: "ZIP"},
+        {id: "paused", title: "Active/Paused"},
+        {id: "totalCalls", title: "Total Calls Made"},
+        {id: "lastCallTimestamp" , title: "Last Call Date"},
+        {id: "lastReminderTimestamp", title: "Last Reminder Date"},
+        {id: "reminderDayOfMonth", title: "Reminder Day of Month"},
+        {id: "history", title: "History"} //json log of sign up, reminder, and call-in timestamps
+    ];
+
+    const csvStringifier = createObjectCsvStringifier({
+        header
+    });
+    const headerStr = csvStringifier.getHeaderString()
+    const body =  csvStringifier.stringifyRecords(callers)
+    return `${headerStr}${body}`
 }

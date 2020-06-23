@@ -9,8 +9,10 @@
     "antd": "^3.25.2",
     "axios": "^0.18.1",
     "babel-plugin-import": "^1.12.1",
+    "csv-writer": "^1.6.0",
     "customize-cra": "^0.9.1",
     "history": "^4.9.0",
+    "js-file-download": "^0.4.12",
     "less": "^3.10.3",
     "less-loader": "^5.0.0",
     "lodash": "^4.17.15",
@@ -26,6 +28,7 @@
     "redux": "^4.0.1",
     "redux-logger": "^3.0.6",
     "redux-thunk": "^2.3.0",
+    "tiny-async-pool": "^1.1.0",
     "typeface-ubuntu": "0.0.65"
   },
   "scripts": {
