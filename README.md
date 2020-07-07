@@ -7,7 +7,7 @@ This project was bootstrapped with [Create React App](https://github.com/faceboo
 
 ### Running against a local API 
 
-Run `echo REACT_APP_API_ENDPOINT=http://localhost:8080/api/`
+Run `export REACT_APP_API_ENDPOINT=http://localhost:8080/api/`
 
 ## Available Scripts
 
