@@ -1,5 +1,14 @@
 This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
 
+## Environment Setup
+
+1. Install [node 12 and npm](https://nodejs.org/en/)
+2. Install dependencies with `npm install`
+
+### Running against a local API 
+
+Run `echo REACT_APP_API_ENDPOINT=http://localhost:8080/api/`
+
 ## Available Scripts
 
 In the project directory, you can run:
