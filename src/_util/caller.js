@@ -15,12 +15,23 @@ const isCurrent = ({ lastCallTimestamp, lastReminderTimestamp }) => {
     return lastCallDateTime.diff(lastReminderDateTime) >= 0
 }
 
-const isWaiting = ({ lastReminderTimestamp, created }) => {
+const isWaiting = ({ lastCallTimestamp, lastReminderTimestamp, created }) => {
     const lastReminderDateTime = DateTime.fromSQL(lastReminderTimestamp || created)
     const now = DateTime.local()
     const daysSinceLastNotification = now.diff(lastReminderDateTime).as('days')
 
-    return daysSinceLastNotification <= WAIT_FOR_CALL_AFTER_NOTIFICATION_DAYS
+    if (daysSinceLastNotification <= WAIT_FOR_CALL_AFTER_NOTIFICATION_DAYS) {
+        // Last reminder was recent so caller might heed it soon
+        // But if they didn't heed the *previous* reminder, we should assume they're lapsed
+        // API doesn't provide previous reminder timestamp, but we can guess it generously
+        const prevReminderDateTime = lastReminderDateTime.minus({days: 32})
+        const lastCallDateTime = DateTime.fromSQL(lastCallTimestamp || created)
+        if (lastCallDateTime.diff(prevReminderDateTime) >= 0) {
+            return true
+        }
+    }
+
+    return false
 }
 
 
