@@ -10,34 +10,27 @@ import {
   Legend,
   ResponsiveContainer,
 } from "recharts";
-import { Row, Col, Modal, Icon, Statistic, Typography } from "antd";
+import { Row, Col, Icon, Statistic, Typography } from "antd";
 import axios from "../../_util/axios-api";
 import { authHeader } from "../../_util/auth/auth-header";
-import {
-  displayName,
-  isSenatorDistrict,
-  getAssociatedSenators,
-} from "../../_util/district";
+import { displayName, getAssociatedSenators } from "../../_util/district";
 
 class Reports extends Component {
   state = {
-    districts: null,
     statistics: null,
   };
 
   componentDidMount() {
-    if (this.state.districts === null) {
-      this.fetchDistricts();
-    }
     if (this.state.statistics === null) {
       this.fetchStatistics();
     }
   }
 
   fetchStatistics() {
-    if (this.state.districts) {
-      const districts = this.state.districts;
-      let statistics = [];
+    if (this.props.districts) {
+      const districts = this.props.districts;
+      let promises = [];
+      let responses = [];
       for (let index = 0; index < districts.length; ++index) {
         if (districts[index]) {
           const requestOptions = {
@@ -45,59 +38,21 @@ class Reports extends Component {
             method: "GET",
             headers: { ...authHeader(), "Content-Type": "application/json" },
           };
-          axios(requestOptions)
-            .then((response) => {
-              statistics.push(response.data);
-              this.setState({ statistics: statistics });
+          promises.push(
+            axios(requestOptions).then((response) => {
+              responses.push(response.data);
             })
-            .catch((e) => {
-              Modal.error({
-                title: "Error Loading Page",
-                content: e.message,
-              });
-              this.setState({ fetchError: e.message });
-            });
+          );
         }
       }
-    }
-  }
-  fetchDistricts() {
-    if (this.props.district) {
-      if (isSenatorDistrict(this.props.district)) {
-        this.setState({
-          districts: this.props.state,
-        });
-      }
-      const requestOptions = {
-        url: `/districts`,
-        method: "GET",
-        headers: { ...authHeader(), "Content-Type": "application/json" },
-      };
-      axios(requestOptions)
-        .then((response) => {
-          const associatedSenators = getAssociatedSenators(
-            this.props.district,
-            response.data
-          );
-          this.setState({
-            districts: [this.props.district, ...associatedSenators],
-          });
-        })
-        .catch((e) => {
-          Modal.error({
-            title: "Error Loading Page",
-            content: e.message,
-          });
-          this.setState({ fetchError: e.message });
-        });
+      Promise.all(promises).then(() => {
+        this.setState({ statistics: responses });
+      });
     }
   }
 
-  componentDidUpdate(prevProps, prevState) {
+  componentDidUpdate(prevProps) {
     if (prevProps.district !== this.props.district) {
-      this.setState({ districts: null, statistics: null });
-      this.fetchDistricts();
-    } else if (prevState.districts !== this.state.districts) {
       this.setState({ statistics: null });
       this.fetchStatistics();
     }
@@ -113,7 +68,7 @@ class Reports extends Component {
   };
   render() {
     const statistics = this.state.statistics;
-    const districts = this.state.districts;
+    const districts = this.props.districts;
     let distRenders = [];
     if (statistics) {
       for (let index = 0; index < districts.length; ++index) {
@@ -223,6 +178,13 @@ class Reports extends Component {
 const mapStateToProps = (state) => {
   return {
     district: state.districts.selected,
+    districts: [
+      state.districts.selected,
+      ...getAssociatedSenators(
+        state.districts.selected,
+        state.districts.districts
+      ),
+    ],
   };
 };
 
