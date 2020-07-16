@@ -7,6 +7,8 @@ import { Row, Col, Modal, Icon, Statistic, Typography } from 'antd';
 import axios from '../../_util/axios-api';
 import { authHeader } from '../../_util/auth/auth-header';
 import { displayName } from '../../_util/district';
+import CustomToolTip from './CustomToolTip.js'
+
 
 
 class Reports extends Component {
@@ -52,41 +54,52 @@ class Reports extends Component {
         const formatted = Object.keys(data['callersByMonth']).map((el)=>{
             const numCallers = data['callersByMonth'][el]
             const numCalls = data['callsByMonth'][el] || 0
-            return {date: el, Callers: numCallers, Calls: numCalls};
-        });
+            const completed = String(numCalls/numCallers * 100) + "%"
+            return {date: el, Callers: numCallers, Calls: numCalls, Completed: completed};
+        });  
         return formatted.slice(0, 11);
     }
 
+    
     render() {
         const statistics = this.state.statistics;
         const antIconBig = <Icon type="loading" style={{ fontSize: 28 }} spin />
         const antIconHuge = <Icon type="loading" style={{ fontSize: 72 }} spin />
         const districtTitle = this.props.district ? `${displayName(this.props.district)} ` : "";
+        const completionRate = statistics ? statistics.totalCalls/statistics.totalCallers * 100 : 0; 
 
         return <>
             <Typography.Title level={2}>{districtTitle}Activity Reports</Typography.Title>
             <Row>
-                <Col span={8}>
+                <Col span={6}>
                 {
                     statistics ?
                     <Statistic title={<Typography.Text>Total Callers </Typography.Text>} value={ statistics.totalCallers } /> :
                     antIconBig
                 }
                 </Col>
-                <Col span={8}>
+                <Col span={6}>
                 {
                     statistics ?
                     <Statistic title={<Typography.Text>Total Calls </Typography.Text>} value={ statistics.totalCalls } /> :
                     antIconBig
                 }
                 </Col>
-                <Col span={8}>
+                <Col span={6}>
                 {
                     statistics ?
                     <Statistic title={<Typography.Text>Past {statistics.recentDayCount} Days Call Count</Typography.Text>} value={ statistics.totalRecentCalls } /> :
                     antIconBig
                 }
                 </Col>
+                <Col span={6}>
+                {
+                    statistics ?
+                    <Statistic title={<Typography.Text>Completion Rate</Typography.Text>} value={ completionRate + "%"} /> :
+                    antIconBig 
+                }
+                </Col>
+          
             </Row>
             <Row style={{marginTop: "40px"}}>
                 <Col>
@@ -100,10 +113,11 @@ class Reports extends Component {
                                 <CartesianGrid strokeDasharray="3 3" />
                                 <XAxis dataKey="date" />
                                 <YAxis />
-                                <Tooltip />
+                                <Tooltip content={<CustomToolTip />} /> 
                                 <Legend />
                                 <Line type="monotone" dataKey="Callers" stroke="#8884d8"  />
                                 <Line type="monotone" dataKey="Calls" stroke="#901111"  />
+
                             </LineChart> :
                             antIconHuge
                         }
@@ -113,6 +127,7 @@ class Reports extends Component {
             </Row>
         </>;
     }
+   // content={<CustomToolTip />} 
 }
 
 
