@@ -29,25 +29,24 @@ class Reports extends Component {
   fetchStatistics() {
     if (this.props.districts) {
       const districts = this.props.districts;
-      let promises = [];
-      let responses = [];
-      for (let index = 0; index < districts.length; ++index) {
-        if (districts[index]) {
-          const requestOptions = {
-            url: `/stats/${districts[index].districtId}`,
-            method: "GET",
-            headers: { ...authHeader(), "Content-Type": "application/json" },
-          };
-          promises.push(
-            axios(requestOptions).then((response) => {
-              responses.push(response.data);
-            })
-          );
-        }
-      }
-      Promise.all(promises).then(() => {
-        this.setState({ statistics: responses });
+      const promises = districts.map((dist) => {
+        const requestOptions = {
+          url: `/stats/${dist.districtId}`,
+          method: "GET",
+          headers: { ...authHeader(), "Content-Type": "application/json" },
+        };
+        return axios(requestOptions);
       });
+      Promise.all(promises)
+        .then((responses) => {
+          const statistics = responses.map((response) => {
+            return response.data;
+          });
+          this.setState({ statistics: statistics });
+        })
+        .catch((error) => {
+          console.log(error);
+        });
     }
   }
 
