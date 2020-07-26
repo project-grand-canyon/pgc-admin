@@ -24,6 +24,7 @@ class TalkingPoints extends Component {
         editing: null,
         wantsToAddNewTalkingPoint: false,
         admins: null,
+        adminsById: null,
         editingTalkingPointDetails: null
     }
 
@@ -64,6 +65,7 @@ class TalkingPoints extends Component {
             
             Promise.all([getAdmins, getTPs, getThemes, getLiveTPs]).then((response)=>{
                 const admins = response[0].data;
+                const adminsById = new Map(admins.map((el) => [el.adminId, el]));
                 const talkingPoints = response[1].data;
                 const themes = response[2].data;
                 const liveTPs = response[3].data;
@@ -80,6 +82,7 @@ class TalkingPoints extends Component {
                 this.setState({
                     allTalkingPoints: sortedTPs,
                     admins: admins,
+                    adminsById: adminsById,
                     themes: themes,
                     liveTalkingPoints: liveTPs
                 }, () => {
@@ -177,7 +180,7 @@ class TalkingPoints extends Component {
         }).filter((el)=>{
             if (filters && filters.author) {
                 const author = filters.author.trim().toLowerCase();
-                const createdBy = this.state.admins.find((admin) => admin.adminId === el.createdBy);
+                const createdBy = el.createdBy && this.state.adminsById.get(el.createdBy);
                 if (!createdBy) {
                     return false;
                 }
@@ -495,9 +498,7 @@ class TalkingPoints extends Component {
                 const theme = this.state.themes.find((el) => {
                     return el.themeId === item.themeId
                 });
-                const createdBy = this.state.admins.find((el)=> {
-                    return el.adminId === item.createdBy
-                })
+                const createdBy = item.createdBy && this.state.adminsById.get(item.createdBy);
 
                 const reference = item.referenceUrl ?
                     <Typography.Text copyable={{ text: item.referenceUrl }}>
@@ -548,6 +549,7 @@ class TalkingPoints extends Component {
             && this.props.districts.length > 0
             && this.state.liveTalkingPoints !== null
             && this.state.admins !== null
+            && this.state.adminsById !== null
     }
 }
 
