@@ -68,6 +68,7 @@ class TalkingPoints extends Component {
                 const adminsById = new Map(admins.map((el) => [el.adminId, el]));
                 const talkingPoints = response[1].data;
                 const themes = response[2].data;
+                const sortedThemes = themes.sort((el1, el2) => el1.name.localeCompare(el2.name));
                 const liveTPs = response[3].data;
                 const sortedTPs = talkingPoints.sort((el1, el2)=>{
                     const d1 = new Date(el1.created)
@@ -83,7 +84,7 @@ class TalkingPoints extends Component {
                     allTalkingPoints: sortedTPs,
                     admins: admins,
                     adminsById: adminsById,
-                    themes: themes,
+                    themes: sortedThemes,
                     liveTalkingPoints: liveTPs
                 }, () => {
                     this.setState({
