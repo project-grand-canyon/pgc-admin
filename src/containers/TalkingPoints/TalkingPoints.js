@@ -175,6 +175,19 @@ class TalkingPoints extends Component {
             }
             return true;
         }).filter((el)=>{
+            if (filters && filters.author) {
+                const author = filters.author.trim().toLowerCase();
+                const createdBy = this.state.admins.find((admin) => admin.adminId === el.createdBy);
+                if (!createdBy) {
+                    return false;
+                }
+                return (
+                    createdBy.userName.toLowerCase().includes(author) ||
+                    (createdBy.email && createdBy.email.toLowerCase().includes(author))
+                );
+            }
+            return true;
+        }).filter((el)=>{
             if (this.state.searchTerm){
                 return el.content.toLowerCase().includes(this.state.searchTerm.toLowerCase())
             }
@@ -358,7 +371,7 @@ class TalkingPoints extends Component {
                     </Col>
                 </Row>
                 <Row gutter={[{ xs: 8, sm: 16, md: 24, lg: 32 }, 20]}>
-                    <Col sm={24} md={8} >
+                    <Col sm={24} md={6} >
                         <Form.Item label="Relevance">
                             {getFieldDecorator("scope", {})(
                                 <Checkbox.Group>
@@ -369,7 +382,7 @@ class TalkingPoints extends Component {
                             )}
                         </Form.Item>
                     </Col>
-                    <Col sm={24} md={8} >
+                    <Col sm={24} md={6} >
                         <Form.Item label="Theme">
                         {getFieldDecorator("theme", {})(
                             <Select
@@ -385,12 +398,19 @@ class TalkingPoints extends Component {
                             )}
                         </Form.Item>
                     </Col>
-                    <Col sm={24} md={8} >
-                        <Form.Item label="Currently selected for Call-In Script">
+                    <Col sm={24} md={6} >
+                        <Form.Item label="Currently selected">
                             {getFieldDecorator("script", {
                                 valuePropName: 'checked'
                             })(
                                 <Checkbox value={"script"}>In Script</Checkbox>
+                            )}
+                        </Form.Item>
+                    </Col>
+                    <Col sm={24} md={6} >
+                        <Form.Item label="Author">
+                            {getFieldDecorator("author", {})(
+                                <Input placeholder="Username or email" />
                             )}
                         </Form.Item>
                     </Col>
