@@ -14,20 +14,21 @@ import './TalkingPoints.module.css';
 class TalkingPointsFilter extends Component {
 
     render() {
+        const filters = this.props.filters;
         const { getFieldDecorator } = this.props.form;
         return (
             <Form>
                 <Row>
                     <Col sm={24} md={12} >
                         <Form.Item label="Creation Date">
-                            {getFieldDecorator("creationDate", {})(
+                            {getFieldDecorator("creationDate", {initialValue: filters && filters.creationDate})(
                                 <DatePicker.RangePicker />
                             )}
                         </Form.Item>
                     </Col>
                     <Col sm={24} md={12} >
                         <Form.Item label="Last Updated Date">
-                            {getFieldDecorator("updatedDate", {})(
+                            {getFieldDecorator("updatedDate", {initialValue: filters && filters.updatedDate})(
                                 <DatePicker.RangePicker />
                             )}
                         </Form.Item>
@@ -36,7 +37,7 @@ class TalkingPointsFilter extends Component {
                 <Row gutter={[{ xs: 8, sm: 16, md: 24, lg: 32 }, 20]}>
                     <Col sm={24} md={6} >
                         <Form.Item label="Relevance">
-                            {getFieldDecorator("scope", {})(
+                            {getFieldDecorator("scope", {initialValue: filters && filters.scope})(
                                 <Checkbox.Group>
                                     <Checkbox value={"national"}>National</Checkbox>
                                     <Checkbox value={"state"}>My State</Checkbox>
@@ -47,7 +48,7 @@ class TalkingPointsFilter extends Component {
                     </Col>
                     <Col sm={24} md={6} >
                         <Form.Item label="Theme">
-                        {getFieldDecorator("theme", {})(
+                        {getFieldDecorator("theme", {initialValue: filters && filters.theme})(
                             <Select
                                 showSearch
                                 allowClear
@@ -64,7 +65,8 @@ class TalkingPointsFilter extends Component {
                     <Col sm={24} md={6} >
                         <Form.Item label="Currently selected">
                             {getFieldDecorator("script", {
-                                valuePropName: 'checked'
+                                valuePropName: 'checked',
+                                initialValue: filters && filters.script
                             })(
                                 <Checkbox value={"script"}>In Script</Checkbox>
                             )}
@@ -72,7 +74,7 @@ class TalkingPointsFilter extends Component {
                     </Col>
                     <Col sm={24} md={6} >
                         <Form.Item label="Author">
-                            {getFieldDecorator("author", {})(
+                            {getFieldDecorator("author", {initialValue: filters && filters.author})(
                                 <Input placeholder="Username or email" />
                             )}
                         </Form.Item>
@@ -407,6 +409,7 @@ class TalkingPoints extends Component {
             <Input.Search
                 style={{ width: 280 }}
                 placeholder="Search Talking Points"
+                value={this.state.searchTerm}
                 onSearch={value => this.setState({ searchTerm: value })}
                 onChange={event => this.setState({ searchTerm: event.target.value })}
                 allowClear={true}
@@ -429,7 +432,10 @@ class TalkingPoints extends Component {
         return(
             <div style={{border: "1px solid black", padding: "10px"}}>
                 <Typography.Title level={3}>Filters</Typography.Title>
-                <TalkingPointsFilterForm themes={this.state.themes} onValuesChange={this.handleFilterChange} />
+                <TalkingPointsFilterForm
+                    themes={this.state.themes}
+                    filters={this.state.filters}
+                    onValuesChange={this.handleFilterChange} />
             </div>
         );
     }
