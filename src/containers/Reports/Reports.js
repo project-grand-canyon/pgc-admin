@@ -54,7 +54,7 @@ class Reports extends Component {
         const formatted = Object.keys(data['callersByMonth']).map((el)=>{
             const numCallers = data['callersByMonth'][el]
             const numCalls = data['callsByMonth'][el] || 0
-            const completed = String(numCalls/numCallers * 100) + "%"
+            const completed = (numCalls/numCallers * 100).toFixed(1) + "%"
             return {date: el, Callers: numCallers, Calls: numCalls, Completed: completed};
         });  
         return formatted.slice(0, 11);
@@ -66,7 +66,10 @@ class Reports extends Component {
         const antIconBig = <Icon type="loading" style={{ fontSize: 28 }} spin />
         const antIconHuge = <Icon type="loading" style={{ fontSize: 72 }} spin />
         const districtTitle = this.props.district ? `${displayName(this.props.district)} ` : "";
-        const completionRate = statistics ? statistics.totalCalls/statistics.totalCallers * 100 : 0; 
+
+        let completionRate = 0; 
+        if(statistics && statistics.totalCalls > 0 && statistics.totalCallers > 0)
+                completionRate = (statistics.totalCalls/statistics.totalCallers * 100).toFixed(1); 
 
         return <>
             <Typography.Title level={2}>{districtTitle}Activity Reports</Typography.Title>
@@ -127,7 +130,6 @@ class Reports extends Component {
             </Row>
         </>;
     }
-   // content={<CustomToolTip />} 
 }
 
 

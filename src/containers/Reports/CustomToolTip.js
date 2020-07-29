@@ -1,15 +1,18 @@
-import React, { Component } from 'react';
+import React from 'react';
 
 const CustomToolTip = ({ active, payload}) => {
-    if (active) {
+    if (active && payload && payload.length > 1) {
         let callers = payload[0].value;
         let calls = payload[1].value;
-        let rate = '' + (calls * 100 /callers) + '%'; 
+
+        let completionRate = 0; 
+        if(callers > 0 && calls > 0)
+            completionRate = (calls/callers* 100).toFixed(1); 
         return (
           <div className="custom-tooltip" style={viewBoxStyle} >
-            <p className="callers" style={{color: '#8884d8'}} > Callers : {`${callers}`} </p>
-            <p className="calls" style={{color: '#901111'}} > Calls : {`${calls}`} </p>
-            <p className="completion">Completion : {`${rate}`} </p>
+            <p id="callers" style={{color: '#8884d8'}} > Callers : {`${callers}`} </p>
+            <p id="calls" style={{color: '#901111'}} > Calls : {`${calls}`} </p>
+            <p id="completion">Completion : {completionRate}%</p>
           </div>
         );
     }
@@ -17,9 +20,9 @@ const CustomToolTip = ({ active, payload}) => {
 };
 
 const viewBoxStyle = { 
-    'background-color': 'rgba(256, 256, 256, 0.7)',
+    'backgroundColor': 'rgba(256, 256, 256, 0.7)',
     'padding': '10px',
-    'font-size': '10.5pt',
+    'fontSize': '10.5pt',
 };
 
 export default CustomToolTip;
