@@ -1,13 +1,33 @@
-import '@testing-library/jest-dom'
-import { getByText, getNodeText } from '@testing-library/dom'
+import "@testing-library/jest-dom";
+import { getByText, getNodeText } from "@testing-library/dom";
 
-import React from 'react'
-import {render, screen} from '@testing-library/react'
-import CustomToolTip from './CustomToolTip'
+import React from "react";
+import { render, screen } from "@testing-library/react";
+import CustomToolTip from "./CustomToolTip";
 
+test("0 active callers and 0 reminders", () => {
+	let payload = [{ payload: { Callers: 0, Reminders: 0 } }]
+	let active = true;
 
-test('0 callers and 0 calls', () => {
-	let payload = [{ value: 0 }, {value: 0}]
+	const container = render(CustomToolTip({ active, payload }));
+	const text = getNodeText(document.getElementById("completion"));
+
+	expect(text).toBe('Completion : 0%');
+});
+
+test('More than 0 active callers and 0 reminders', () => {
+	let payload = [{ payload: { Callers: 1, Reminders: 0 } }]
+	let active = true
+
+	const container = render( CustomToolTip( { active, payload }) ) 
+	const text = getNodeText(document.getElementById('completion') )
+
+	expect(text).toBe('Completion : 100%')
+
+})	
+
+test('0 callers, more than 0 reminders sent', () => {
+	let payload = [{ payload: { Callers: 0, Reminders: 1 } }]
 	let active = true
 
 	const container = render( CustomToolTip( { active, payload }) ) 
@@ -17,30 +37,19 @@ test('0 callers and 0 calls', () => {
 
 })	
 
-test('More than 0 callers and 0 calls', () => {
-	let payload = [{ value: 1}, {value: 0}]
+test('More callers than reminders sent (both above 0)', () => {
+	let payload = [{ payload: { Callers: 2, Reminders: 1 } }]
 	let active = true
 
 	const container = render( CustomToolTip( { active, payload }) ) 
 	const text = getNodeText(document.getElementById('completion') )
 
-	expect(text).toBe('Completion : 0%')
+	expect(text).toBe('Completion : 100%')
 
 })	
 
-test('0 callers, more than 0 calls made', () => {
-	let payload = [{ value: 0}, {value: 1}]
-	let active = true
-
-	const container = render( CustomToolTip( { active, payload }) ) 
-	const text = getNodeText(document.getElementById('completion') )
-
-	expect(text).toBe('Completion : 0%')
-
-})	
-
-test('More than 0 callers, more than 0 calls made', () => {
-	let payload = [{ value: 2}, {value: 1}]
+test('Less callers than reminders sent (both above 0)', () => {
+	let payload = [{ payload: { Callers: 1, Reminders: 2 } }]
 	let active = true
 
 	const container = render( CustomToolTip( { active, payload }) ) 
@@ -61,7 +70,7 @@ test('empty payload', () => {
 })	
 
 test('active is false', () => {
-	let payload = [{ value: 2}, {value: 1}]
+	let payload = [{ payload: { Callers: 1, Reminders: 2 } }]
 	let active = false
 
 	render( CustomToolTip( { active, payload }) )
@@ -69,4 +78,3 @@ test('active is false', () => {
 	expect(ctt).toBeNull()
 
 })	
-

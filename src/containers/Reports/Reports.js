@@ -51,11 +51,11 @@ class Reports extends Component {
     }
 
     getChartData = (data) => {
-        const formatted = Object.keys(data['callersByMonth']).map((el)=>{
-            const numCallers = data['callersByMonth'][el]
-            const numCalls = data['callsByMonth'][el] || 0
-            const completed = (numCalls/numCallers * 100).toFixed(1) + "%"
-            return {date: el, Callers: numCallers, Calls: numCalls, Completed: completed};
+        const formatted = Object.keys(data['callersByMonth']).map((el) => {
+            const numActiveCallers = data['activeCallersByMonth'][el]
+            const numRemindersSent = data['remindersByMonth'][el] || 0
+            return {date: el, Callers: numActiveCallers, Reminders: numRemindersSent};
+
         });  
         return formatted.slice(0, 11);
     }
@@ -68,8 +68,20 @@ class Reports extends Component {
         const districtTitle = this.props.district ? `${displayName(this.props.district)} ` : "";
 
         let completionRate = 0; 
-        if(statistics && statistics.totalCalls > 0 && statistics.totalCallers > 0)
-                completionRate = (statistics.totalCalls/statistics.totalCallers * 100).toFixed(1); 
+        let numActiveCallers = 0;
+        let numRemindersSent = 0;
+
+        if(statistics) {
+            const currDate = Object.keys(statistics['callersByMonth'])[0]; 
+            numActiveCallers = statistics['activeCallersByMonth'][currDate];
+            numRemindersSent = statistics['remindersByMonth'][currDate];
+
+            if(numActiveCallers > numRemindersSent)
+                completionRate = 100; 
+            else if(numActiveCallers > 0 && numRemindersSent > 0) 
+                completionRate = (numActiveCallers/numRemindersSent * 100).toFixed(1);
+        } 
+        
 
         return <>
             <Typography.Title level={2}>{districtTitle}Activity Reports</Typography.Title>
@@ -77,14 +89,14 @@ class Reports extends Component {
                 <Col span={6}>
                 {
                     statistics ?
-                    <Statistic title={<Typography.Text>Total Callers </Typography.Text>} value={ statistics.totalCallers } /> :
+                    <Statistic title={<Typography.Text>Active Callers for this Month </Typography.Text>} value={ numActiveCallers } /> :
                     antIconBig
                 }
                 </Col>
                 <Col span={6}>
                 {
                     statistics ?
-                    <Statistic title={<Typography.Text>Total Calls </Typography.Text>} value={ statistics.totalCalls } /> :
+                    <Statistic title={<Typography.Text>Reminders Sent for this Month</Typography.Text>} value={ numRemindersSent} /> :
                     antIconBig
                 }
                 </Col>
@@ -98,7 +110,7 @@ class Reports extends Component {
                 <Col span={6}>
                 {
                     statistics ?
-                    <Statistic title={<Typography.Text>Completion Rate</Typography.Text>} value={ completionRate + "%"} /> :
+                    <Statistic title={<Typography.Text>Completion Rate </Typography.Text>} value={ completionRate + "%"} /> :
                     antIconBig 
                 }
                 </Col>
