@@ -74,7 +74,7 @@ class Reports extends Component {
             const totalReminders = Object.values(statistics['remindersByMonth']).reduce((acc, curr) => {
                 return acc + curr
             }, 0)
-            completionRate = (totalActiveCallers/totalReminders * 100).toFixed(1);
+            completionRate = totalReminders ? (totalActiveCallers/totalReminders * 100).toFixed(1) : 0;
         } 
 
         return <>
