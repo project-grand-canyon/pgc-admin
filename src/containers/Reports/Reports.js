@@ -18,6 +18,7 @@ import { displayName, getAssociatedSenators } from "../../_util/district";
 class Reports extends Component {
   state = {
     statistics: null,
+    error: null
   };
 
   componentDidMount() {
@@ -27,38 +28,34 @@ class Reports extends Component {
   }
 
   fetchStatistics() {
-    if (this.props.districts) {
-      const districts = this.props.districts;
-      const promises = districts.map((dist) => {
-        const requestOptions = {
-          url: `/stats/${dist.districtId}`,
-          method: "GET",
+    if (this.props.selected) {
+      const promises = this.props.districts.map(el => {
+        return axios.get(`/stats/${el.districtId}`, {
           headers: { ...authHeader(), "Content-Type": "application/json" },
-        };
-        return axios(requestOptions);
+        });
       });
       Promise.all(promises)
         .then((responses) => {
-          const statistics = responses.map((response) => {
+          const statistics = responses.map(function (response) {
             return response.data;
           });
           this.setState({ statistics: statistics });
         })
-        .catch((error) => {
-          console.log(error);
+        .catch(() => {
+          this.setState({ error: <h1> Some Statistics Not Found </h1> })
         });
     }
   }
 
   componentDidUpdate(prevProps) {
-    if (prevProps.district !== this.props.district) {
+    if (prevProps.selected !== this.props.selected) {
       this.setState({ statistics: null });
       this.fetchStatistics();
     }
   }
 
   getChartData = (data) => {
-    const formatted = Object.keys(data["callersByMonth"]).map((el) => {
+    const formatted = Object.keys(data["callersByMonth"]).map(function (el) {
       const numCallers = data["callersByMonth"][el];
       const numCalls = data["callsByMonth"][el] || 0;
       return { date: el, Callers: numCallers, Calls: numCalls };
@@ -67,88 +64,94 @@ class Reports extends Component {
   };
   render() {
     const statistics = this.state.statistics;
+    const error = this.state.error;
     const districts = this.props.districts;
     let distRenders = [];
     if (statistics) {
       for (let index = 0; index < districts.length; ++index) {
         const antIconBig = (
-          <Icon type="loading" style={{ fontSize: 28 }} spin />
+          <Icon type="loading" style={{ fontSize: 28 }} data-testid="Big Spin" spin />
         );
         const antIconHuge = (
-          <Icon type="loading" style={{ fontSize: 72 }} spin />
+          <Icon type="loading" style={{ fontSize: 72 }} data-testid="Huge Spin" spin />
         );
         const districtTitle = districts[index]
           ? `${displayName(districts[index])} `
           : "";
         distRenders.push(
           <ul key={index}>
-            <Typography.Title level={2}>
+            <Typography.Title level={2} data-testid="districtTitle">
               {districtTitle}Activity Reports
             </Typography.Title>
-            <Row>
-              <Col span={8}>
+            <Row data-testid="statistics">
+              <Col span={8} data-testid="totalCallersCol">
                 {statistics[index] ? (
                   <Statistic
-                    title={<Typography.Text>Total Callers </Typography.Text>}
+                    title={<Typography.Text data-testid="totalCallersText">Total Callers </Typography.Text>}
                     value={statistics[index].totalCallers}
+                    data-testid="totalCallersStatistic"
                   />
                 ) : (
-                  antIconBig
-                )}
+                    antIconBig
+                  )}
               </Col>
-              <Col span={8}>
+              <Col span={8} data-testid="totalCallsCol">
                 {statistics[index] ? (
-                  <Statistic
-                    title={<Typography.Text>Total Calls </Typography.Text>}
+                  <Statistic data-testid="totalCallsStatistic"
+                    title={<Typography.Text data-testid="totalCallsText">Total Calls </Typography.Text>}
                     value={statistics[index].totalCalls}
                   />
                 ) : (
-                  antIconBig
-                )}
+                    antIconBig
+                  )}
               </Col>
-              <Col span={8}>
+              <Col span={8} data-testid="dayCounterCol">
                 {statistics[index] ? (
                   <Statistic
                     title={
-                      <Typography.Text>
+                      <Typography.Text data-testid="dayCounterText">
                         Past {statistics[index].recentDayCount} Days Call Count
                       </Typography.Text>
                     }
                     value={statistics[index].totalRecentCalls}
+                    data-testid="dayCounterStatistic"
                   />
                 ) : (
-                  antIconBig
-                )}
+                    antIconBig
+                  )}
               </Col>
             </Row>
-            <Row style={{ marginTop: "40px" }}>
-              <Col>
+            <Row style={{ marginTop: "40px" }} data-testid="graph">
+              <Col data-testid="graphColumn">
                 <ResponsiveContainer
                   className="container"
                   height={300}
                   width="100%"
+                  data-testid="responsiveContainer"
                 >
                   {statistics[index] ? (
                     <LineChart
                       width={400}
                       height={240}
                       data={this.getChartData(statistics[index])}
+                      data-testid="lineChart"
                     >
-                      <CartesianGrid strokeDasharray="3 3" />
-                      <XAxis dataKey="date" />
-                      <YAxis />
-                      <Tooltip />
-                      <Legend />
+                      <CartesianGrid strokeDasharray="3 3" data-testid="cartesianGrid" />
+                      <XAxis dataKey="date" data-testid="xAxis" />
+                      <YAxis data-testid="yAxis" />
+                      <Tooltip data-testid="toolTip" />
+                      <Legend data-testid="legend" />
                       <Line
                         type="monotone"
                         dataKey="Callers"
                         stroke="#8884d8"
+                        data-testid="line"
                       />
                       <Line type="monotone" dataKey="Calls" stroke="#901111" />
                     </LineChart>
                   ) : (
-                    antIconHuge
-                  )}
+                      antIconHuge
+                    )}
                 </ResponsiveContainer>
               </Col>
             </Row>
@@ -158,6 +161,11 @@ class Reports extends Component {
     }
     return (
       <>
+        {error} ? (
+        <>
+          {error}
+        </>
+        ) : (
         {statistics ? (
           <>
             {distRenders}
@@ -167,23 +175,29 @@ class Reports extends Component {
             </Typography.Text>{" "}
           </>
         ) : (
-          <h1>loading...</h1>
-        )}
+            <h1 data-testid="loading">loading...</h1>
+          )}
+        )
       </>
     );
   }
 }
 
 const mapStateToProps = (state) => {
+
+  const selected = state.districts.selected;
+
+  const districts = [
+    selected,
+    ...getAssociatedSenators(
+      selected,
+      state.districts.districts
+    ),
+  ]
+
   return {
-    district: state.districts.selected,
-    districts: [
-      state.districts.selected,
-      ...getAssociatedSenators(
-        state.districts.selected,
-        state.districts.districts
-      ),
-    ],
+    selected: selected,
+    districts: districts,
   };
 };
 
