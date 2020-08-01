@@ -9,8 +9,6 @@ import { authHeader } from '../../_util/auth/auth-header';
 import { displayName } from '../../_util/district';
 import CustomToolTip from './CustomToolTip.js'
 
-
-
 class Reports extends Component {
 
     state = {
@@ -52,9 +50,10 @@ class Reports extends Component {
 
     getChartData = (data) => {
         const formatted = Object.keys(data['callersByMonth']).map((el) => {
+            const numCallers = data['callersByMonth'][el]
             const numActiveCallers = data['activeCallersByMonth'][el]
             const numRemindersSent = data['remindersByMonth'][el] || 0
-            return {date: el, Callers: numActiveCallers, Reminders: numRemindersSent};
+            return {date: el, Callers: numCallers, Calls: numActiveCallers, Reminders: numRemindersSent};
 
         });  
         return formatted.slice(0, 11);
@@ -67,21 +66,16 @@ class Reports extends Component {
         const antIconHuge = <Icon type="loading" style={{ fontSize: 72 }} spin />
         const districtTitle = this.props.district ? `${displayName(this.props.district)} ` : "";
 
-        let completionRate = 0; 
-        let numActiveCallers = 0;
-        let numRemindersSent = 0;
-
+        let completionRate = 0
         if(statistics) {
-            const currDate = Object.keys(statistics['callersByMonth'])[0]; 
-            numActiveCallers = statistics['activeCallersByMonth'][currDate];
-            numRemindersSent = statistics['remindersByMonth'][currDate];
-
-            if(numActiveCallers > numRemindersSent)
-                completionRate = 100; 
-            else if(numActiveCallers > 0 && numRemindersSent > 0) 
-                completionRate = (numActiveCallers/numRemindersSent * 100).toFixed(1);
+            const totalActiveCallers = Object.values(statistics['activeCallersByMonth']).reduce((acc, curr) => {
+                return acc + curr
+            }, 0)
+            const totalReminders = Object.values(statistics['remindersByMonth']).reduce((acc, curr) => {
+                return acc + curr
+            }, 0)
+            completionRate = (totalActiveCallers/totalReminders * 100).toFixed(1);
         } 
-        
 
         return <>
             <Typography.Title level={2}>{districtTitle}Activity Reports</Typography.Title>
@@ -89,14 +83,14 @@ class Reports extends Component {
                 <Col span={6}>
                 {
                     statistics ?
-                    <Statistic title={<Typography.Text>Active Callers for this Month </Typography.Text>} value={ numActiveCallers } /> :
+                    <Statistic title={<Typography.Text>Total Callers </Typography.Text>} value={ statistics.totalCallers } /> :
                     antIconBig
                 }
                 </Col>
                 <Col span={6}>
                 {
                     statistics ?
-                    <Statistic title={<Typography.Text>Reminders Sent for this Month</Typography.Text>} value={ numRemindersSent} /> :
+                    <Statistic title={<Typography.Text>Total Calls </Typography.Text>} value={ statistics.totalCalls } /> :
                     antIconBig
                 }
                 </Col>
@@ -114,7 +108,6 @@ class Reports extends Component {
                     antIconBig 
                 }
                 </Col>
-          
             </Row>
             <Row style={{marginTop: "40px"}}>
                 <Col>
@@ -132,6 +125,7 @@ class Reports extends Component {
                                 <Legend />
                                 <Line type="monotone" dataKey="Callers" stroke="#8884d8"  />
                                 <Line type="monotone" dataKey="Calls" stroke="#901111"  />
+                                <Line type="monotone" dataKey="Reminders" stroke="#3256a8"  />
 
                             </LineChart> :
                             antIconHuge
