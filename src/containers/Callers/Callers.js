@@ -187,23 +187,18 @@ class Callers extends Component {
     }
 
     if (this.props.user && this.props.user.root) {
+      const allDistrictNames = new Map((this.props.allDistricts).map(district => { return [district.districtId, district] }));
       const allCallerRequestOptions = {
         url: `/callers`,
         method: 'GET',
         headers: { ...authHeader(), 'Content-Type': 'application/json' },
       };
-      const allDistrictRequestOptions = {
-        url: `/districts`,
-        method: 'GET',
-        headers: { ...authHeader(), 'Content-Type': 'application/json' },
-      }
-      Promise.all([axios(allCallerRequestOptions), axios(allDistrictRequestOptions)]).then(([callers, districts]) => {
-        const allDistricts = new Map((districts.data || []).map(district => { return [district.districtId, district] }));
-        const allCallers = (callers.data || []).map(caller => {
+      axios(allCallerRequestOptions).then(({ data }) => {
+        const allCallers = (data || []).map(caller => {
           return {
             ...caller,
             key: caller.callerId,
-            districtName: displayName(allDistricts.get(caller.districtId)),
+            districtName: displayName(allDistrictNames.get(caller.districtId)),
             contactMethodSMS: caller.contactMethods.indexOf('sms') !== -1,
             contactMethodEmail: caller.contactMethods.indexOf('email') !== -1,
             status: callerStatus(caller),
@@ -358,6 +353,7 @@ class Callers extends Component {
 const mapStateToProps = state => {
   return {
     district: state.districts.selected,
+    allDistricts: state.districts.districts,
     user: state.admin.admin
   };
 };
