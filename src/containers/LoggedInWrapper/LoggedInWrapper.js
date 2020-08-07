@@ -132,6 +132,7 @@ class LoggedInWrapper extends Component {
                 return <Redirect to={this.districtURL(this.state.editableDistricts[0])} />
             }
         }
+        const menuSelection = this.districtURL().slice(1)
         const Component = this.props.component
         const componentProps = {...this.props.componentProps, district: selectedDistrict}
         const selectDistrict = this.getSelectDistrict(selectedDistrict)
@@ -157,8 +158,7 @@ class LoggedInWrapper extends Component {
                         <CovidAlert district={selectedDistrict} />
                         <Menu
                         mode="inline"
-                        defaultSelectedKeys={['1']}
-                        defaultOpenKeys={['sub1']}
+                        selectedKeys={[menuSelection]}
                         style={{ height: '100%', borderRight: 0 }}>
                             <Menu.Item key="dashboard">
                                 <Icon type="home" />
@@ -170,7 +170,7 @@ class LoggedInWrapper extends Component {
                                 <span>Call-In Script</span>
                                 <Link to={this.newURL('script', selectedDistrict)} />
                             </Menu.Item>
-                            <Menu.Item key="talking-points-library">
+                            <Menu.Item key="talking-points">
                                 <Icon type="file-search" />
                                 <span>Talking Points Library</span>
                                 <Link to={this.newURL('talking-points', selectedDistrict)} />
@@ -210,7 +210,7 @@ class LoggedInWrapper extends Component {
                                 <Link to={this.newURL('admins', selectedDistrict)} />
                             </Menu.Item>
                         </Menu>
-                        <Menu>
+                        <Menu selectedKeys={[menuSelection]}>
                             <Menu.Item key="account">
                                 <Icon type="setting" />
                                 <span>Account</span>
