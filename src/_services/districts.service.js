@@ -1,5 +1,6 @@
 import axios from '../_util/axios-api';
 import { authHeader } from '../_util/auth/auth-header';
+import { slug } from '../_util/district';
 
 export const districtsService = {
     refresh
@@ -12,8 +13,10 @@ function refresh() {
         headers: { ...authHeader(), 'Content-Type': 'application/json' },
     };
     return axios(requestOptions).then((response)=>{
-            localStorage.setItem('districts', response.data)
-            return response.data;
+            const districts = response.data;
+            const districtsBySlug = new Map(districts.map((dist) => [slug(dist), dist]));
+            localStorage.setItem('districts', districts);
+            return { districts, districtsBySlug };
         }).catch(handleBadResponse)
 }
 

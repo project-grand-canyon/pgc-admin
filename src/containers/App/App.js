@@ -61,18 +61,18 @@ class App extends Component {
               <Route path="/request_password_reset" component={RequestPasswordReset} />
               <Route path="/finish_password_reset" component={FinishPasswordReset} />
               <Route path="/login" component={Login} />
-              <PrivateRoute path="/dashboard" exact component={Dashboard} />
-              <PrivateRoute path="/reports" component={Reports} />
-              <PrivateRoute path="/callers" component={Callers} />
-              <PrivateRoute path="/schedule" component={Schedule} />
-              <PrivateRoute path="/distribution" component={CallDistribution} />
-              <PrivateRoute path="/script" component={Script} />
-              <PrivateRoute path="/talking-points" component={TalkingPoints} />
-              <PrivateRoute path="/talking-points/selection" component={TalkingPointSelection} />
-              <PrivateRoute path="/representative/" component={Representative} />
-              <PrivateRoute path="/admins/" component={Admin} />
-              <PrivateRoute path="/account" component={Account} />
-              <PrivateRoute path="/districts" component={Districts} />
+              <PrivateRoute path="/dashboard/:districtSlug?" component={Dashboard} />
+              <PrivateRoute path="/reports/:districtSlug?" component={Reports} />
+              <PrivateRoute path="/callers/:districtSlug?" component={Callers} />
+              <PrivateRoute path="/schedule/:districtSlug?" component={Schedule} />
+              <PrivateRoute path="/distribution/:districtSlug?" component={CallDistribution} />
+              <PrivateRoute path="/script/:districtSlug?" component={Script} />
+              <PrivateRoute path="/talking-points/:districtSlug?" component={TalkingPoints} />
+              <PrivateRoute path="/talking-points-selection/:districtSlug?" component={TalkingPointSelection} />
+              <PrivateRoute path="/representative/:districtSlug?" component={Representative} />
+              <PrivateRoute path="/admins/:districtSlug?" component={Admin} />
+              <PrivateRoute path="/account/:districtSlug?" component={Account} />
+              <PrivateRoute path="/districts/:districtSlug?" component={Districts} />
               <Route render={() => {return <h2>404</h2>}} />
             </Switch>
         </div>

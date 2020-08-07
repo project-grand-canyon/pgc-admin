@@ -1,4 +1,5 @@
 import React, { Component } from 'react';
+import { generatePath } from 'react-router';
 import { Link, Redirect, withRouter } from 'react-router-dom';
 import { Select, Spin, Icon, Layout, Menu, Typography, Modal, Row, Col } from 'antd';
 import { connect } from 'react-redux';
@@ -6,7 +7,7 @@ import styled from '@emotion/styled';
 
 import { districtsActions, adminActions } from '../../_actions';
 
-import {isSenatorDistrict, displayName, comparator as districtComparator } from '../../_util/district';
+import {isSenatorDistrict, displayName, slug as districtSlug, comparator as districtComparator } from '../../_util/district';
 
 const AlertText = styled(Typography.Text)`
     color: red;
@@ -27,7 +28,8 @@ const CovidAlert = ({ district }) => {
 class LoggedInWrapper extends Component {
 
     state = {
-        editableDistricts: []
+        editableDistricts: [],
+        editableDistrictsById: new Map(),
     }
 
 	componentDidMount() {
@@ -56,12 +58,11 @@ class LoggedInWrapper extends Component {
                 newEditibleDistricts = sortedAndFiltered
             }
             this.setState({
-                editableDistricts: newEditibleDistricts
-            }, () => {
-                this.selectFirstEditableDistrict();
+                editableDistricts: newEditibleDistricts,
+                editableDistrictsById: new Map(newEditibleDistricts.map(
+                    (dist) => [dist.districtId, dist]
+                ))
             });
-        } else if (!this.props.selectedDistrict && this.state.editableDistricts.length > 0) {
-            this.selectFirstEditableDistrict();
         }
 
         if (this.props.districtFetchError !== null && this.props.districtFetchError !== prevProps.districtFetchError) {
@@ -71,33 +72,29 @@ class LoggedInWrapper extends Component {
 
     }
 
-    selectFirstEditableDistrict = () => {
-        if (this.state.editableDistricts && this.state.editableDistricts.length > 0) {
-            const id = this.state.editableDistricts[0].districtId
-            this.handleChangeDistrict(id)
-        }
+    districtURL(district) {
+        const slug = district ? districtSlug(district) : undefined
+        return generatePath(this.props.match.path, {districtSlug: slug})
     }
 
-    handleChangeDistrict = (selectedIndex) => {
-        const district = this.state.editableDistricts.find((district => {
-            return district.districtId === selectedIndex;
-        }));
-        if (district){
-            this.props.dispatch(districtsActions.select({...district}));
-        } else {
-            console.log('failed to select district')
-        }
+    newURL(tab, district) {
+        return '/' + tab + (district ? '/' + districtSlug(district) : '')
     }
 
-    getSelectDistrict = () => {
-        const hasDistricts = this.state.editableDistricts.length > 0 && this.props.selectedDistrict;
+    handleChangeDistrict = (districtId) => {
+        const district = this.state.editableDistrictsById.get(districtId);
+        this.props.history.push(this.districtURL(district));
+    }
+
+    getSelectDistrict = (selectedDistrict) => {
+        const hasDistricts = this.state.editableDistricts.length > 0;
         
         let selectDistrict;
         
         if (hasDistricts) {
             selectDistrict = (
                 <Select
-                    defaultValue={displayName(this.props.selectedDistrict)}
+                    value={selectedDistrict.districtId}
                     onChange={this.handleChangeDistrict}
                     style={{minWidth: "8em"}}
                 >
@@ -109,19 +106,35 @@ class LoggedInWrapper extends Component {
 					})}
 				</Select>
             )
-                } else if (this.props.districtFetchError) {
-                    selectDistrict = <Typography.Text>Error</Typography.Text>;
-                } else {
-                    selectDistrict = <Spin />;
-                }
-            return selectDistrict;
+        } else if (this.props.districtFetchError) {
+            selectDistrict = <Typography.Text>Error</Typography.Text>;
+        } else {
+            selectDistrict = <Spin />;
+        }
+        return selectDistrict;
     }
 
     render() {
-        const selectDistrict = this.getSelectDistrict()
         if (!this.props.loggedIn) {
             return <Redirect to="/" />
         }
+        let selectedDistrict
+        const slug = this.props.match.params.districtSlug
+        if (slug) {
+            if (this.state.editableDistricts.length > 0) {
+                selectedDistrict = this.props.districtsBySlug && this.props.districtsBySlug.get(slug)
+                if (!selectedDistrict || !this.state.editableDistrictsById.has(selectedDistrict.districtId)) {
+                    return <Redirect to={this.districtURL(null)} />
+                }
+            }
+        } else {
+            if (this.state.editableDistricts.length > 0) {
+                return <Redirect to={this.districtURL(this.state.editableDistricts[0])} />
+            }
+        }
+        const Component = this.props.component
+        const componentProps = {...this.props.componentProps, district: selectedDistrict}
+        const selectDistrict = this.getSelectDistrict(selectedDistrict)
         return(
             <Layout>
                 <Layout.Header style={{background: 'white', lineHeight: '64px' }}>
@@ -141,7 +154,7 @@ class LoggedInWrapper extends Component {
                             <span>Editing district: </span>
                             {selectDistrict}
                         </div>
-                        <CovidAlert district={this.props.selectedDistrict} />
+                        <CovidAlert district={selectedDistrict} />
                         <Menu
                         mode="inline"
                         defaultSelectedKeys={['1']}
@@ -150,63 +163,63 @@ class LoggedInWrapper extends Component {
                             <Menu.Item key="dashboard">
                                 <Icon type="home" />
                                 <span>Dashboard</span>
-                                <Link to="/dashboard" />
+                                <Link to={this.newURL('dashboard', selectedDistrict)} />
                             </Menu.Item>
                             <Menu.Item key="script">
                                 <Icon type="file-text" />
                                 <span>Call-In Script</span>
-                                <Link to="/script" />
+                                <Link to={this.newURL('script', selectedDistrict)} />
                             </Menu.Item>
                             <Menu.Item key="talking-points-library">
                                 <Icon type="file-search" />
                                 <span>Talking Points Library</span>
-                                <Link to="/talking-points" />
+                                <Link to={this.newURL('talking-points', selectedDistrict)} />
                             </Menu.Item>
                             {/* <Menu.Item key="schedule">
                                 <Icon type="schedule" />
                                 <span>Schedule</span>
-                                <Link to="/schedule" />
+                                <Link to={this.newURL('schedule', selectedDistrict)} />
                             </Menu.Item> */}
-                            {isSenatorDistrict(this.props.selectedDistrict) ?  null :
+                            {isSenatorDistrict(selectedDistrict) ?  null :
                                 <Menu.Item key="distribution">
                                     <Icon type="phone" />
                                     <span>Call Distribution</span>
-                                    <Link to="/distribution" />
+                                    <Link to={this.newURL('distribution', selectedDistrict)} />
                                 </Menu.Item>
                             }
-                            {isSenatorDistrict(this.props.selectedDistrict) ?  null :
+                            {isSenatorDistrict(selectedDistrict) ?  null :
                                 <Menu.Item key="callers">
                                     <Icon type="team" />
                                     <span>Callers</span>
-                                    <Link to="/callers" />
+                                    <Link to={this.newURL('callers', selectedDistrict)} />
                                 </Menu.Item>
                             }
                             <Menu.Item key="reports">
                                 <Icon type="bar-chart" />
                                 <span>Reports</span>
-                                <Link to="/reports" />
+                                <Link to={this.newURL('reports', selectedDistrict)} />
                             </Menu.Item>
                             <Menu.Item key="representative">
                                 <Icon type="idcard" />
                                 <span>Representative</span>
-                                <Link to="/representative" />
+                                <Link to={this.newURL('representative', selectedDistrict)} />
                             </Menu.Item>
                             <Menu.Item key="admins">
                                 <Icon type="global" />
                                 <span>Admins</span>
-                                <Link to="/admins" />
+                                <Link to={this.newURL('admins', selectedDistrict)} />
                             </Menu.Item>
                         </Menu>
                         <Menu>
                             <Menu.Item key="account">
                                 <Icon type="setting" />
                                 <span>Account</span>
-                                <Link to="/account" />
+                                <Link to={this.newURL('account', selectedDistrict)} />
                             </Menu.Item>
                         </Menu>
                     </Layout.Sider>
                     <Layout.Content style={{ padding: "24px 48px", minHeight: 280}}>
-                    {this.props.children}
+                        <Component {...componentProps} />
                     </Layout.Content>
                 </Layout>
                 <Layout.Footer style={{textAlign: "center"}}>
@@ -228,9 +241,9 @@ const mapStateToProps = state => {
     const { loggedIn } = authentication;
     return {
         districts: state.districts.districts,
+        districtsBySlug: state.districts.districtsBySlug,
         districtFetchError: state.districts.error,
         admin: state.admin.admin,
-        selectedDistrict: state.districts.selected,
         loggedIn
     };
 };

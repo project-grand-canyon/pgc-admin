@@ -443,7 +443,6 @@ class Callers extends Component {
 
 const mapStateToProps = (state) => {
   return {
-    district: state.districts.selected,
     allDistricts: state.districts.districts,
     user: state.admin.admin,
   };

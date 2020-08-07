@@ -1,5 +1,4 @@
 import React, { Component } from "react";
-import { connect } from "react-redux";
 import {
   LineChart,
   Line,
@@ -185,10 +184,4 @@ class Reports extends Component {
   }
 }
 
-const mapStateToProps = (state) => {
-  return {
-    district: state.districts.selected,
-  };
-};
-
-export default connect(mapStateToProps)(Reports);
+export default Reports;

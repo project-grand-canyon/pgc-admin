@@ -3,7 +3,7 @@ import { Route, Redirect } from 'react-router-dom';
 
 import LoggedInWrapper from '../../containers/LoggedInWrapper/LoggedInWrapper';
 
-const privateRoute = ({ component: Component, ...rest }) => {
+const privateRoute = ({ component, ...rest }) => {
     const user = localStorage.getItem('user');
     const expiration = localStorage.getItem('expires');
     const isLoggedIn = user && expiration && expiration > Date.now();
@@ -11,7 +11,7 @@ const privateRoute = ({ component: Component, ...rest }) => {
     return (
     <Route {...rest} render={props => (
         isLoggedIn
-            ? <LoggedInWrapper><Component {...props} /></LoggedInWrapper>
+            ? <LoggedInWrapper component={component} componentProps={props}></LoggedInWrapper>
             : <Redirect to={{ pathname: '/login', state: { from: props.location } }} />
     )} />
 )}

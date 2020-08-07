@@ -1,5 +1,4 @@
 import React, { Component } from 'react';
-import { connect } from 'react-redux';
 import { Button, Card, Col, Form, Input, List, Modal, Row, Skeleton, Spin, Typography} from 'antd';
 
 import OfficeModal from './OfficeModal';
@@ -393,12 +392,6 @@ class Representative extends Component {
       }
 }
 
-const mapStateToProps = state => {
-    return {
-        district: state.districts.selected,
-    };
-};
-
 const RepresentativeEditForm = Form.create({ name: 'representative_edit' })(Representative);
 
-export default connect(mapStateToProps)(RepresentativeEditForm);
+export default RepresentativeEditForm;
