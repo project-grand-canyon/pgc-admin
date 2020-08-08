@@ -6,21 +6,18 @@ import {
   Input,
   Form,
   Modal,
-  message,
   Popover,
   Table,
   Typography,
 } from "antd";
-import fileDownload from "js-file-download";
 
 import _ from "lodash";
-import {
-  getAllCallers,
-  getDistrictCallers,
-  getCallerHistories,
-} from "../../_util/axios-api";
-import { isSenatorDistrict } from "../../_util/district";
-import { Status, sortedByStatus, asCsv } from "../../_util/caller";
+import { DateTime } from "luxon";
+import axios from "../../_util/axios-api";
+import { authHeader } from "../../_util/auth/auth-header";
+import { isSenatorDistrict, displayName } from "../../_util/district";
+import { callerStatus, Status, sortedByStatus } from "../../_util/caller";
+import { HistoryType } from "./constants";
 
 import { connect } from "react-redux";
 
@@ -34,6 +31,13 @@ class Callers extends Component {
     callerDetail: {},
     searchTerm: null,
     generatingCsv: false,
+  };
+
+  state = {
+    districtCallers: null,
+    allCallers: null,
+    callerDetail: {},
+    searchTerm: null,
   };
 
   isCallerInFocus = (key) => {
@@ -63,6 +67,14 @@ class Callers extends Component {
       key: "lastName",
       sorter: (a, b) => {
         return a.lastName.localeCompare(b.lastName);
+      },
+    },
+    {
+      title: "District",
+      dataIndex: "districtName",
+      key: "districtName",
+      sorter: (a, b) => {
+        return a.districtName.localeCompare(b.districtName);
       },
     },
     {
@@ -197,62 +209,134 @@ class Callers extends Component {
           },
         },
         () => {
-          getCallerHistories(
-            [this.state.callerDetail.caller],
-            (err, history) => {
-              const callerDetail = { ...this.state.callerDetail };
-              if (err) {
-                callerDetail.callReminderError = err.message;
-              } else {
-                callerDetail.history = this.makeTimeline(history[0]);
-              }
-              this.setState({ callerDetail });
-            }
-          );
+          this.fetchCallerHistory();
         }
       );
     }
   };
 
-  makeTimeline = (history) => {
-    const { signUpHistory, callHistory, reminderHistory } = {
-      ...history,
-    };
-    return _([])
-      .concat(signUpHistory, callHistory, reminderHistory)
-      .sortBy("timestamp")
-      .reverse()
-      .value();
-  };
-
-  fetchCallers = () => {
-    if (this.props.district) {
-      getDistrictCallers(this.props.district, (err, callers) => {
-        if (err) {
+  fetchCallers() {
+    const district = this.props.district;
+    if (district) {
+      const requestOptions = {
+        url: `/callers?districtId=${district.districtId}`,
+        method: "GET",
+        headers: { ...authHeader(), "Content-Type": "application/json" },
+      };
+      axios(requestOptions)
+        .then(({ data }) => {
+          // TODO: Possibly move this into reducer logic if Redux is implemented
+          const districtCallers = (data || []).map((caller) => {
+            return {
+              ...caller,
+              key: caller.callerId,
+              contactMethodSMS: caller.contactMethods.indexOf("sms") !== -1,
+              contactMethodEmail: caller.contactMethods.indexOf("email") !== -1,
+              status: callerStatus(caller),
+            };
+          });
+          this.setState({ districtCallers, callerDetail: null });
+        })
+        .catch((e) => {
           Modal.error({
             title: "Error Loading Page",
-            content: err.message,
+            content: e.message,
           });
           this.setState({ callerDetail: null });
-        } else {
-          this.setState({ districtCallers: callers, callerDetail: null });
-        }
-      });
+        });
     }
 
     if (this.props.user && this.props.user.root) {
-      getAllCallers((err, callers) => {
-        if (err) {
+      const allDistrictNames = new Map(
+        this.props.allDistricts.map((district) => {
+          return [district.districtId, district];
+        })
+      );
+      const allCallerRequestOptions = {
+        url: `/callers`,
+        method: "GET",
+        headers: { ...authHeader(), "Content-Type": "application/json" },
+      };
+      axios(allCallerRequestOptions)
+        .then(({ data }) => {
+          const allCallers = (data || []).map((caller) => {
+            return {
+              ...caller,
+              key: caller.callerId,
+              districtName: displayName(
+                allDistrictNames.get(caller.districtId)
+              ),
+              contactMethodSMS: caller.contactMethods.indexOf("sms") !== -1,
+              contactMethodEmail: caller.contactMethods.indexOf("email") !== -1,
+              status: callerStatus(caller),
+            };
+          });
+          this.setState({ allCallers });
+        })
+        .catch((e) => {
           Modal.error({
             title: "Error Loading Full Caller List",
-            content: err.message,
+            content: e.message,
           });
-        } else {
-          this.setState({ allCallers: callers });
-        }
-      });
+        });
     }
-  };
+  }
+
+  fetchCallerHistory() {
+    const district = this.props.district;
+    const caller = this.state.callerDetail && this.state.callerDetail.caller;
+    if (district && caller) {
+      const callHistoryRequestOptions = {
+        url: `/calls/${caller["callerId"]}`,
+        method: "GET",
+        headers: { ...authHeader(), "Content-Type": "application/json" },
+      };
+      const reminderHistoryRequestOptions = {
+        url: `/reminders/${caller["callerId"]}`,
+        method: "GET",
+        headers: { ...authHeader(), "Content-Type": "application/json" },
+      };
+      const callerDetail = { ...this.state.callerDetail };
+      Promise.all([
+        axios(callHistoryRequestOptions),
+        axios(reminderHistoryRequestOptions),
+      ])
+        .then(([calls, reminders]) => {
+          // TODO: Possibly move this into reducer logic if Redux is implemented
+          const createHistoryItem = (timestamp, type) => {
+            const dateTime = DateTime.fromSQL(timestamp);
+
+            return {
+              timestamp: dateTime.valueOf(),
+              timestampDisplay: dateTime.toLocaleString(),
+              type,
+            };
+          };
+
+          const signUpHistory = [
+            createHistoryItem(caller.created, HistoryType.SIGN_UP),
+          ];
+          const callHistory = _.map(calls.data, ({ created }) =>
+            createHistoryItem(created, HistoryType.CALL)
+          );
+          const reminderHistory = _.map(reminders.data, ({ timeSent }) =>
+            createHistoryItem(timeSent, HistoryType.NOTIFICATION)
+          );
+
+          callerDetail.history = _([])
+            .concat(signUpHistory, callHistory, reminderHistory)
+            .sortBy("timestamp")
+            .reverse()
+            .value();
+        })
+        .catch((e) => {
+          callerDetail.callReminderError = e.message;
+        })
+        .then(() => {
+          this.setState({ callerDetail });
+        });
+    }
+  }
 
   componentDidUpdate(prevProps) {
     if (prevProps.district !== this.props.district) {
@@ -279,39 +363,6 @@ class Callers extends Component {
   onSavedCaller = () => {
     this.onUnfocusCaller(() => {
       this.fetchCallers();
-    });
-  };
-
-  onClickDownloadAsCsv = (event) => {
-    if (!this.state.districtCallers) {
-      message.error("Could not generate a CSV");
-      return;
-    }
-
-    const hide = message.loading("Generating a CSV", 0);
-    getCallerHistories([...this.state.districtCallers], (err, histories) => {
-      hide();
-      if (err) {
-        message.error(`Could not generate a CSV - ${err.message}`);
-        return;
-      }
-
-      const enrichedCallers = this.state.districtCallers.map(
-        (caller, index) => {
-          const history = histories[index];
-          caller.paused = caller.paused ? "Paused" : "Active";
-          caller.totalCalls = history.callHistory.length;
-          caller.history = JSON.stringify(this.makeTimeline(history));
-          return caller;
-        }
-      );
-
-      const data = asCsv(enrichedCallers);
-      fileDownload(
-        data,
-        `${this.props.district.state}${this.props.district.number}.csv`
-      );
-      message.success(`CSV has downloaded!`);
     });
   };
 
@@ -369,19 +420,13 @@ class Callers extends Component {
       <>
         <Typography.Title level={2}>Callers for District</Typography.Title>
         {this.detailModal()}
-
-        <Button
-          disabled={this.state.districtCallers === null}
-          onClick={this.onClickDownloadAsCsv}
-        >
-          Download as CSV
-        </Button>
-
         <Table
           loading={this.state.districtCallers === null}
           bordered
           dataSource={this.state.districtCallers}
-          columns={this.columns}
+          columns={this.columns.filter((el) => {
+            return el.key !== "districtName";
+          })}
           scroll={{ x: 300 }}
           scrollToFirstRowOnChange
           pagination={{
@@ -399,6 +444,7 @@ class Callers extends Component {
 const mapStateToProps = (state) => {
   return {
     district: state.districts.selected,
+    allDistricts: state.districts.districts,
     user: state.admin.admin,
   };
 };
