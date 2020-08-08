@@ -22,9 +22,20 @@ class Representative extends Component {
     }
 
     componentDidMount() {
+        window.onbeforeunload = (e) => {
+            if (this.props.form.isFieldsTouched()) {
+                e.preventDefault();
+                e.returnValue = 'dummystring';
+                return 'dummystring';
+            }
+        };
         if (this.state.hydratedDistrict === null) {
             this.fetchDistrictDetails();
         }
+    }
+
+    componentWillUnmount() {
+        window.onbeforeunload = null;
     }
 
     fetchDistrictDetails(cb) {
