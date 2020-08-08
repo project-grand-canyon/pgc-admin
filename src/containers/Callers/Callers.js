@@ -16,6 +16,7 @@ import fileDownload from "js-file-download";
 import _ from 'lodash'
 import { DateTime } from 'luxon'
 import axios from '../../_util/axios-api';
+import { authHeader } from '../../_util/auth/auth-header';
 import { isSenatorDistrict, displayName } from '../../_util/district';
 import { callerStatus, Status, sortedByStatus } from '../../_util/caller';
 import { HistoryType } from './constants'
