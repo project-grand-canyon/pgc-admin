@@ -1,4 +1,5 @@
 import React, { Component } from 'react';
+import { Prompt } from 'react-router-dom';
 import { Button, Card, Col, Form, Input, List, Modal, Row, Skeleton, Spin, Typography} from 'antd';
 
 import OfficeModal from './OfficeModal';
@@ -90,6 +91,10 @@ class Representative extends Component {
         });
     }
 
+    handleReset = () => {
+        this.props.form.resetFields();
+    }
+
     showCovidConfirmation = (onCompetion) => {
         Modal.confirm({
             title: 'Confirm district status change',
@@ -104,6 +109,18 @@ class Representative extends Component {
                 onCompetion();
             }
           });
+    }
+
+    preEditOffices = () => {
+        if (this.props.form.isFieldsTouched()) {
+            Modal.error({
+                title: 'Save or discard changes',
+                content: 'Before changing office info, please save or discard your text changes.'
+            });
+            return false;
+        } else {
+            return true;
+        }
     }
 
     putUpdate = (putBody) => {
@@ -140,12 +157,14 @@ class Representative extends Component {
             <OfficeModal display={this.state.showAddOfficeModal}
                 onAddOffice={(officeDetails) => { this.onAddOffice(officeDetails)}}
                 onCancelUpdateOffice={this.onCancelAddUpdateOffice} />
+            <Prompt when={this.props.form.isFieldsTouched()} message="Discard unsaved changes?" />
             {this.state.editing === false && form}
             {this.state.editing && <Spin size="large" />}
         </>;
     }
 
     form = (isLoading, dis, getFieldDecorator) => {
+        const disableButtons = !this.props.form.isFieldsTouched()
         return (
         <>
             <Skeleton loading={isLoading} title={true} paragraph={false}>
@@ -218,8 +237,11 @@ class Representative extends Component {
                             <Form.Item
                                 wrapperCol={{ span: 12, offset: 5 }}
                                 >
-                                <Button type="primary" htmlType="submit">
+                                <Button type="primary" htmlType="submit" disabled={disableButtons} style={{marginRight: "5px"}}>
                                     Save
+                                </Button>
+                                <Button disabled={disableButtons} onClick={this.handleReset} style={{marginLeft: "5px"}}>
+                                    Discard Changes
                                 </Button>
                             </Form.Item>
                         </Skeleton>
@@ -265,10 +287,16 @@ class Representative extends Component {
     }
 
     launchAddOfficeModal = () => {
+        if (!this.preEditOffices()) {
+            return;
+        }
         this.setState({officeForEditing: null, showAddOfficeModal: true})
     }
 
     launchEditOfficeModal = (office) => {
+        if (!this.preEditOffices()) {
+            return;
+        }
         if (office) {
             this.setState({officeForEditing: office, showAddOfficeModal: false})
         } else {
@@ -285,6 +313,9 @@ class Representative extends Component {
             return el.districtOfficeId === districtOfficeId
         })
         if (!office){
+            return;
+        }
+        if (!this.preEditOffices()) {
             return;
         }
         const that = this;
