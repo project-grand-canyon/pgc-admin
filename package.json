@@ -5,21 +5,21 @@
   "dependencies": {
     "@emotion/core": "^10.0.28",
     "@emotion/styled": "^10.0.27",
-    "@sentry/browser": "^5.2.1",
-    "antd": "^3.25.2",
+    "@sentry/browser": "^5.20.1",
+    "antd": "^3.26.18",
     "axios": "^0.18.1",
     "babel-plugin-import": "^1.12.1",
     "csv-writer": "^1.6.0",
     "customize-cra": "^0.9.1",
     "history": "^4.9.0",
     "js-file-download": "^0.4.12",
-    "less": "^3.10.3",
+    "less": "^3.12.2",
     "less-loader": "^5.0.0",
-    "lodash": "^4.17.15",
-    "luxon": "^1.22.0",
-    "react": "^16.12.0",
-    "react-app-rewired": "^2.1.5",
-    "react-dom": "^16.7.0",
+    "lodash": "^4.17.19",
+    "luxon": "^1.24.1",
+    "react": "^16.13.1",
+    "react-app-rewired": "^2.1.6",
+    "react-dom": "^16.13.1",
     "react-ga": "^2.5.7",
     "react-redux": "^6.0.0",
     "react-router-dom": "^4.3.1",
@@ -47,9 +47,9 @@
     "not op_mini all"
   ],
   "devDependencies": {
-    "@testing-library/dom": "^7.21.5",
-    "@testing-library/jest-dom": "^5.11.1",
-    "@testing-library/react": "^10.4.7",
+    "@testing-library/dom": "^7.22.0",
+    "@testing-library/jest-dom": "^5.11.2",
+    "@testing-library/react": "^10.4.8",
     "terser": "^3.17.0"
   }
 }
