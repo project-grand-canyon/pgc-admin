@@ -11,6 +11,85 @@ import AddEditTalkingPointModal from './AddEditTalkingPointModal'
 
 import './TalkingPoints.module.css';
 
+class TalkingPointsFilter extends Component {
+
+    render() {
+        const filters = this.props.filters;
+        const { getFieldDecorator } = this.props.form;
+        return (
+            <Form>
+                <Row>
+                    <Col sm={24} md={12} >
+                        <Form.Item label="Creation Date">
+                            {getFieldDecorator("creationDate", {initialValue: filters && filters.creationDate})(
+                                <DatePicker.RangePicker />
+                            )}
+                        </Form.Item>
+                    </Col>
+                    <Col sm={24} md={12} >
+                        <Form.Item label="Last Updated Date">
+                            {getFieldDecorator("updatedDate", {initialValue: filters && filters.updatedDate})(
+                                <DatePicker.RangePicker />
+                            )}
+                        </Form.Item>
+                    </Col>
+                </Row>
+                <Row gutter={[{ xs: 8, sm: 16, md: 24, lg: 32 }, 20]}>
+                    <Col sm={24} md={6} >
+                        <Form.Item label="Relevance">
+                            {getFieldDecorator("scope", {initialValue: filters && filters.scope})(
+                                <Checkbox.Group>
+                                    <Checkbox value={"national"}>National</Checkbox>
+                                    <Checkbox value={"state"}>My State</Checkbox>
+                                    <Checkbox value={"district"}>My District</Checkbox>
+                            </Checkbox.Group>
+                            )}
+                        </Form.Item>
+                    </Col>
+                    <Col sm={24} md={6} >
+                        <Form.Item label="Theme">
+                        {getFieldDecorator("theme", {initialValue: filters && filters.theme})(
+                            <Select
+                                showSearch
+                                allowClear
+                                placeholder="Select a theme"
+                                optionFilterProp="children"
+                                filterOption={(input, option) => option.props.children.toLowerCase().indexOf(input.toLowerCase()) >= 0}>
+                                {this.props.themes.map((el)=>{
+                                    return (<Select.Option key={el.name} value={el.name}>{el.name}</Select.Option>)
+                                })}
+                            </Select>,
+                            )}
+                        </Form.Item>
+                    </Col>
+                    <Col sm={24} md={6} >
+                        <Form.Item label="Currently selected">
+                            {getFieldDecorator("script", {
+                                valuePropName: 'checked',
+                                initialValue: filters && filters.script
+                            })(
+                                <Checkbox value={"script"}>In Script</Checkbox>
+                            )}
+                        </Form.Item>
+                    </Col>
+                    <Col sm={24} md={6} >
+                        <Form.Item label="Author">
+                            {getFieldDecorator("author", {initialValue: filters && filters.author})(
+                                <Input placeholder="Username or email" />
+                            )}
+                        </Form.Item>
+                    </Col>
+                </Row>
+            </Form>
+        );
+    }
+}
+
+const TalkingPointsFilterForm = Form.create({
+    name: 'talking_points_filter_sort',
+    onValuesChange: (props, _, values) => props.onValuesChange(values)
+})(TalkingPointsFilter);
+
 class TalkingPoints extends Component {
 
     state = {
@@ -24,6 +103,7 @@ class TalkingPoints extends Component {
         editing: null,
         wantsToAddNewTalkingPoint: false,
         admins: null,
+        adminsById: null,
         editingTalkingPointDetails: null
     }
 
@@ -64,8 +144,10 @@ class TalkingPoints extends Component {
             
             Promise.all([getAdmins, getTPs, getThemes, getLiveTPs]).then((response)=>{
                 const admins = response[0].data;
+                const adminsById = new Map(admins.map((el) => [el.adminId, el]));
                 const talkingPoints = response[1].data;
                 const themes = response[2].data;
+                const sortedThemes = themes.sort((el1, el2) => el1.name.localeCompare(el2.name));
                 const liveTPs = response[3].data;
                 const sortedTPs = talkingPoints.sort((el1, el2)=>{
                     const d1 = new Date(el1.created)
@@ -80,7 +162,8 @@ class TalkingPoints extends Component {
                 this.setState({
                     allTalkingPoints: sortedTPs,
                     admins: admins,
-                    themes: themes,
+                    adminsById: adminsById,
+                    themes: sortedThemes,
                     liveTalkingPoints: liveTPs
                 }, () => {
                     this.setState({
@@ -100,10 +183,6 @@ class TalkingPoints extends Component {
     }
 
     componentDidUpdate(prevProps, prevState) {
-        const filtersForm = this.props.form.getFieldsValue();
-        if (JSON.stringify(filtersForm) !== JSON.stringify(this.state.filters)) {
-            this.handleFilterChange(filtersForm)
-        }
         if (prevProps.districts !== this.props.districts || prevProps.district !== this.props.district) {
             this.fetchData();
         }
@@ -175,6 +254,19 @@ class TalkingPoints extends Component {
             }
             return true;
         }).filter((el)=>{
+            if (filters && filters.author) {
+                const author = filters.author.trim().toLowerCase();
+                const createdBy = el.createdBy && this.state.adminsById.get(el.createdBy);
+                if (!createdBy) {
+                    return false;
+                }
+                return (
+                    createdBy.userName.toLowerCase().includes(author) ||
+                    (createdBy.email && createdBy.email.toLowerCase().includes(author))
+                );
+            }
+            return true;
+        }).filter((el)=>{
             if (this.state.searchTerm){
                 return el.content.toLowerCase().includes(this.state.searchTerm.toLowerCase())
             }
@@ -186,12 +278,12 @@ class TalkingPoints extends Component {
         return presentableTalkingPoints.slice(0, 30)
     }
 
-    handleFilterChange = (filtersForm) => {
+    handleFilterChange = (values) => {
         if (this.hasTalkingPoints() === false) {
             return;
         }
 
-        const filters = {...filtersForm};
+        const filters = {...values};
         this.setState({filters: filters});
     }
 
@@ -317,6 +409,7 @@ class TalkingPoints extends Component {
             <Input.Search
                 style={{ width: 280 }}
                 placeholder="Search Talking Points"
+                value={this.state.searchTerm}
                 onSearch={value => this.setState({ searchTerm: value })}
                 onChange={event => this.setState({ searchTerm: event.target.value })}
                 allowClear={true}
@@ -336,66 +429,13 @@ class TalkingPoints extends Component {
         if (this.hasTalkingPoints() === false) {
             return <></>
         }
-        const { getFieldDecorator } = this.props.form;
         return(
             <div style={{border: "1px solid black", padding: "10px"}}>
-            <Typography.Title level={3}>Filters</Typography.Title>
-            <Form onSubmit={this.handleFilter}>
-                <Row>
-                    <Col sm={24} md={12} >
-                        <Form.Item label="Creation Date">
-                            {getFieldDecorator("creationDate", {})(
-                                <DatePicker.RangePicker />
-                            )}
-                        </Form.Item>
-                    </Col>
-                    <Col sm={24} md={12} >
-                        <Form.Item label="Last Updated Date">
-                            {getFieldDecorator("updatedDate", {})(
-                                <DatePicker.RangePicker />
-                            )}
-                        </Form.Item>
-                    </Col>
-                </Row>
-                <Row gutter={[{ xs: 8, sm: 16, md: 24, lg: 32 }, 20]}>
-                    <Col sm={24} md={8} >
-                        <Form.Item label="Relevance">
-                            {getFieldDecorator("scope", {})(
-                                <Checkbox.Group>
-                                    <Checkbox value={"national"}>National</Checkbox>
-                                    <Checkbox value={"state"}>My State</Checkbox>
-                                    <Checkbox value={"district"}>My District</Checkbox>
-                            </Checkbox.Group>
-                            )}
-                        </Form.Item>
-                    </Col>
-                    <Col sm={24} md={8} >
-                        <Form.Item label="Theme">
-                        {getFieldDecorator("theme", {})(
-                            <Select
-                                showSearch
-                                allowClear
-                                placeholder="Select a theme"
-                                optionFilterProp="children"
-                                filterOption={(input, option) => option.props.children.toLowerCase().indexOf(input.toLowerCase()) >= 0}>
-                                {this.state.themes.map((el)=>{
-                                    return (<Select.Option key={el.name} value={el.name}>{el.name}</Select.Option>)
-                                })}
-                            </Select>,
-                            )}
-                        </Form.Item>
-                    </Col>
-                    <Col sm={24} md={8} >
-                        <Form.Item label="Currently selected for Call-In Script">
-                            {getFieldDecorator("script", {
-                                valuePropName: 'checked'
-                            })(
-                                <Checkbox value={"script"}>In Script</Checkbox>
-                            )}
-                        </Form.Item>
-                    </Col>
-                </Row>
-            </Form>
+                <Typography.Title level={3}>Filters</Typography.Title>
+                <TalkingPointsFilterForm
+                    themes={this.state.themes}
+                    filters={this.state.filters}
+                    onValuesChange={this.handleFilterChange} />
             </div>
         );
     }
@@ -475,9 +515,7 @@ class TalkingPoints extends Component {
                 const theme = this.state.themes.find((el) => {
                     return el.themeId === item.themeId
                 });
-                const createdBy = this.state.admins.find((el)=> {
-                    return el.adminId === item.createdBy
-                })
+                const createdBy = item.createdBy && this.state.adminsById.get(item.createdBy);
 
                 const reference = item.referenceUrl ?
                     <Typography.Text copyable={{ text: item.referenceUrl }}>
@@ -528,6 +566,7 @@ class TalkingPoints extends Component {
             && this.props.districts.length > 0
             && this.state.liveTalkingPoints !== null
             && this.state.admins !== null
+            && this.state.adminsById !== null
     }
 }
 
@@ -544,6 +583,4 @@ const mapStateToProps = state => {
 };
 
 
-const TalkingPointsForm = Form.create({ name: 'talking_points_filter_sort' })(TalkingPoints);
-
-export default connect(mapStateToProps)(TalkingPointsForm);
+export default connect(mapStateToProps)(TalkingPoints);
