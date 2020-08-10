@@ -4,9 +4,8 @@ import asyncPool from "tiny-async-pool";
 import _ from "lodash";
 import { HistoryType } from "../containers/Callers/constants";
 import { authHeader } from "../_util/auth/auth-header";
-import {
-    callerStatus,
-  } from "../_util/caller";
+import { callerStatus } from "../_util/caller";
+import { displayName } from "../_util/district";
 
 
 const client = axios.create({
@@ -15,22 +14,22 @@ const client = axios.create({
     "https://project-grand-canyon.appspot.com/api/",
 });
 
-export function getDistrictCallers(district, completion) {
+export function getDistrictCallers(district, allDistrictNames, completion) {
   const requestOptions = {
     url: `/callers?districtId=${district.districtId}`,
     method: "GET",
     headers: { ...authHeader(), "Content-Type": "application/json" },
   };
-  getCallers(requestOptions, completion);
+  getCallers(requestOptions, allDistrictNames, completion);
 }
 
-export function getAllCallers(completion) {
+export function getAllCallers(allDistrictNames, completion) {
   const requestOptions = {
     url: `/callers`,
     method: "GET",
     headers: { ...authHeader(), "Content-Type": "application/json" },
   };
-  getCallers(requestOptions, completion);
+  getCallers(requestOptions, allDistrictNames, completion);
 }
 
 export function getCallerHistories(callers, completion) {
@@ -44,10 +43,12 @@ export function getCallerHistories(callers, completion) {
     });
   }
 
-function getCallers(requestOptions, completion) {
+function getCallers(requestOptions, allDistrictNames, completion) {
   client(requestOptions)
     .then(({ data }) => {
-      const callers = (data || []).map(transformCaller);
+      const callers = (data || []).map(el => {
+        return transformCaller(el, allDistrictNames)
+      });
       completion(null, callers);
     })
     .catch((e) => {
@@ -55,13 +56,14 @@ function getCallers(requestOptions, completion) {
     });
 }
 
-function transformCaller(caller) {
+function transformCaller(caller, allDistrictNames) {
   return {
     ...caller,
     key: caller.callerId,
     contactMethodSMS: caller.contactMethods.indexOf("sms") !== -1,
     contactMethodEmail: caller.contactMethods.indexOf("email") !== -1,
     status: callerStatus(caller),
+    districtName: displayName(allDistrictNames.get(caller.districtId)),
   };
 }
 
