@@ -29,8 +29,7 @@ class Reports extends Component {
       });
       Promise.all(promises)
         .then((responses) => {
-          const statistics = responses.map((response) => {
-            // return response.data;
+          const rawStatistics = responses.map((response) => {
             const districtStatistic = response.data;
             const totalActiveCallers = Object.values(
               districtStatistic["activeCallersByMonth"]
@@ -46,6 +45,25 @@ class Reports extends Component {
               ? ((totalActiveCallers / totalReminders) * 100).toFixed(1)
               : 0;
             districtStatistic["completionRate"] = completionRate;
+            return districtStatistic;
+          });
+          const districtWithMostHistory = rawStatistics.reduce(
+            (acc, districtStatistic, index) => {
+              if (
+                Object.keys(districtStatistic.activeCallersByMonth).length >
+                Object.keys(rawStatistics[acc].activeCallersByMonth).length
+              ) {
+                acc = index;
+              }
+              return acc;
+            },
+            0
+          );
+          const monthsToUse = Object.keys(
+            rawStatistics[districtWithMostHistory].activeCallersByMonth
+          );
+          const statistics = rawStatistics.map((districtStatistic) => {
+            districtStatistic["months"] = monthsToUse;
             return districtStatistic;
           });
           this.setState({ statistics: statistics });

@@ -15,9 +15,11 @@ import {
 import CustomToolTip from "./CustomToolTip";
 
 const getChartData = (data) => {
-  const formatted = Object.keys(data["callersByMonth"]).map((el) => {
-    const numCallers = data["callersByMonth"][el];
-    const numActiveCallers = data["activeCallersByMonth"][el];
+  const months = data.months;
+  const previousTwelveMonths = months.slice(-12);
+  const formatted = previousTwelveMonths.map((el) => {
+    const numCallers = data["callersByMonth"][el] || 0;
+    const numActiveCallers = data["activeCallersByMonth"][el] || 0;
     const numRemindersSent = data["remindersByMonth"][el] || 0;
     return {
       date: el,
@@ -26,8 +28,7 @@ const getChartData = (data) => {
       Reminders: numRemindersSent,
     };
   });
-  const previousTwelveMonths = formatted.slice(-12);
-  return previousTwelveMonths;
+  return formatted;
 };
 
 const reportGraph = ({ statistics }) => {
