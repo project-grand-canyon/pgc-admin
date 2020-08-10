@@ -70,7 +70,7 @@ class Reports extends Component {
     }
 
     const distRenders = this.props.districts.map((district, index) => {
-      const districtStatistics = statistics && statistics[index]
+      const districtStatistics = statistics && statistics[index];
       return (
         <Row key={index}>
           <Col>

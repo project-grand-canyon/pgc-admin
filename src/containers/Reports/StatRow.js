@@ -4,7 +4,7 @@ import { Row, Col, Icon, Statistic, Typography } from "antd";
 const StatColumn = ({ testId, title, statistic }) => {
   return (
     <Col span={6} data-testid={`${testId}Col`}>
-      {statistic ? (
+      {statistic != null ? (
         <Statistic
           title={
             <Typography.Text data-testid={`${testId}Text`}>
@@ -55,7 +55,7 @@ const statRow = ({ statistics }) => {
       <StatColumn
         testId="completionRate"
         title="Completion Rate"
-        statistic={completionRate ? `${completionRate} %` : null}
+        statistic={completionRate != null ? `${completionRate} %` : null}
       />
     </Row>
   );
