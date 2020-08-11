@@ -577,8 +577,7 @@ const mapStateToProps = state => {
 
     return {
         adminId: adminTwo.adminId,
-        districts: state.districts.districts,
-        district: state.districts.selected
+        districts: state.districts.districts
     };
 };
 

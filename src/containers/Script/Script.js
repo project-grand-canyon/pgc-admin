@@ -7,7 +7,6 @@ import { Button, Card, Icon, Input, List, Modal, message, Skeleton, Form, Popcon
 import axios from '../../_util/axios-api';
 import { displayName } from '../../_util/district';
 import { authHeader } from '../../_util/auth/auth-header';
-import { connect } from 'react-redux';
 
 class Script extends Component {
     state = {
@@ -306,12 +305,6 @@ class Script extends Component {
     }
 }
 
-const mapStateToProps = state => {
-    return {
-        district: state.districts.selected,
-    };
-};
-
 const ScriptPage = Form.create({ name: 'script_page' })(Script);
 
-export default connect(mapStateToProps)(ScriptPage);
+export default ScriptPage;

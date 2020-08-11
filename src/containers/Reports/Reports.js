@@ -20,7 +20,7 @@ class Reports extends Component {
   }
 
   componentDidUpdate(prevProps) {
-    if (prevProps.selected !== this.props.selected) {
+    if (prevProps.district !== this.props.district) {
       this.setState({ statistics: null }, () => {
         this.fetchStatistics();
       });
@@ -29,7 +29,13 @@ class Reports extends Component {
 
   fetchStatistics() {
     console.log('fetchStatistics')
-    console.log(this.props)
+    console.log(this.props.districts)
+    console.log(this.props.district)
+
+    if (!this.props.districts || !this.props.district) {
+      return
+    }
+
     getReportData(this.props.districts, (error, statistics) => {
       if (error || !statistics) {
         this.setState({ error: <h1> Some Statistics Not Found </h1> });
@@ -68,21 +74,10 @@ class Reports extends Component {
 }
 
 const mapStateToProps = (state) => {
-  const { selected, districts: all } = state.districts;
-  console.log('mapStateToProps2')
-  console.log(state)
-  console.log(selected)
-  console.log(all)
-
-  const districts = [
-    selected,
-    ...getAssociatedSenators(selected, all),
-  ];
-
   return {
-    selected: selected,
-    districts: districts,
+    districts: state.districts.districts,
   };
 };
 
 export default connect(mapStateToProps)(Reports);
+

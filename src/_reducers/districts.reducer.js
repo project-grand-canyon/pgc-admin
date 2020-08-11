@@ -7,23 +7,18 @@ export function districts(state = initialState, action) {
 		case districtsConstants.REQUEST:
 		  return {
 				districts: [],
-				selected: null,
+				districtsBySlug: new Map(),
 				refreshing: true
 			};
 		case districtsConstants.SUCCESS:
 		  return {
 				districts: action.districts,
+				districtsBySlug: action.districtsBySlug,
 				refreshed: true
 			};
 		case districtsConstants.FAILURE:
 			return {
 				error: action.error
-			};
-		case districtsConstants.SELECT:
-			return {
-				...state,
-				districts: [...state.districts],
-				selected: action.district
 			};
 		default:
 		  return state
