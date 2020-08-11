@@ -37,14 +37,14 @@ const reportGraph = ({ statistics }) => {
       className="container"
       height={300}
       width="100%"
-      data-testid="responsiveContainer"
+      data-testid="Stats Graph Container"
     >
       {statistics ? (
         <LineChart
           width={400}
           height={240}
           data={getChartData(statistics)}
-          data-testid="lineChart"
+          data-testid="Stats Graph"
         >
           <CartesianGrid strokeDasharray="3 3" data-testid="cartesianGrid" />
           <XAxis dataKey="date" data-testid="xAxis" />
@@ -74,7 +74,7 @@ const reportGraph = ({ statistics }) => {
         <Icon
           type="loading"
           style={{ fontSize: 72 }}
-          data-testid="Huge Spin"
+          data-testid="Stats Graph Spin"
           spin
         />
       )}

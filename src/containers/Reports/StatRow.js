@@ -18,7 +18,7 @@ const StatColumn = ({ testId, title, statistic }) => {
         <Icon
           type="loading"
           style={{ fontSize: 28 }}
-          data-testid="Big Spin"
+          data-testid="Stat Row Spin"
           spin
         />
       )}

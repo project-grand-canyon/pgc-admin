@@ -353,8 +353,11 @@ describe("Reports.js Unit Test", async () => {
         <Reports />
       </Provider>
     );
-    const loadingH1 = getByTestId("loading");
-    expect(loadingH1).toHaveTextContent("loading...");
+
+    const statsLoading = getAllByTestId("Stat Row Spin");
+    const graphLoading = getAllByTestId("Stats Graph Spin");
+    statsLoading.concat(graphLoading).forEach((el)=>{expect(el).toBeVisible()})
+
     await waitFor(() => expect(mockAxios.get).toBeCalledTimes(3)).then(
       async () => {
         expect(mockAxios.get).toHaveBeenNthCalledWith(1, `/stats/${REP_DISTRICT_ID}`, STANDARD_HEADERS);
@@ -383,7 +386,7 @@ describe("Reports.js Unit Test", async () => {
         expect(totalCallersText).toHaveLength(3);
         expect(totalCallsText).toHaveLength(3);
         expect(dayCounterText).toHaveLength(3);
-        for (let i = 0; i < 3; ++i) {
+        for (let i = 0; i < 3; i++) {
           expect(totalCallersText[i]).toHaveTextContent("Total Callers");
           expect(totalCallsText[i]).toHaveTextContent("Total Calls");
           expect(dayCounterText[i]).toHaveTextContent("Past 31 Days Call Count");
@@ -402,8 +405,9 @@ describe("Reports.js Unit Test", async () => {
         <Reports />
       </Provider>
     );
-    const loadingH1 = getByTestId("loading");
-    expect(loadingH1).toHaveTextContent("loading...");
+    const statsLoading = getAllByTestId("Stat Row Spin");
+    const graphLoading = getAllByTestId("Stats Graph Spin");
+    statsLoading.concat(graphLoading).forEach((el)=>{expect(el).toBeVisible()})
     await waitFor(() => expect(mockAxios.get).toBeCalledTimes(5)).then(
       async () => {
         expect(mockAxios.get).toHaveBeenNthCalledWith(4, `/stats/${SEN_JR_DISTRICT_ID}`, STANDARD_HEADERS);

@@ -12,6 +12,7 @@
     "csv-writer": "^1.6.0",
     "customize-cra": "^0.9.1",
     "history": "^4.9.0",
+    "js-file-download": "^0.4.12",
     "less": "^3.12.2",
     "less-loader": "^5.0.0",
     "lodash": "^4.17.19",
@@ -46,10 +47,11 @@
     "not op_mini all"
   ],
   "devDependencies": {
-    "axios-mock-adapter": "^1.18.2",
     "@testing-library/dom": "^7.22.0",
     "@testing-library/jest-dom": "^5.11.2",
     "@testing-library/react": "^10.4.8",
+    "axios-mock-adapter": "^1.18.2",
+    "redux-mock-store": "^1.5.4",
     "terser": "^3.17.0"
   }
 }

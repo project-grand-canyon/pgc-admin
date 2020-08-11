@@ -7,12 +7,63 @@ import { authHeader } from "../_util/auth/auth-header";
 import { callerStatus } from "../_util/caller";
 import { displayName } from "../_util/district";
 
-
 const client = axios.create({
   baseURL:
     process.env.REACT_APP_API_ENDPOINT ||
     "https://project-grand-canyon.appspot.com/api/",
 });
+
+export function getReportData(districts, completion) {
+  const promises = districts.map((el) => {
+    return client.get(`/stats/${el.districtId}`, {
+      headers: { ...authHeader(), "Content-Type": "application/json" },
+    });
+  });
+  Promise.all(promises)
+    .then((responses) => {
+      const rawStatistics = responses.map((response) => {
+        const districtStatistic = response.data;
+        const totalActiveCallers = Object.values(
+          districtStatistic["activeCallersByMonth"]
+        ).reduce((acc, curr) => {
+          return acc + curr;
+        }, 0);
+        const totalReminders = Object.values(
+          districtStatistic["remindersByMonth"]
+        ).reduce((acc, curr) => {
+          return acc + curr;
+        }, 0);
+        const completionRate = totalReminders
+          ? ((totalActiveCallers / totalReminders) * 100).toFixed(1)
+          : 0;
+        districtStatistic["completionRate"] = completionRate;
+        return districtStatistic;
+      });
+      const districtWithMostHistory = rawStatistics.reduce(
+        (acc, districtStatistic, index) => {
+          if (
+            Object.keys(districtStatistic.activeCallersByMonth).length >
+            Object.keys(rawStatistics[acc].activeCallersByMonth).length
+          ) {
+            acc = index;
+          }
+          return acc;
+        },
+        0
+      );
+      const monthsToUse = Object.keys(
+        rawStatistics[districtWithMostHistory].activeCallersByMonth
+      );
+      const statistics = rawStatistics.map((districtStatistic) => {
+        districtStatistic["months"] = monthsToUse;
+        return districtStatistic;
+      });
+      completion(null, statistics);
+    })
+    .catch((error) => {
+      completion(error);
+    });
+}
 
 export function getDistrictCallers(district, allDistrictNames, completion) {
   const requestOptions = {
@@ -33,21 +84,21 @@ export function getAllCallers(allDistrictNames, completion) {
 }
 
 export function getCallerHistories(callers, completion) {
-    const poolLimit = 3
-    return asyncPool(poolLimit, callers, getCallerHistory)
+  const poolLimit = 3;
+  return asyncPool(poolLimit, callers, getCallerHistory)
     .then((results) => {
-        completion(null, results)
+      completion(null, results);
     })
     .catch((e) => {
       completion(e);
     });
-  }
+}
 
 function getCallers(requestOptions, allDistrictNames, completion) {
   client(requestOptions)
     .then(({ data }) => {
-      const callers = (data || []).map(el => {
-        return transformCaller(el, allDistrictNames)
+      const callers = (data || []).map((el) => {
+        return transformCaller(el, allDistrictNames);
       });
       completion(null, callers);
     })
