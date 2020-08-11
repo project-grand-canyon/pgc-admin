@@ -7,6 +7,9 @@ const privateRoute = ({ component, ...rest }) => {
     const user = localStorage.getItem('user');
     const expiration = localStorage.getItem('expires');
     const isLoggedIn = user && expiration && expiration > Date.now();
+    console.log('private route')
+    console.log(user)
+    console.log(isLoggedIn)
 
     return (
     <Route {...rest} render={props => (

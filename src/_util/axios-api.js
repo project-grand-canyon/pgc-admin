@@ -15,12 +15,16 @@ const client = axios.create({
 
 export function getReportData(districts, completion) {
   const promises = districts.map((el) => {
+    console.log('auth header')
+    console.log(authHeader())
     return client.get(`/stats/${el.districtId}`, {
       headers: { ...authHeader(), "Content-Type": "application/json" },
     });
   });
   Promise.all(promises)
     .then((responses) => {
+      console.log('responsses')
+      console.log(responses)
       const rawStatistics = responses.map((response) => {
         const districtStatistic = response.data;
         const totalActiveCallers = Object.values(
@@ -39,6 +43,7 @@ export function getReportData(districts, completion) {
         districtStatistic["completionRate"] = completionRate;
         return districtStatistic;
       });
+      console.log(rawStatistics)
       const districtWithMostHistory = rawStatistics.reduce(
         (acc, districtStatistic, index) => {
           if (
@@ -54,10 +59,12 @@ export function getReportData(districts, completion) {
       const monthsToUse = Object.keys(
         rawStatistics[districtWithMostHistory].activeCallersByMonth
       );
+      console.log(monthsToUse)
       const statistics = rawStatistics.map((districtStatistic) => {
         districtStatistic["months"] = monthsToUse;
         return districtStatistic;
       });
+      console.log(statistics)
       completion(null, statistics);
     })
     .catch((error) => {

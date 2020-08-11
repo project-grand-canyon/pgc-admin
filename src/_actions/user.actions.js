@@ -26,6 +26,7 @@ function login(username, password) {
 
 function logout() {
     return dispatch => {
+        console.log('dispatch logout')
         userService.logout();
         dispatch(adminActions.clear())
         dispatch(lgt())

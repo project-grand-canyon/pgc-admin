@@ -10,48 +10,69 @@ import { displayName, getAssociatedSenators } from "../../_util/district";
 class Reports extends Component {
   state = {
     statistics: null,
+    relevantDistricts: [],
     error: null,
   };
 
   componentDidMount() {
-    if (this.state.statistics === null && this.props.selected) {
+    console.log('comp did mount')
+    if (this.state.statistics === null) {
+      console.log('call fetch')
       this.fetchStatistics();
     }
   }
 
   componentDidUpdate(prevProps) {
-    if (prevProps.district !== this.props.district) {
-      this.setState({ statistics: null }, () => {
-        this.fetchStatistics();
-      });
+    console.log('comp did update')
+    console.log(prevProps)
+    console.log(this.props)
+    const allDistrictsUpdated = (prevProps.districts !== this.props.districts) && this.props.districts.length > 0
+    const selectedDistrictUpdated = prevProps.district !== this.props.district
+    if (allDistrictsUpdated || selectedDistrictUpdated) {
+      console.log('comp did update - fetch')
+      this.fetchStatistics();
+    } else {
+      console.log('comp did update - no fetch')
     }
   }
 
   fetchStatistics() {
-    console.log('fetchStatistics')
+    console.log('fetchStastistics')
     console.log(this.props.districts)
     console.log(this.props.district)
 
-    if (!this.props.districts || !this.props.district) {
+    if (!this.props.district || !this.props.districts || this.props.districts.length === 0) {
+      console.log('early return')
       return
     }
+    
+    const relevantDistricts = [this.props.district].concat(getAssociatedSenators(this.props.district, this.props.districts))
+    console.log(relevantDistricts)
 
-    getReportData(this.props.districts, (error, statistics) => {
-      if (error || !statistics) {
-        this.setState({ error: <h1> Some Statistics Not Found </h1> });
-      } else {
-        this.setState({ statistics: statistics });
-      }
-    });
+    this.setState({
+      relevantDistricts,
+      statistics: null
+    }, () => {
+
+      getReportData(relevantDistricts, (error, statistics) => {
+        if (error || !statistics) {
+          console.log(`error: ${error}`)
+          this.setState({ error: <h1> Some Statistics Not Found </h1> });
+        } else {
+          this.setState({ statistics: statistics });
+        }
+      });
+    })
   }
 
   render() {
+    console.log('render')
     const { error, statistics } = this.state;
     if (error) {
       return <>{error}</>;
     }
 
-    const distRenders = this.props.districts.map((district, index) => {
+    const distRenders = this.state.relevantDistricts.map((district, index) => {
       const districtStatistics = statistics && statistics[index];
       return (
         <Row key={index}>
