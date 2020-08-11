@@ -15,7 +15,6 @@ function refresh() {
     return axios(requestOptions).then((response)=>{
             const districts = response.data;
             const districtsBySlug = new Map(districts.map((dist) => [slug(dist), dist]));
-            localStorage.setItem('districts', districts);
             return { districts, districtsBySlug };
         }).catch(handleBadResponse)
 }

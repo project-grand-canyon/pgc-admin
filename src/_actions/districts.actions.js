@@ -21,5 +21,5 @@ function refresh() {
 
     function request() { return { type: districtsConstants.REQUEST } }
     function success(result) { return { type: districtsConstants.SUCCESS, ...result } }
-    function failure(error) { return { type: districtsConstants.FAILURE, error } }    
+    function failure(error) { return { type: districtsConstants.FAILURE, error } }
 }
