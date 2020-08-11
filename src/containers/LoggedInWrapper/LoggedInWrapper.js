@@ -77,8 +77,8 @@ class LoggedInWrapper extends Component {
         return generatePath(this.props.match.path, {districtSlug: slug})
     }
 
-    newURL(tab, district) {
-        return '/' + tab + (district ? '/' + districtSlug(district) : '')
+    urlPath(tabName, district) {
+        return '/' + tabName + (district ? '/' + districtSlug(district) : '')
     }
 
     handleChangeDistrict = (districtId) => {
@@ -86,7 +86,7 @@ class LoggedInWrapper extends Component {
         this.props.history.push(this.districtURL(district));
     }
 
-    getSelectDistrict = (selectedDistrict) => {
+    getDistrictSelectionDropdown = (selectedDistrict) => {
         const hasDistricts = this.state.editableDistricts.length > 0;
         
         let selectDistrict;
@@ -135,7 +135,7 @@ class LoggedInWrapper extends Component {
         const menuSelection = this.districtURL().slice(1)
         const Component = this.props.component
         const componentProps = {...this.props.componentProps, district: selectedDistrict}
-        const selectDistrict = this.getSelectDistrict(selectedDistrict)
+        const districtSelectionDropdown = this.getDistrictSelectionDropdown(selectedDistrict)
         return(
             <Layout>
                 <Layout.Header style={{background: 'white', lineHeight: '64px' }}>
@@ -153,7 +153,7 @@ class LoggedInWrapper extends Component {
                         style={{ background: '#fff' }}>
 				        <div style={{textAlign: "center"}}>
                             <span>Editing district: </span>
-                            {selectDistrict}
+                            {districtSelectionDropdown}
                         </div>
                         <CovidAlert district={selectedDistrict} />
                         <Menu
@@ -163,58 +163,58 @@ class LoggedInWrapper extends Component {
                             <Menu.Item key="dashboard">
                                 <Icon type="home" />
                                 <span>Dashboard</span>
-                                <Link to={this.newURL('dashboard', selectedDistrict)} />
+                                <Link to={this.urlPath('dashboard', selectedDistrict)} />
                             </Menu.Item>
                             <Menu.Item key="script">
                                 <Icon type="file-text" />
                                 <span>Call-In Script</span>
-                                <Link to={this.newURL('script', selectedDistrict)} />
+                                <Link to={this.urlPath('script', selectedDistrict)} />
                             </Menu.Item>
                             <Menu.Item key="talking-points">
                                 <Icon type="file-search" />
                                 <span>Talking Points Library</span>
-                                <Link to={this.newURL('talking-points', selectedDistrict)} />
+                                <Link to={this.urlPath('talking-points', selectedDistrict)} />
                             </Menu.Item>
                             {/* <Menu.Item key="schedule">
                                 <Icon type="schedule" />
                                 <span>Schedule</span>
-                                <Link to={this.newURL('schedule', selectedDistrict)} />
+                                <Link to={this.urlPath('schedule', selectedDistrict)} />
                             </Menu.Item> */}
                             {isSenatorDistrict(selectedDistrict) ?  null :
                                 <Menu.Item key="distribution">
                                     <Icon type="phone" />
                                     <span>Call Distribution</span>
-                                    <Link to={this.newURL('distribution', selectedDistrict)} />
+                                    <Link to={this.urlPath('distribution', selectedDistrict)} />
                                 </Menu.Item>
                             }
                             {isSenatorDistrict(selectedDistrict) ?  null :
                                 <Menu.Item key="callers">
                                     <Icon type="team" />
                                     <span>Callers</span>
-                                    <Link to={this.newURL('callers', selectedDistrict)} />
+                                    <Link to={this.urlPath('callers', selectedDistrict)} />
                                 </Menu.Item>
                             }
                             <Menu.Item key="reports">
                                 <Icon type="bar-chart" />
                                 <span>Reports</span>
-                                <Link to={this.newURL('reports', selectedDistrict)} />
+                                <Link to={this.urlPath('reports', selectedDistrict)} />
                             </Menu.Item>
                             <Menu.Item key="representative">
                                 <Icon type="idcard" />
                                 <span>Representative</span>
-                                <Link to={this.newURL('representative', selectedDistrict)} />
+                                <Link to={this.urlPath('representative', selectedDistrict)} />
                             </Menu.Item>
                             <Menu.Item key="admins">
                                 <Icon type="global" />
                                 <span>Admins</span>
-                                <Link to={this.newURL('admins', selectedDistrict)} />
+                                <Link to={this.urlPath('admins', selectedDistrict)} />
                             </Menu.Item>
                         </Menu>
                         <Menu selectedKeys={[menuSelection]}>
                             <Menu.Item key="account">
                                 <Icon type="setting" />
                                 <span>Account</span>
-                                <Link to={this.newURL('account', selectedDistrict)} />
+                                <Link to={this.urlPath('account', selectedDistrict)} />
                             </Menu.Item>
                         </Menu>
                     </Layout.Sider>
