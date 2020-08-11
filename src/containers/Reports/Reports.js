@@ -21,33 +21,43 @@ class Reports extends Component {
   }
 
   componentDidUpdate(prevProps) {
-    const allDistrictsUpdated = (prevProps.districts !== this.props.districts) && this.props.districts.length > 0
-    const selectedDistrictUpdated = prevProps.district !== this.props.district
+    const allDistrictsUpdated =
+      prevProps.districts !== this.props.districts &&
+      this.props.districts.length > 0;
+    const selectedDistrictUpdated = prevProps.district !== this.props.district;
     if (allDistrictsUpdated || selectedDistrictUpdated) {
       this.fetchStatistics();
     }
   }
 
   fetchStatistics() {
-    if (!this.props.district || !this.props.districts || this.props.districts.length === 0) {
-      return
+    if (
+      !this.props.district ||
+      !this.props.districts ||
+      this.props.districts.length === 0
+    ) {
+      return;
     }
-    
-    const relevantDistricts = [this.props.district].concat(getAssociatedSenators(this.props.district, this.props.districts))
 
-    this.setState({
-      relevantDistricts,
-      statistics: null
-    }, () => {
+    const relevantDistricts = [this.props.district].concat(
+      getAssociatedSenators(this.props.district, this.props.districts)
+    );
 
-      getReportData(relevantDistricts, (error, statistics) => {
-        if (error || !statistics) {
-          this.setState({ error: <h1> Some Statistics Not Found </h1> });
-        } else {
-          this.setState({ statistics: statistics });
-        }
-      });
-    })
+    this.setState(
+      {
+        relevantDistricts,
+        statistics: null,
+      },
+      () => {
+        getReportData(relevantDistricts, (error, statistics) => {
+          if (error || !statistics) {
+            this.setState({ error: <h1> Some Statistics Not Found </h1> });
+          } else {
+            this.setState({ statistics: statistics });
+          }
+        });
+      }
+    );
   }
 
   render() {
@@ -85,4 +95,3 @@ const mapStateToProps = (state) => {
 };
 
 export default connect(mapStateToProps)(Reports);
-

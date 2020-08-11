@@ -23,7 +23,6 @@ function login(username, password) {
 
 function logout() {
     // remove user from local storage to log user out
-    console.log('logsout')
     localStorage.removeItem('user');
     localStorage.removeItem('username')
     localStorage.removeItem('expires')
