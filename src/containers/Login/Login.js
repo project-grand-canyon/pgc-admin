@@ -12,7 +12,6 @@ class Login extends Component {
     constructor(props) {
         super(props);
         // reset login status
-        console.log('login logout')
         this.props.dispatch(userActions.logout());
     }
 

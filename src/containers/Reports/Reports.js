@@ -15,39 +15,25 @@ class Reports extends Component {
   };
 
   componentDidMount() {
-    console.log('comp did mount')
     if (this.state.statistics === null) {
-      console.log('call fetch')
       this.fetchStatistics();
     }
   }
 
   componentDidUpdate(prevProps) {
-    console.log('comp did update')
-    console.log(prevProps)
-    console.log(this.props)
     const allDistrictsUpdated = (prevProps.districts !== this.props.districts) && this.props.districts.length > 0
     const selectedDistrictUpdated = prevProps.district !== this.props.district
     if (allDistrictsUpdated || selectedDistrictUpdated) {
-      console.log('comp did update - fetch')
       this.fetchStatistics();
-    } else {
-      console.log('comp did update - no fetch')
     }
   }
 
   fetchStatistics() {
-    console.log('fetchStastistics')
-    console.log(this.props.districts)
-    console.log(this.props.district)
-
     if (!this.props.district || !this.props.districts || this.props.districts.length === 0) {
-      console.log('early return')
       return
     }
     
     const relevantDistricts = [this.props.district].concat(getAssociatedSenators(this.props.district, this.props.districts))
-    console.log(relevantDistricts)
 
     this.setState({
       relevantDistricts,
@@ -56,7 +42,6 @@ class Reports extends Component {
 
       getReportData(relevantDistricts, (error, statistics) => {
         if (error || !statistics) {
-          console.log(`error: ${error}`)
           this.setState({ error: <h1> Some Statistics Not Found </h1> });
         } else {
           this.setState({ statistics: statistics });
@@ -66,7 +51,6 @@ class Reports extends Component {
   }
 
   render() {
-    console.log('render')
     const { error, statistics } = this.state;
     if (error) {
       return <>{error}</>;

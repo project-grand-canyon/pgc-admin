@@ -33,20 +33,12 @@ class LoggedInWrapper extends Component {
     }
 
 	componentDidMount() {
-        console.log('component did mount logged in wrapper')
         this.props.dispatch(districtsActions.refresh());
-        console.log('after district refresh')
         let username = localStorage.getItem('username');
-        console.log('username ' + username)
         this.props.dispatch(adminActions.refresh(username));
-        console.log('after admin refresh')
     }
 
     componentDidUpdate(prevProps) {
-        console.log('componesnt did update')
-        console.log(prevProps)
-        console.log(this.props)
-        console.log(`now username ${localStorage.getItem('username')}`);
         let sameDistricts = true;
         if (prevProps.districts && this.props.districts) {
             sameDistricts = prevProps.districts.reduce((acc, el, idx) => {
@@ -128,20 +120,15 @@ class LoggedInWrapper extends Component {
         }
         let selectedDistrict
         const slug = this.props.match.params.districtSlug
-        console.log('a')
         if (slug) {
-            console.log('aa')
             if (this.state.editableDistricts.length > 0) {
                 selectedDistrict = this.props.districtsBySlug && this.props.districtsBySlug.get(slug)
                 if (!selectedDistrict || !this.state.editableDistrictsById.has(selectedDistrict.districtId)) {
-                    console.log('b')
                     return <Redirect to={this.districtURL(null)} />
                 }
             }
         } else {
-            console.log('aaa')
             if (this.state.editableDistricts.length > 0) {
-                console.log('c')
                 return <Redirect to={this.districtURL(this.state.editableDistricts[0])} />
             }
         }
@@ -149,7 +136,6 @@ class LoggedInWrapper extends Component {
         const Component = this.props.component
         const componentProps = {...this.props.componentProps, district: selectedDistrict}
         const districtSelectionDropdown = this.getDistrictSelectionDropdown(selectedDistrict)
-        console.log('d')
         return(
             <Layout>
                 <Layout.Header style={{background: 'white', lineHeight: '64px' }}>

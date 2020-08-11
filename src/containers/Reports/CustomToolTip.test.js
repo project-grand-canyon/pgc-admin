@@ -21,7 +21,6 @@ test("More than 0 calls and 0 reminders", () => {
 	
 	const container = render(CustomToolTip({ active, payload }));
 	const text = getNodeText(document.getElementById("completion"));
-	console.log(text)	
 	expect(text).toBe("Completion : 100%");
 });
 
