@@ -36,6 +36,8 @@
     "local": "./run.sh local",
     "build": "./run.sh build",
     "test": "./run.sh test",
+    "cypress-open": "./run.sh cypress-open",
+    "cypress-run": "./run.sh cypress-run",
     "eject": "react-scripts eject"
   },
   "eslintConfig": {
@@ -48,9 +50,11 @@
     "not op_mini all"
   ],
   "devDependencies": {
+    "cypress": "^4.12.1",
     "@testing-library/dom": "^7.22.0",
     "@testing-library/jest-dom": "^5.11.2",
     "@testing-library/react": "^10.4.8",
+    "@testing-library/cypress": "^6.0.0",
     "terser": "^3.17.0"
   }
 }

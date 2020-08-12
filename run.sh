@@ -20,4 +20,12 @@ test() {
   react-app-rewired test
 }
 
+cypress-open() {
+  cypress open --config 'baseUrl=http://localhost:3000' "$@"
+}
+
+cypress-run() {
+  cypress run --config 'baseUrl=http://localhost:3000' "$@"
+}
+
 "$@"
