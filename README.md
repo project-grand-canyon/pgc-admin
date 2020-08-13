@@ -26,10 +26,22 @@ You will also see any lint errors in the console.
 Launches the test runner in the interactive watch mode.<br>
 See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
 
-### `npm run cypress-open` or `npm run cypress-run`
+### `npm run cypress-open` and `npm run cypress-run`
 
-Runs the cypress end-to-end tests.  This requires the pgc-api to be running locally, with your admin frontend pointing to it.
-Do not run these if pointed at the production site, as they may change data!  The tests have a safeguard that should stop them before anything harmful is done, though, if they try to access the production site.
+[Cypress](https://www.cypress.io/) is an end-to-end UI testing tool.
+
+Cypress tests require the [pgc-api](https://github.com/project-grand-canyon/pgc-api) and this project to be running locally.
+They also require the seed data created by pgc-api's `setup-db` script. Run this project with `npm run local` to
+ensure it is pointing at the local API. Do not run these if pointed at the production API, as they may change data!
+The tests have a safeguard that should stop them before anything harmful is done, though, if they try to access the production site.
+
+#### `npm run cypress-open`
+
+Opens the cypress GUI. This is useful to manually kick off end-to-end Cypress tests and observe the UI during the test.
+
+#### `npm run cypress-run`
+
+Runs the tests headlessly from the command line.
 
 ### `npm run build`
 
