@@ -87,8 +87,8 @@ class EditCaller extends Component {
                                 message: 'Phone Number required if contacting by SMS'
                             },
                             { 
-                                pattern: /^[0-9]{10}$/,
-                                message: 'Phone number must be 10 digits (ex. 8882224444).'
+                                pattern: /^[0-9]{3}-?[0-9]{3}-?[0-9]{4}$/,
+                                message: 'Phone number must be 10 digits (ex. 888-222-4444).'
                             }
                         ]
                     })(<Input />)}
@@ -124,6 +124,7 @@ class EditCaller extends Component {
                 if (updated.contactMethodSMS) {
                     updated['contactMethods'].push('sms')
                 }
+                updated.phone = updated.phone.replace(/-/g, '');
                 this.setState({
                     saving: true
                 }, () => {
