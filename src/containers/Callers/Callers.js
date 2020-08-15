@@ -390,8 +390,7 @@ class Callers extends Component {
         {this.detailModal()}
         <Button
           disabled={this.state.districtCallers === null}
-          onClick={() => { console.log("CLICKED"); this.onClickDownloadAsCsv }}
-          title="csvButton"
+          onClick={this.onClickDownloadAsCsv()}
         >
           Download as CSV
         </Button>
