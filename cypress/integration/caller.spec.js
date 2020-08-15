@@ -1,22 +1,8 @@
 const uuid = () => Cypress._.random(0, 1e6);
 
 describe("Caller", () => {
-    before(() => {
-        cy.visit('/login');
-        cy.get('#userName').type('admin');
-        cy.get('#password').type('password');
-        cy.contains('Log in').click();
-        cy.contains('Monthly Calling Campaign - Admin').should('exist');
-        cy.wrap(localStorage).should('have.length', 5).then(ls => {
-            cy.saveLocalStorage('loggedInAdmin');
-        });
-    });
-
-    beforeEach(() => {
-        cy.restoreLocalStorage('@loggedInAdmin');
-    });
-
     it('Can edit the caller', () => {
+        cy.login();
         const uniqueLastName = 'Caller1ChangedLastName' + uuid();
         cy.visit('/dashboard');
         cy.contains('Callers').then(el => cy.wrap(el.siblings('a')).click({force: true}));
