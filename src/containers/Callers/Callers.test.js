@@ -275,7 +275,10 @@ describe("Callers.js Unit Test", () => {
             expect(getAllByText(el)).toHaveLength(1);
         })
     })
+
     test("Redirects iff Senate Selected", () => {
+        getAllCallers.mockImplementation(returnsAllCallers);
+        getDistrictCallers.mockImplementation(returnsDistrictCallers);
         render(
             <div>
                 <Provider store={getStore(true)}>
