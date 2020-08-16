@@ -1,9 +1,7 @@
-/** @jsx jsx */
-import { jsx, css } from '@emotion/core'
-
 import React, { Component } from 'react';
 import { Button, Col, message, Row, Skeleton, Typography } from 'antd';
 import EditCallerForm from './EditCallerForm';
+import styles from "./CallerDetailPanel.module.css";
 
 class CallerDetailPanel extends Component {
 
@@ -109,7 +107,7 @@ class CallerDetailPanel extends Component {
                             <Typography.Text strong>Notes</Typography.Text>
                         </Col>
                         <Col sm={24} md={16}>
-                            <Typography.Text css={{"white-space": "pre-wrap"}}>{caller.notes}</Typography.Text>
+                            <Typography.Text className={styles['caller-notes-value']}>{caller.notes}</Typography.Text>
                         </Col>
                     </Row>
                 </>
