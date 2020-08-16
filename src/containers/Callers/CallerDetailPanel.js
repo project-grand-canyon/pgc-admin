@@ -1,3 +1,6 @@
+/** @jsx jsx */
+import { jsx, css } from '@emotion/core'
+
 import React, { Component } from 'react';
 import { Button, Col, message, Row, Skeleton, Typography } from 'antd';
 import EditCallerForm from './EditCallerForm';
@@ -99,6 +102,14 @@ class CallerDetailPanel extends Component {
                         </Col>
                         <Col>
                             <Typography.Text>{caller.paused ? "paused" : "active"}</Typography.Text>
+                        </Col>
+                    </Row>
+                    <Row>
+                        <Col sm={24} md={8}>
+                            <Typography.Text strong>Notes</Typography.Text>
+                        </Col>
+                        <Col sm={24} md={16}>
+                            <Typography.Text css={{"white-space": "pre-wrap"}}>{caller.notes}</Typography.Text>
                         </Col>
                     </Row>
                 </>
