@@ -26,21 +26,24 @@
 
 import '@testing-library/cypress/add-commands';
 
+Cypress.Commands.add("login", () => {
+    const username = 'admin';
+    const password = 'password';
+    const requestOptions = {
+        url: 'http://localhost:8080/api/login',
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'Accept': 'application/json, text/plain'
 
-Cypress.Commands.add("saveLocalStorage", (storageAlias) => {
-    let storage = {};
-    for (let i = 0; i < localStorage.length; i++) {
-        const name = localStorage.key(i);
-        storage[name] = localStorage.getItem(name);
-    }
-    return cy.wrap(storage).as(storageAlias);
-});
-
-Cypress.Commands.add("restoreLocalStorage", (storageAlias) => {
-    cy.clearLocalStorage();
-    cy.get(storageAlias).then((storage) => {
-        for (const name in storage) {
-            localStorage.setItem(name, storage[name]);
-        }
+        },
+        body: JSON.stringify({ 'userName': username, 'password': password }),
+    };
+    cy.request(requestOptions).then((response) => {
+        const token = response.body.accessToken;
+        const expiration = Date.now() + (1000 * response.body.expiresIn);
+        localStorage.setItem('user', token);
+        localStorage.setItem('username', username);
+        localStorage.setItem('expires', expiration.toString());
     });
 });

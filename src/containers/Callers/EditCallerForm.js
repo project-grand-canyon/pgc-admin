@@ -24,6 +24,7 @@ class EditCaller extends Component {
             email: caller.email,
             zipCode: caller.zipCode,
             paused: caller.paused,
+            notes: caller.notes,
         });
         
     }
@@ -109,6 +110,10 @@ class EditCaller extends Component {
                         valuePropName: 'checked',
                     })(<Checkbox/>)}
                 </Form.Item>
+                <Form.Item label="Notes">
+                    {getFieldDecorator('notes', {})(<Input.TextArea/>)}
+                </Form.Item>
+
             </Form>);
     }
 
@@ -143,7 +148,8 @@ class EditCaller extends Component {
           email: callerDetails.email,
           districtId: callerDetails.districtId,
           zipCode: callerDetails.zipCode,
-          paused: callerDetails.paused
+          paused: callerDetails.paused,
+          notes: callerDetails.notes
         }
         const requestOptions = {
           url: `/callers/${callerDetails.key}`,
