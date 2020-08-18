@@ -107,9 +107,11 @@ class Callers extends Component {
         return (
           <div>
             {this.isCallerInFocus(record.key) ? (
-              <Typography.Text data-testid="detailsText">Details</Typography.Text>
+              <Typography.Text>Details</Typography.Text>
             ) : (
-                <Button onClick={() => console.log("CLICKED"), this.showDetailModal(record.key)}>Details</Button>
+                <Button onClick={() => this.showDetailModal(record.key)}>
+                  Details
+                </Button>
               )}
           </div>
         );
@@ -122,7 +124,6 @@ class Callers extends Component {
       case Status.CURRENT:
         return (
           <Popover
-            aria-label="currentIcon"
             content="This is an active caller."
             title="Current"
             trigger="hover"
@@ -231,7 +232,6 @@ class Callers extends Component {
 
   makeTimeline = (history) => {
     const { signUpHistory, callHistory, reminderHistory } = { ...history };
-    console.log(signUpHistory);
     return _([])
       .concat(signUpHistory, callHistory, reminderHistory)
       .sortBy("timestamp")
@@ -321,7 +321,6 @@ class Callers extends Component {
         }}
         onUnfocusCaller={this.onUnfocusCaller}
         onSave={this.onSavedCaller}
-        data-testid="callerDetailed"
       ></CallerDetailModal>
     );
   };
@@ -356,7 +355,6 @@ class Callers extends Component {
               this.setState({ searchTerm: e.target.value });
             }}
             placeholder="Search by name, email, or phone number"
-            data-testid="allCallersSearch"
           />
           <Table
             loading={this.state.allCallers === null}
@@ -370,7 +368,6 @@ class Callers extends Component {
                 this.onUnfocusCaller();
               },
             }}
-            data-testid="allCallersTable"
           />
         </>
       );
@@ -390,8 +387,7 @@ class Callers extends Component {
         {this.detailModal()}
         <Button
           disabled={this.state.districtCallers === null}
-          onClick={() => { console.log("CLICKED"); this.onClickDownloadAsCsv }}
-          title="csvButton"
+          onClick={this.onClickDownloadAsCsv}
         >
           Download as CSV
         </Button>
@@ -409,7 +405,6 @@ class Callers extends Component {
               this.onUnfocusCaller();
             },
           }}
-          data-testid="districtCallersTable"
         />
         {this.allCallersJsx()}
       </>
