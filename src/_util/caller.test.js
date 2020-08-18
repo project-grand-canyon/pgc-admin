@@ -1,8 +1,12 @@
-import { DateTime} from 'luxon'
+import { Settings, DateTime} from 'luxon'
 import { cloneDeep } from 'lodash'
 
+
+const mockNow = DateTime.fromSQL("2020-03-05").toMillis();
+Settings.now = () => mockNow;
+
 const callers = require('../fixtures/callers.json');
-const { callerStatus, Status, sortedByStatus } = require('./caller')
+const { callerStatus, Status, sortedByStatus, asCsv } = require('./caller')
 
 const _allCallers = callers.map(caller => {
     return {
@@ -31,14 +35,28 @@ const _brandNewCaller = _allCallers.find((el) => {
     return el.status.status == Status.BRAND_NEW
 });
 
-const _waitingCallerFunc = () => {
-    const waiting = cloneDeep(_firstLapsedCaller)
-    waiting.status.status = Status.WAITING
-    waiting.lastReminderTimestamp = DateTime.local().toSQL()
-    return waiting
-}
+const [_waitingNewCaller, _waitingCurrentCaller, _waitingLapsedCaller] = (
+    [_brandNewCaller, _currentCaller, _firstLapsedCaller].map(caller => {
+        const waiting = cloneDeep(caller)
+        waiting.lastReminderTimestamp = DateTime.local().minus({days: 2}).toSQL()
+        waiting.status = callerStatus(waiting)
+        return waiting
+    })
+)
 
-const _waitingCaller = _waitingCallerFunc()
+describe('statusPrecedence', () => {
+    test('waiting hides new', () => {
+        expect(_waitingNewCaller.status.status).toBe(Status.WAITING);
+    });
+    test('waiting hides current', () => {
+        expect(_waitingCurrentCaller.status.status).toBe(Status.WAITING);
+    });
+    test('lapsed hides waiting', () => {
+        expect(_waitingLapsedCaller.status.status).toBe(Status.LAPSED);
+    });
+});
+
+const _waitingCaller = _waitingCurrentCaller;
 
 describe('sortedByStatus', () => {
 
@@ -82,3 +100,16 @@ describe('sortedByStatus', () => {
         expect(sortedByStatus(_currentCaller, _currentCaller)).toBe(0);
     });
 });
+
+describe('asCsv', () => {
+    // test('bla', () => {
+    //     console.log('1')
+    //     const actual = asCsv(callers)
+    //     console.log('2')
+    //     const expected = generate(callers)
+    //     console.log('3')
+    //     expect(actual).toEqual(expected);
+    //     console.log('4')
+    //     expect(4).toBe(5);
+    // });
+})

@@ -1,6 +1,5 @@
 import React, { Component } from 'react';
 import { Redirect } from 'react-router-dom';
-import { connect } from 'react-redux';
 import { Button, Col, InputNumber, Modal, Skeleton, Form, Row, Typography} from 'antd';
 
 import axios from '../../_util/axios-api';
@@ -237,16 +236,10 @@ class CallDistribution extends Component {
     }
 }
 
-const mapStateToProps = state => {
-    return {
-        district: state.districts.selected
-    };
-};
-
 const CallDistributionPage = Form.create(
     {
         name: 'call_targets_page',
 
     })(CallDistribution);
 
-export default connect(mapStateToProps)(CallDistributionPage);
+export default CallDistributionPage;

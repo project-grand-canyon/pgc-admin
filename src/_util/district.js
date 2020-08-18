@@ -16,6 +16,14 @@ const displayName = (district) => {
   return `${district.state}-${junsen} Senator`;
 };
 
+const slug = (district) => {
+    if (!district) {
+        return null;
+    }
+    const part2 = district.number >= 0 ? district.number : district.number === -1 ? "S" : "J";
+    return `${district.state}-${part2}`
+}
+
 const comparator = (d1, d2) => {
   const state1 = d1.state;
   const state2 = d2.state;
@@ -56,6 +64,13 @@ const getAssociatedSenators = (district, districts) => {
       el.number !== district.number
     );
   });
+}
+
+export {
+    isSenatorDistrict,
+    displayName,
+    slug,
+    comparator,
+    getAssociatedSenators,
 };
 
-export { isSenatorDistrict, displayName, comparator, getAssociatedSenators };

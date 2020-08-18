@@ -8,10 +8,10 @@ class Dashboard extends Component {
         return (
             <>
                 <Typography.Title level={2}>Welcome to the Monthly Calling Campaign Admin Dashboard</Typography.Title>
-                <Skeleton loading={this.props.selectedDistrict == null}>
-                    {this.props.selectedDistrict &&
+                <Skeleton loading={this.props.district == null}>
+                    {this.props.district &&
                         <Typography.Paragraph>
-                            You are currently editing district <Typography.Text strong>{`${this.props.selectedDistrict.state}-${this.props.selectedDistrict.number}`}</Typography.Text>. You can change your selected district using the dropdown on the left menu.
+                            You are currently editing district <Typography.Text strong>{`${this.props.district.state}-${this.props.district.number}`}</Typography.Text>. You can change your selected district using the dropdown on the left menu.
                         </Typography.Paragraph>
                     }
                 </Skeleton>
@@ -28,7 +28,6 @@ function mapStateToProps(state) {
     const { user } = authentication;
     return {
         user,
-        selectedDistrict: state.districts.selected,
     };
 }
 
