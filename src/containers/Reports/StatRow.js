@@ -53,7 +53,7 @@ const statRow = ({ statistics }) => {
     <StatColumn
       testId="completionRate"
       title="Completion Rate"
-      statistic={completionRate != null ? `${completionRate} %` : "Und."}
+      statistic={completionRate != null ? `${completionRate} %` : null}
     />
   </Row>
   );

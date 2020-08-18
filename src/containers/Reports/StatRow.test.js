@@ -63,7 +63,7 @@ test("0 calls and 0 callers", () => {
 			"2020-04": 0,
 		},
 		months: ["2020-02", "2020-03", "2020-04"],
-		completionRate: null,
+		completionRate: 0,
 	};
 	const { getByTestId } = render(<StatRow statistics={response} />);
 	expect(Row).toBeCalledTimes(1);
@@ -76,7 +76,7 @@ test("0 calls and 0 callers", () => {
 	const dayCounterStatistic = getByTestId("dayCounterStatistic");
 	expect(dayCounterStatistic).toHaveTextContent(0);
 	const completionRateStatistic = getByTestId("completionRateStatistic");
-	expect(completionRateStatistic).toHaveTextContent("Und.");
+	expect(completionRateStatistic).toHaveTextContent("0 %");
 });
 
 test("More than 0 calls and 0 callers", () => {
