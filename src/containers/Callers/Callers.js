@@ -109,10 +109,10 @@ class Callers extends Component {
             {this.isCallerInFocus(record.key) ? (
               <Typography.Text>Details</Typography.Text>
             ) : (
-              <Button onClick={() => this.showDetailModal(record.key)}>
-                Details
-              </Button>
-            )}
+                <Button onClick={() => this.showDetailModal(record.key)}>
+                  Details
+                </Button>
+              )}
           </div>
         );
       },
@@ -167,7 +167,7 @@ class Callers extends Component {
             title="Lapsed"
             content={`This person has not called for ${monthsMissedCount} ${
               monthsMissedCount === 1 ? "month" : "months"
-            }`}
+              }`}
             trigger="hover"
           >
             <Icon type="phone" theme="twoTone" twoToneColor="red" />
