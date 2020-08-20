@@ -7,12 +7,14 @@ export function districts(state = initialState, action) {
 		case districtsConstants.REQUEST:
 		  return {
 				districts: [],
+				districtsById: new Map(),
 				districtsBySlug: new Map(),
 				refreshing: true
 			};
 		case districtsConstants.SUCCESS:
 		  return {
 				districts: action.districts,
+				districtsById: action.districtsById,
 				districtsBySlug: action.districtsBySlug,
 				refreshed: true
 			};

@@ -14,8 +14,11 @@ function refresh() {
     };
     return axios(requestOptions).then((response)=>{
             const districts = response.data;
-            const districtsBySlug = new Map(districts.map((dist) => [slug(dist), dist]));
-            return { districts, districtsBySlug };
+            return {
+                districts,
+                districtsById: new Map(districts.map((dist) => [dist.districtId, dist])),
+                districtsBySlug: new Map(districts.map((dist) => [slug(dist), dist]))
+            };
         }).catch(handleBadResponse)
 }
 

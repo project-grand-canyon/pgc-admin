@@ -44,14 +44,6 @@ class Callers extends Component {
     );
   };
 
-  allDistrictNames = () => {
-    return new Map(
-      this.props.allDistricts.map((district) => {
-        return [district.districtId, district];
-      })
-    );
-  };
-
   componentDidMount() {
     this.fetchCallers();
   }
@@ -215,6 +207,7 @@ class Callers extends Component {
         () => {
           getCallerHistories(
             [this.state.callerDetail.caller],
+            this.props.districtsById,
             (err, history) => {
               const callerDetail = { ...this.state.callerDetail };
               if (err) {
@@ -243,7 +236,7 @@ class Callers extends Component {
     if (this.props.district) {
       getDistrictCallers(
         this.props.district,
-        this.allDistrictNames(),
+        this.props.districtsById,
         (err, callers) => {
           if (err) {
             Modal.error({
@@ -258,7 +251,7 @@ class Callers extends Component {
       );
     }
     if (this.props.user && this.props.user.root) {
-      getAllCallers(this.allDistrictNames(), (err, callers) => {
+      getAllCallers(this.props.districtsById, (err, callers) => {
         if (err) {
           Modal.error({
             title: "Error Loading Full Caller List",
@@ -279,7 +272,7 @@ class Callers extends Component {
 
     const hide = message.loading("Generating a CSV", 0);
     const callers = _.cloneDeep(this.state.districtCallers);
-    getCallerHistories(callers, (err, histories) => {
+    getCallerHistories(callers, this.props.districtsById, (err, histories) => {
       hide();
       if (err) {
         message.error(`Could not generate a CSV - ${err.message}`);
@@ -414,7 +407,7 @@ class Callers extends Component {
 
 const mapStateToProps = (state) => {
   return {
-    allDistricts: state.districts.districts,
+    districtsById: state.districts.districtsById,
     user: state.admin.admin,
   };
 };
