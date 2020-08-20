@@ -97,15 +97,9 @@ class Callers extends Component {
       width: 50,
       render: (text, record) => {
         return (
-          <div>
-            {this.isCallerInFocus(record.key) ? (
-              <Typography.Text>Details</Typography.Text>
-            ) : (
-                <Button onClick={() => this.showDetailModal(record.key)}>
-                  Details
-                </Button>
-              )}
-          </div>
+          <Button onClick={() => this.showDetailModal(record.key)} disabled={this.isCallerInFocus(record.key)}>
+            Details
+          </Button>
         );
       },
     },
