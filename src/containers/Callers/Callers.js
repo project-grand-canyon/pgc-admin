@@ -109,7 +109,7 @@ class Callers extends Component {
             {this.isCallerInFocus(record.key) ? (
               <Typography.Text data-testid="detailsText">Details</Typography.Text>
             ) : (
-                <Button onClick={() => console.log("CLICKED"), this.showDetailModal(record.key)}>Details</Button>
+                <Button onClick={() => this.showDetailModal(record.key)}>Details</Button>
               )}
           </div>
         );
@@ -122,7 +122,6 @@ class Callers extends Component {
       case Status.CURRENT:
         return (
           <Popover
-            aria-label="currentIcon"
             content="This is an active caller."
             title="Current"
             trigger="hover"
@@ -231,7 +230,6 @@ class Callers extends Component {
 
   makeTimeline = (history) => {
     const { signUpHistory, callHistory, reminderHistory } = { ...history };
-    console.log(signUpHistory);
     return _([])
       .concat(signUpHistory, callHistory, reminderHistory)
       .sortBy("timestamp")
