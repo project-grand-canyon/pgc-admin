@@ -107,9 +107,11 @@ class Callers extends Component {
         return (
           <div>
             {this.isCallerInFocus(record.key) ? (
-              <Typography.Text data-testid="detailsText">Details</Typography.Text>
+              <Typography.Text>Details</Typography.Text>
             ) : (
-                <Button onClick={() => this.showDetailModal(record.key)}>Details</Button>
+                <Button onClick={() => this.showDetailModal(record.key)}>
+                  Details
+                </Button>
               )}
           </div>
         );
@@ -319,7 +321,6 @@ class Callers extends Component {
         }}
         onUnfocusCaller={this.onUnfocusCaller}
         onSave={this.onSavedCaller}
-        data-testid="callerDetailed"
       ></CallerDetailModal>
     );
   };
@@ -388,7 +389,7 @@ class Callers extends Component {
         {this.detailModal()}
         <Button
           disabled={this.state.districtCallers === null}
-          onClick={this.onClickDownloadAsCsv()}
+          onClick={this.onClickDownloadAsCsv}
         >
           Download as CSV
         </Button>
