@@ -7,6 +7,7 @@ import get from "lodash/get"
 
 import axios from '../../_util/axios-api';
 import { authHeader } from '../../_util/auth/auth-header';
+import { slug as districtSlug } from "../../_util/district";
 import AddEditTalkingPointModal from './AddEditTalkingPointModal'
 
 import './TalkingPoints.module.css';
@@ -469,6 +470,7 @@ class TalkingPoints extends Component {
                 headers: { ...authHeader(), 'Content-Type': 'application/json' },
                 data: newScript
             };
+            const scriptURL = `/script/${districtSlug(this.props.district)}`;
             axios(updateScriptRequestOptions).then((response)=>{
                 Modal.confirm({
                     title: 'View Updated Script?',
@@ -477,7 +479,7 @@ class TalkingPoints extends Component {
                     cancelText: 'No',
                     onOk() {
                         self.setState({
-                            redirect: "/script"
+                            redirect: scriptURL
                         })
                     }
                 });

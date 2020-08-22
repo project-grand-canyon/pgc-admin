@@ -19,7 +19,7 @@ import {
   getDistrictCallers,
   getCallerHistories,
 } from "../../_util/axios-api";
-import { isSenatorDistrict } from "../../_util/district";
+import { isSenatorDistrict, slug as districtSlug } from "../../_util/district";
 import { asCsv, sortedByStatus, Status } from "../../_util/caller";
 
 import { connect } from "react-redux";
@@ -378,7 +378,7 @@ class Callers extends Component {
 
   render() {
     if (isSenatorDistrict(this.props.district)) {
-      return <Redirect to="/script" />;
+      return <Redirect to={`/script/${districtSlug(this.props.district)}`} />;
     }
 
     return (

@@ -5,7 +5,7 @@ import get from "lodash/get"
 import { Button, Card, Icon, Input, List, Modal, message, Skeleton, Form, Popconfirm, Typography, Spin} from 'antd';
 
 import axios from '../../_util/axios-api';
-import { displayName } from '../../_util/district';
+import { displayName, slug as districtSlug } from '../../_util/district';
 import { authHeader } from '../../_util/auth/auth-header';
 
 class Script extends Component {
@@ -271,11 +271,12 @@ class Script extends Component {
     }
 
     actions = () => {
+        const talkingPointsURL = `/talking-points/${districtSlug(this.props.district)}`;
         return (
             <Skeleton loading={this.state.hydratedDistrict === null}>
                 {this.state.hydratedDistrict &&
                 <div style={{padding: "10px", display: "flex", justifyContent: "center"}}>
-                    <Button style={{marginRight: "5px"}} ><Link to="/talking-points">Add a Talking Point</Link></Button>
+                    <Button style={{marginRight: "5px"}} ><Link to={talkingPointsURL}>Add a Talking Point</Link></Button>
                     <Button style={{marginLeft: "5px"}} target="_blank" href={`http://www.cclcalls.org/call/${this.state.hydratedDistrict.state.toLowerCase()}/${this.state.hydratedDistrict.number}`}>View the Live Script</Button>
                 </div>}
             </Skeleton>
