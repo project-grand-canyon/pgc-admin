@@ -56,7 +56,7 @@ describe('callerHistory', () => {
                 expect(stephenHistory.reminderHistory[1].url)
                     .toBe('http://www.cclcalls.org/call/aa/2?t=RZnaDi0q&c=452&d=3');
                 expect(stephenHistory.callHistory.length).toBe(1);
-                expect(haranHistory.reminderHistory.length).toBe(2);
+                expect(haranHistory.reminderHistory.length).toBe(1);
                 done();
             });
         });
