@@ -14,27 +14,28 @@ const client = axios.create({
     "https://project-grand-canyon.appspot.com/api/",
 });
 
-export function getDistrictCallers(district, allDistrictNames, completion) {
+export function getDistrictCallers(district, districtsById, completion) {
   const requestOptions = {
     url: `/callers?districtId=${district.districtId}`,
     method: "GET",
     headers: { ...authHeader(), "Content-Type": "application/json" },
   };
-  getCallers(requestOptions, allDistrictNames, completion);
+  getCallers(requestOptions, districtsById, completion);
 }
 
-export function getAllCallers(allDistrictNames, completion) {
+export function getAllCallers(districtsById, completion) {
   const requestOptions = {
     url: `/callers`,
     method: "GET",
     headers: { ...authHeader(), "Content-Type": "application/json" },
   };
-  getCallers(requestOptions, allDistrictNames, completion);
+  getCallers(requestOptions, districtsById, completion);
 }
 
-export function getCallerHistories(callers, completion) {
+export function getCallerHistories(callers, districtsById, completion) {
     const poolLimit = 3
-    return asyncPool(poolLimit, callers, getCallerHistory)
+    const getHistory = (caller) => getCallerHistory(caller, districtsById);
+    return asyncPool(poolLimit, callers, getHistory)
     .then((results) => {
         completion(null, results)
     })
@@ -43,11 +44,11 @@ export function getCallerHistories(callers, completion) {
     });
   }
 
-function getCallers(requestOptions, allDistrictNames, completion) {
+function getCallers(requestOptions, districtsById, completion) {
   client(requestOptions)
     .then(({ data }) => {
       const callers = (data || []).map(el => {
-        return transformCaller(el, allDistrictNames)
+        return transformCaller(el, districtsById)
       });
       completion(null, callers);
     })
@@ -56,18 +57,21 @@ function getCallers(requestOptions, allDistrictNames, completion) {
     });
 }
 
-function transformCaller(caller, allDistrictNames) {
+function transformCaller(caller, districtsById) {
+  const district = districtsById.get(caller.districtId);
   return {
     ...caller,
     key: caller.callerId,
     contactMethodSMS: caller.contactMethods.indexOf("sms") !== -1,
     contactMethodEmail: caller.contactMethods.indexOf("email") !== -1,
     status: callerStatus(caller),
-    districtName: displayName(allDistrictNames.get(caller.districtId)),
+    districtName: displayName(district),
+    state: district.state,
+    districtNumber: district.number,
   };
 }
 
-function getCallerHistory(caller) {
+function getCallerHistory(caller, districtsById) {
   const callHistoryRequestOptions = {
     url: `/calls/${caller["callerId"]}`,
     method: "GET",
@@ -82,24 +86,31 @@ function getCallerHistory(caller) {
     client(callHistoryRequestOptions),
     client(reminderHistoryRequestOptions),
   ]).then(([calls, reminders]) => {
-    const createHistoryItem = (timestamp, type) => {
+    const createHistoryItem = ({timestamp, ...rest}) => {
       const dateTime = DateTime.fromSQL(timestamp);
       return {
         timestamp: dateTime.valueOf(),
         timestampDisplay: dateTime.toLocaleString(),
-        type,
+        ...rest,
       };
     };
 
     const signUpHistory = [
-      createHistoryItem(caller.created, HistoryType.SIGN_UP),
+      createHistoryItem({timestamp: caller.created, type: HistoryType.SIGN_UP}),
     ];
     const callHistory = _.map(calls.data, ({ created }) =>
-      createHistoryItem(created, HistoryType.CALL)
+      createHistoryItem({timestamp: created, type: HistoryType.CALL})
     );
-    const reminderHistory = _.map(reminders.data, ({ timeSent }) =>
-      createHistoryItem(timeSent, HistoryType.NOTIFICATION)
-    );
+    const reminderHistory = _.map(reminders.data, ({ timeSent, targetDistrictId, trackingId }) => {
+      const district = districtsById.get(targetDistrictId);
+      const urlPath = `http://www.cclcalls.org/call/${district.state.toLowerCase()}/${district.number}`;
+      const urlSearch = `?t=${trackingId}&c=${caller.callerId}&d=${caller.districtNumber}`;
+      // Note: the URL provides district numbers for the call target and the caller's home.
+      // But it provides only one state to resolve these district numbers.
+      // It is assumed that the two districts always belong to the same state.
+      const url = urlPath + urlSearch;
+      return createHistoryItem({timestamp: timeSent, type: HistoryType.NOTIFICATION, url});
+    });
     const history = {
       signUpHistory,
       callHistory,

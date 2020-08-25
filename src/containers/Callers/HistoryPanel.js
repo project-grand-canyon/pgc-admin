@@ -2,9 +2,13 @@ import React from 'react';
 import { 
     Button, 
     Card, 
+    Col,
     Divider, 
+    Icon,
+    Input,
     message, 
     Popconfirm, 
+    Row,
     Timeline, 
     Typography,
 } from 'antd';
@@ -41,9 +45,29 @@ const HistoryPanel = ({
             color = 'blue'
         }
 
+        let url
+        if (item.url) {
+            const ref = React.createRef();
+            const onCopy = () => {
+                ref.current.select()
+                document.execCommand('copy')
+                message.success('Copied URL to clipboard.')
+            }
+            url = (
+                <Input
+                    readOnly
+                    value={item.url}
+                    addonAfter={<Icon type="copy" title="Copy to clipboard" onClick={onCopy} />}
+                    ref={ref}
+                />
+            )
+        }
         return  (
             <Timeline.Item key={idx} color={color}>
-                {item.type} on {item.timestampDisplay}
+                <Row>
+                    <Col span={10}>{item.type} on {item.timestampDisplay}</Col>
+                    <Col span={14}>{url}</Col>
+                </Row>
             </Timeline.Item>
         )
     });
