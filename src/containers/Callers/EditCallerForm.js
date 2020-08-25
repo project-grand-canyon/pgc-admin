@@ -129,7 +129,9 @@ class EditCaller extends Component {
                 if (updated.contactMethodSMS) {
                     updated['contactMethods'].push('sms')
                 }
-                updated.phone = updated.phone.replace(/-/g, '');
+                if (updated.phone) {
+                    updated.phone = updated.phone.replace(/-/g, '');
+                }
                 this.setState({
                     saving: true
                 }, () => {
