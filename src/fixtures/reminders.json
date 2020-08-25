@@ -1,0 +1,29 @@
+[
+    {
+        "smsDelivered": false,
+        "emailDelivered": true,
+        "trackingId": "Fwjim8y7",
+        "callerId": 452,
+        "callerDistrictId": 11,
+        "targetDistrictId": 11,
+        "timeSent": "2020-08-20 09:40"
+    },
+    {
+        "smsDelivered": true,
+        "emailDelivered": false,
+        "trackingId": "RZnaDi0q",
+        "callerId": 452,
+        "callerDistrictId": 11,
+        "targetDistrictId": 10,
+        "timeSent": "2020-08-20 09:41"
+    },
+    {
+        "smsDelivered": true,
+        "emailDelivered": true,
+        "trackingId": "gvKznMGg",
+        "callerId": 131,
+        "callerDistrictId": 815,
+        "targetDistrictId": 815,
+        "timeSent": "2020-08-20 09:43"
+    }
+]

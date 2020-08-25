@@ -1,0 +1,227 @@
+[
+    {
+        "created": "2020-07-09 11:30",
+        "lastModified": "2020-08-07 22:03",
+        "districtId": 8,
+        "state": "AA",
+        "number": 1,
+        "repFirstName": "AA1FirstName",
+        "repLastName": "AA1LastName",
+        "repImageUrl": null,
+        "callTargets": [
+            {
+                "targetDistrictId": 1,
+                "percentage": 100
+            }
+        ],
+        "scriptModifiedTime": 1596509815000,
+        "lastStaleScriptNotification": 1594319406000,
+        "status": "active",
+        "info": null,
+        "senatorDistrict": false
+    },
+    {
+        "created": "2020-07-09 11:30",
+        "lastModified": "2020-08-03 20:31",
+        "districtId": 10,
+        "state": "AA",
+        "number": 2,
+        "repFirstName": "AA2FirstName",
+        "repLastName": "AA2LastName",
+        "repImageUrl": null,
+        "callTargets": [
+            {
+                "targetDistrictId": 2,
+                "percentage": 30
+            },
+            {
+                "targetDistrictId": 4,
+                "percentage": 30
+            },
+            {
+                "targetDistrictId": 6,
+                "percentage": 40
+            }
+        ],
+        "scriptModifiedTime": 1596511887000,
+        "lastStaleScriptNotification": 1594319406000,
+        "status": "active",
+        "info": "AA2Info",
+        "senatorDistrict": false
+    },
+    {
+        "created": "2020-07-09 11:30",
+        "lastModified": "2020-07-09 11:30",
+        "districtId": 11,
+        "state": "AA",
+        "number": 3,
+        "repFirstName": "AA3FirstName",
+        "repLastName": "AA3LastName",
+        "repImageUrl": null,
+        "callTargets": [
+            {
+                "targetDistrictId": 1,
+                "percentage": 20
+            },
+            {
+                "targetDistrictId": 3,
+                "percentage": 80
+            }
+        ],
+        "scriptModifiedTime": null,
+        "lastStaleScriptNotification": 1594319406000,
+        "status": "active",
+        "info": "AA3Info",
+        "senatorDistrict": false
+    },
+    {
+        "created": "2020-07-09 11:30",
+        "lastModified": "2020-08-19 12:24",
+        "districtId": 432,
+        "state": "BB",
+        "number": 1,
+        "repFirstName": "BB1FirstName",
+        "repLastName": "BB1LastName",
+        "repImageUrl": "http://www.person4congress.com/photo.jpg",
+        "callTargets": [
+            {
+                "targetDistrictId": 7,
+                "percentage": 20
+            },
+            {
+                "targetDistrictId": 14,
+                "percentage": 80
+            }
+        ],
+        "scriptModifiedTime": null,
+        "lastStaleScriptNotification": 1597865086000,
+        "status": "active",
+        "info": null,
+        "senatorDistrict": false
+    },
+    {
+        "created": "2020-07-09 11:30",
+        "lastModified": "2020-07-09 11:30",
+        "districtId": 509,
+        "state": "BB",
+        "number": 2,
+        "repFirstName": "BB2FirstName",
+        "repLastName": "BB2LastName",
+        "repImageUrl": null,
+        "callTargets": [
+            {
+                "targetDistrictId": 7,
+                "percentage": 10
+            },
+            {
+                "targetDistrictId": 9,
+                "percentage": 90
+            }
+        ],
+        "scriptModifiedTime": null,
+        "lastStaleScriptNotification": 1594319406000,
+        "status": "active",
+        "info": "BB2Info",
+        "senatorDistrict": false
+    },
+    {
+        "created": "2020-07-09 11:30",
+        "lastModified": "2020-08-05 18:02",
+        "districtId": 529,
+        "state": "CC",
+        "number": 1,
+        "repFirstName": "CC1FirstName",
+        "repLastName": "CC1LastNamex",
+        "repImageUrl": "http://www.google.com",
+        "callTargets": [
+            {
+                "targetDistrictId": 11,
+                "percentage": 20
+            },
+            {
+                "targetDistrictId": 12,
+                "percentage": 40
+            },
+            {
+                "targetDistrictId": 13,
+                "percentage": 40
+            }
+        ],
+        "scriptModifiedTime": 1596512901000,
+        "lastStaleScriptNotification": 1594319406000,
+        "status": "covid_paused",
+        "info": null,
+        "senatorDistrict": false
+    },
+    {
+        "created": "2020-07-09 11:30",
+        "lastModified": "2020-08-03 22:24",
+        "districtId": 535,
+        "state": "CC",
+        "number": 2,
+        "repFirstName": "CC2FirstName",
+        "repLastName": "CC2LastName",
+        "repImageUrl": null,
+        "callTargets": [
+            {
+                "targetDistrictId": 11,
+                "percentage": 20
+            },
+            {
+                "targetDistrictId": 12,
+                "percentage": 40
+            },
+            {
+                "targetDistrictId": 13,
+                "percentage": 40
+            }
+        ],
+        "scriptModifiedTime": 1596518661000,
+        "lastStaleScriptNotification": 1594319406000,
+        "status": "active",
+        "info": "CC2Info",
+        "senatorDistrict": false
+    },
+    {
+        "created": "2020-07-09 11:30",
+        "lastModified": "2020-07-09 11:30",
+        "districtId": 815,
+        "state": "CC",
+        "number": 3,
+        "repFirstName": "CC3FirstName",
+        "repLastName": "CC3LastName",
+        "repImageUrl": null,
+        "callTargets": [
+            {
+                "targetDistrictId": 11,
+                "percentage": 100
+            }
+        ],
+        "scriptModifiedTime": null,
+        "lastStaleScriptNotification": 1594319406000,
+        "status": "active",
+        "info": "CC3Info",
+        "senatorDistrict": false
+    },
+    {
+        "created": "2020-08-05 15:03",
+        "lastModified": "2020-08-05 15:03",
+        "districtId": 14,
+        "state": "BB",
+        "number": -1,
+        "repFirstName": "Louie",
+        "repLastName": "Gomert",
+        "repImageUrl": null,
+        "callTargets": [
+            {
+                "targetDistrictId": 14,
+                "percentage": 100
+            }
+        ],
+        "scriptModifiedTime": null,
+        "lastStaleScriptNotification": 1596664999000,
+        "status": "active",
+        "info": "A Senator from BB",
+        "senatorDistrict": true
+    }
+]
