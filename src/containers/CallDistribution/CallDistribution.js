@@ -7,7 +7,13 @@ import { authHeader } from '../../_util/auth/auth-header';
 
 import styles from './CallDistribution.module.css';
 
-import { isSenatorDistrict, getAssociatedSenators, displayName, comparator as districtComparator } from '../../_util/district';
+import {
+    isSenatorDistrict,
+    getAssociatedSenators,
+    displayName,
+    comparator as districtComparator,
+    slug as districtSlug
+} from '../../_util/district';
 
 class CallDistribution extends Component {
 
@@ -227,7 +233,7 @@ class CallDistribution extends Component {
 
     render = () => {
         if (isSenatorDistrict(this.props.district)) {
-            return <Redirect to='/script'/>;
+            return <Redirect to={`/script/${districtSlug(this.props.district)}`} />;
         }
         return <>
             {this.header()}
