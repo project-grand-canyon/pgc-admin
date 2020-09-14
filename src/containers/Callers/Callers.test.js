@@ -2,6 +2,7 @@ import React from "react"
 import { render } from "@testing-library/react"
 import "@testing-library/jest-dom"
 import Callers from "./Callers"
+import HistoryPanel from "./HistoryPanel"
 import {
     getAllCallers,
     getDistrictCallers,
@@ -27,21 +28,28 @@ const JR_SEN_DISTRICT = {
     state: "MI",
     number: -2,
     districtId: 0,
+    repFirstName: 'Paul',
+    repLastName: 'Mingus'
 };
 
 const SR_SEN_DISTRICT = {
     state: "MI",
     number: -1,
     districtId: 1,
+    repFirstName: 'Xerbi',
+    repLastName: 'Qaraq'
 };
 
 const REP_DISTRICT = {
     state: "MI",
     number: 1,
     districtId: 2,
+    repFirstName: 'Neysa',
+    repLastName: 'Sheen'
 };
 
 const districtsFixtures = [JR_SEN_DISTRICT, SR_SEN_DISTRICT, REP_DISTRICT];
+const districtsById = new Map(districtsFixtures.map(dist => [dist.districtId, dist]))
 
 function getStore(isAdmin) {
     return mockStore({
@@ -164,45 +172,31 @@ const returnsDistrictCallers = (district) => {
     }
 }
 
-const CALLER_HISTORY = {
-    history: {
-        signUpHistory: [{
-            timestamp: 1,
-            timestampDisplay: "1/1/1",
-            type: "Sign Up"
-        }],
-        callHistory: [{
-            timestamp: 6,
-            timestampDisplay: "1/1/6",
-            type: "Called"
-        },
-        {
-            timestamp: 3,
-            timestampDisplay: "1/1/3",
-            type: "Called"
-        }],
-        reminderHistory: [{
-            timestamp: 4,
-            timestampDisplay: "1/1/4",
-            type: "Sent Reminder"
-        },
-        {
-            timestamp: 5,
-            timestampDisplay: "1/1/5",
-            type: "Sent Reminder"
-        }, {
-            timestamp: 7,
-            timestampDisplay: "1/1/7",
-            type: "Sent Reminder"
-        }]
+const CALLER_HISTORY = [
+    {
+        timestamp: 15,
+        timestampDisplay: '1/15/2020',
+        type: 'Call',
+        districtId: 2
+    },
+    {
+        timestamp: 10,
+        timestampDisplay: '1/10/2020',
+        type: 'Call',
+        districtId: 321
+    },
+    {
+        timestamp: 5,
+        timestampDisplay: '1/5/2020',
+        type: 'Notification',
+        url: 'http://www.cclcalls.org?t=qwer'
+    },
+    {
+        timestamp: 1,
+        timestampDisplay: '1/1/2020',
+        type: 'Sign Up'
     }
-}
-
-const returnsCallerHistory = () => {
-    return {
-        history: CALLER_HISTORY
-    }
-}
+]
 
 describe("Callers.js Unit Test", () => {
     test("Tests Super Admin", () => {
@@ -296,5 +290,21 @@ describe("Callers.js Unit Test", () => {
             </Provider>
         );
         expect(Redirect).toHaveBeenCalledTimes(2);
+    })
+
+    test("Displays caller history", () => {
+        const { getAllByText, getAllByDisplayValue } = render(
+            <HistoryPanel history={CALLER_HISTORY} caller={CALLER_CURRENT_REP} districtsById={districtsById} />
+        )
+        const texts = [
+            'Sign Up on 1/1/2020',
+            'Notification on 1/5/2020',
+            'Call to unknown district on 1/10/2020',
+            'Call to Neysa Sheen (MI-1) on 1/15/2020'
+        ]
+        texts.forEach((el) => {
+            expect(getAllByText(el)).toHaveLength(1)
+        })
+        expect(getAllByDisplayValue('http://www.cclcalls.org?t=qwer')).toHaveLength(1)
     })
 })
