@@ -15,6 +15,7 @@ import {
 import { authHeader } from '../../_util/auth/auth-header';
 import { HistoryType } from './constants'
 import axios from '../../_util/axios-api';
+import { displayName } from '../../_util/district';
 
 const sendNotification = (callerId) => {
     const requestOptions = {
@@ -32,6 +33,7 @@ const sendNotification = (callerId) => {
 const HistoryPanel = ({
     history,
     caller,
+    districtsById
 }) => { 
     const events = history.map((item, idx)=> {
         // TODO: Possibly use an icon here, or expand on the colors
@@ -43,6 +45,16 @@ const HistoryPanel = ({
             color = 'gray'
         } else if (item.type === HistoryType.SIGN_UP) {
             color = 'blue'
+        }
+
+        let description = item.type
+        if (item.type === HistoryType.CALL) {
+            if (districtsById.has(item.districtId)) {
+                const district = districtsById.get(item.districtId)
+                description += ` to ${district.repFirstName} ${district.repLastName} (${displayName(district)})`
+            } else {
+                description += ' to unknown district'
+            }
         }
 
         let url
@@ -65,8 +77,8 @@ const HistoryPanel = ({
         return  (
             <Timeline.Item key={idx} color={color}>
                 <Row>
-                    <Col span={10}>{item.type} on {item.timestampDisplay}</Col>
-                    <Col span={14}>{url}</Col>
+                    <Col span={url ? 10 : 24}>{description} on {item.timestampDisplay}</Col>
+                    {url && <Col span={14}>{url}</Col>}
                 </Row>
             </Timeline.Item>
         )
