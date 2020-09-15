@@ -98,9 +98,14 @@ function getCallerHistory(caller, districtsById) {
     const signUpHistory = [
       createHistoryItem({timestamp: caller.created, type: HistoryType.SIGN_UP}),
     ];
-    const callHistory = _.map(calls.data, ({ created, districtId }) =>
-      createHistoryItem({timestamp: created, type: HistoryType.CALL, districtId})
-    );
+    const callHistory = _.map(calls.data, ({ created, districtId }) => {
+      let recipient;
+      const district = districtsById.get(districtId);
+      if (district) {
+        recipient = `${district.repFirstName} ${district.repLastName} (${displayName(district)})`;
+      }
+      return createHistoryItem({timestamp: created, type: HistoryType.CALL, recipient})
+    });
     const reminderHistory = _.map(reminders.data, ({ timeSent, targetDistrictId, trackingId }) => {
       const district = districtsById.get(targetDistrictId);
       const urlPath = `http://www.cclcalls.org/call/${district.state.toLowerCase()}/${district.number}`;

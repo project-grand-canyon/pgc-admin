@@ -33,7 +33,7 @@ class CallerDetailModal extends Component {
         const caller = this.props.caller && this.props.caller.caller;
         return (
             <Skeleton active loading={!history || !caller}>
-                <HistoryPanel history={history} caller={caller} districtsById={this.props.districtsById} />
+                <HistoryPanel history={history} caller={caller} />
             </Skeleton>
         )
     }
