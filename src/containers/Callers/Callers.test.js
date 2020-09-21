@@ -49,7 +49,6 @@ const REP_DISTRICT = {
 };
 
 const districtsFixtures = [JR_SEN_DISTRICT, SR_SEN_DISTRICT, REP_DISTRICT];
-const districtsById = new Map(districtsFixtures.map(dist => [dist.districtId, dist]))
 
 function getStore(isAdmin) {
     return mockStore({
@@ -177,13 +176,12 @@ const CALLER_HISTORY = [
         timestamp: 15,
         timestampDisplay: '1/15/2020',
         type: 'Call',
-        districtId: 2
     },
     {
         timestamp: 10,
         timestampDisplay: '1/10/2020',
         type: 'Call',
-        districtId: 321
+        recipient: 'Xerbi Qaraq (MI-Sen. Senator)'
     },
     {
         timestamp: 5,
@@ -294,13 +292,13 @@ describe("Callers.js Unit Test", () => {
 
     test("Displays caller history", () => {
         const { getAllByText, getAllByDisplayValue } = render(
-            <HistoryPanel history={CALLER_HISTORY} caller={CALLER_CURRENT_REP} districtsById={districtsById} />
+            <HistoryPanel history={CALLER_HISTORY} caller={CALLER_CURRENT_REP} />
         )
         const texts = [
             'Sign Up on 1/1/2020',
             'Notification on 1/5/2020',
-            'Call to unknown district on 1/10/2020',
-            'Call to Neysa Sheen (MI-1) on 1/15/2020'
+            'Call to Xerbi Qaraq (MI-Sen. Senator) on 1/10/2020',
+            'Call on 1/15/2020'
         ]
         texts.forEach((el) => {
             expect(getAllByText(el)).toHaveLength(1)

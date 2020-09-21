@@ -303,7 +303,6 @@ class Callers extends Component {
       <CallerDetailModal
         caller={this.state.callerDetail}
         display={caller != null}
-        districtsById={this.props.districtsById}
         onEditCaller={(callerDetails) => {
           this.onEditCaller(callerDetails);
         }}
