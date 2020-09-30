@@ -13,7 +13,7 @@ class Reports extends Component {
     }
     if (district && !isSenatorDistrict(district)) {
       const senators = this.props.districts
-        .filter((el) => el.state == district.state && isSenatorDistrict(el))
+        .filter((el) => el.state === district.state && isSenatorDistrict(el))
         .sort(comparator);
       reportedDistricts.push(...senators);
     }
