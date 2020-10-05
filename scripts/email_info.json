@@ -1,0 +1,8 @@
+{
+    "MailService": "gmail",
+    "ReturnAddress": "",
+    "MailPassword": "",
+    "MailSubject": "Thanks for becoming an admin in the Monthly Calling Campaign",
+    "MailGreeting": "Welcome, ",
+    "MailBody": "Your admin account has been approved, and you can now log in at admin.cclcalls.org. Your username is \"_______\" You have access to ____. If you need access to any other districts, just let me know.\n\nOnce you logged in, please:\n\nReview the Starting a Monthly Calling Campaign training\nJoin the CCL Community Group for MCC admins\n\nIf you have any questions, you can post into the Community group or email feedback@cclcalls.org.\n\nThanks,\nBen Boral"
+}

@@ -18,10 +18,7 @@ const express = require('express')
 console.log('') // Create header and space in the terminal output to distinguish program result
 
 var nodemailer = require('nodemailer'); // include code for sending SMTP mail
-const fs = require('fs')  // include the file system functions
-const path = require('path')  // include path manipulation functions
-const configPath = '/Users/Shared/notifyAdmin.cfg'
-// console.log(path.resolve(configPath))  // Uncomment this line to check full path of configPath
+const emailInfo = require('./email_info.json');
 
 const CSMarg = process.argv.slice(2);   // capture command line arguments into an array
 
@@ -31,34 +28,21 @@ if (CSMarg.length==0) {
     console.log('Sending an email to ' + CSMarg[0])  // If argument present, say what we're doing
 }
 
-// Get the first parameter, delimited by quotes, that comes after paramName in the notifyAdmin.cfg file
-function getConfig(paramName) {
-  try {
-      var data = fs.readFileSync(configPath, 'utf8')
-    } catch (err) {
-      console.error(err)
-    }
-  var namePos = data.indexOf(paramName,0);  // Find the parameter name in the file's data
-  var pos1 = data.indexOf('"',namePos);    // Find the next occurance of "  
-  var pos2 = data.indexOf('"', pos1 + 1);   // Find a further occurance of "
-  var result = data.slice(pos1 + 1, pos2);      // Return what's between the quotes
-  return result;
-}
 // Define service, user name, and password.  They should get pulled from a configuration file
 var transporter = nodemailer.createTransport({
-  service: getConfig('MailService'),
+  service: emailInfo.MailService,
   auth: {
-    user: getConfig('ReturnAddress'),
-    pass: getConfig('MailPassword')
+    user: emailInfo.ReturnAddress,
+    pass: emailInfo.MailPassword
   }
 });
 
 // Define addresses, subject, and message, using fields from the config file
 var mailOptions = {
-  from: getConfig('ReturnAddress'),
+  from: emailInfo.ReturnAddress,
   to: CSMarg[0],
-  subject: getConfig('MailSubject'),
-  text: getConfig('MailGreeting') + CSMarg[0] + getConfig('MailBody') // CSMarg[0] to be replaced by database retrieval
+  subject: emailInfo.MailSubject,
+  text: emailInfo.MailGreeting + CSMarg[0] + emailInfo.MailBody
 };
 
 // Send the actual email, reporting errors or reporting success
