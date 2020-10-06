@@ -107,8 +107,8 @@ class SignUp extends Component {
         }
 
         if (this.state.submissionStage === "successfullySubmitted") {
-            Modal.success({
-                title: "Application Successful",
+            Modal.warning({
+                title: "Application Submitted",
                 content: "Your application must be reviewed by Monthly Calling Campaign admins prior to activation. You will receive an email when your account has been activated.",
                 onOk: (e) => {return new Promise((resolve, reject) => {
                     this.setState({submissionStage: "unsubmitted"})
