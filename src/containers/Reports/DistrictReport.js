@@ -10,25 +10,24 @@ import {
   ResponsiveContainer,
 } from "recharts";
 import { Row, Col, Modal, Icon, Statistic, Typography } from "antd";
-import axios from "../../_util/axios-api";
-import { authHeader } from "../../_util/auth/auth-header";
 import { displayName } from "../../_util/district";
 import CustomToolTip from "./CustomToolTip.js";
 
 class DistrictReport extends Component {
-
   getChartData = (data) => {
-    const formatted = Object.keys(data["callersByMonth"]).sort().map((el) => {
-      const numCallers = data["callersByMonth"][el];
-      const numActiveCallers = data["activeCallersByMonth"][el] || 0;
-      const numRemindersSent = data["remindersByMonth"][el] || 0;
-      return {
-        date: el,
-        Callers: numCallers,
-        Calls: numActiveCallers,
-        Reminders: numRemindersSent,
-      };
-    });
+    const formatted = Object.keys(data["callersByMonth"])
+      .sort()
+      .map((el) => {
+        const numCallers = data["callersByMonth"][el];
+        const numActiveCallers = data["activeCallersByMonth"][el] || 0;
+        const numRemindersSent = data["remindersByMonth"][el] || 0;
+        return {
+          date: el,
+          Callers: numCallers,
+          Calls: numActiveCallers,
+          Reminders: numRemindersSent,
+        };
+      });
     const previousTwelveMonths = formatted.slice(-12);
     return previousTwelveMonths;
   };

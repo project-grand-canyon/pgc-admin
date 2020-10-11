@@ -1,7 +1,7 @@
 import React, { Component } from "react";
 import { connect } from "react-redux";
-import { Divider, Icon, Modal } from "antd";
-import { isSenatorDistrict, comparator } from "../../_util/district";
+import { Divider, Modal } from "antd";
+import { isSenatorDistrict } from "../../_util/district";
 import DistrictReport from "./DistrictReport";
 import {getStatistics} from "../../_util/axios-api";
 import groupBy from "../../_util/groupBy"
