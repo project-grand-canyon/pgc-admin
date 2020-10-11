@@ -9,7 +9,7 @@ import {
   Legend,
   ResponsiveContainer,
 } from "recharts";
-import { Row, Col, Modal, Icon, Statistic, Typography } from "antd";
+import { Row, Col, Icon, Statistic, Typography } from "antd";
 import { displayName } from "../../_util/district";
 import CustomToolTip from "./CustomToolTip.js";
 
