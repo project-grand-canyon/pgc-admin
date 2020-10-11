@@ -41,7 +41,7 @@ class Reports extends Component {
     if (!district || !districts) {
       return []
     }
-    return districts.filter((el) => el.state == district.state)
+    return districts.filter((el) => el.state === district.state)
   }
 
   senatorDistricts() {
@@ -73,7 +73,9 @@ class Reports extends Component {
         callersByMonth: {},
         remindersByMonth: {}
       })
-      this.senatorDistricts().map(el=>el.districtId).map(districtId => {
+      this.senatorDistricts().map((el)=>{
+        return el.districtId
+      }).forEach(districtId => {
         statistics[districtId]['totalCallers'] = stateStats['totalCallers']
         statistics[districtId]['remindersByMonth'] = stateStats['remindersByMonth']
         statistics[districtId]['callersByMonth'] = stateStats['callersByMonth']
