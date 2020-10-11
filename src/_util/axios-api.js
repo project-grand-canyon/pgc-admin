@@ -14,6 +14,15 @@ const client = axios.create({
     "https://project-grand-canyon.appspot.com/api/",
 });
 
+export function getStatistics(district) {
+  const requestOptions = {
+    url: `/stats/${district.districtId}`,
+    method: "GET",
+    headers: { ...authHeader(), "Content-Type": "application/json" },
+  };
+  return client(requestOptions)
+}
+
 export function getDistrictCallers(district, districtsById, completion) {
   const requestOptions = {
     url: `/callers?districtId=${district.districtId}`,
