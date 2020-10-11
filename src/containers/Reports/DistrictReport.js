@@ -16,49 +16,11 @@ import { displayName } from "../../_util/district";
 import CustomToolTip from "./CustomToolTip.js";
 
 class DistrictReport extends Component {
-  state = {
-    statistics: null,
-  };
-
-  componentDidMount() {
-    if (this.state.statistics === null) {
-      this.fetchStatistics();
-    }
-  }
-
-  fetchStatistics(cb) {
-    if (this.props.district) {
-      const requestOptions = {
-        url: `/stats/${this.props.district.districtId}`,
-        method: "GET",
-        headers: { ...authHeader(), "Content-Type": "application/json" },
-      };
-      axios(requestOptions)
-        .then((response) => {
-          const statistics = response.data;
-          this.setState({ statistics: statistics });
-        })
-        .catch((e) => {
-          Modal.error({
-            title: "Error Loading Page",
-            content: e.message,
-          });
-          this.setState({ fetchError: e.message });
-        });
-    }
-  }
-
-  componentDidUpdate(prevProps) {
-    if (prevProps.district !== this.props.district) {
-      this.setState({ statistics: null });
-      this.fetchStatistics();
-    }
-  }
 
   getChartData = (data) => {
-    const formatted = Object.keys(data["callersByMonth"]).map((el) => {
+    const formatted = Object.keys(data["callersByMonth"]).sort().map((el) => {
       const numCallers = data["callersByMonth"][el];
-      const numActiveCallers = data["activeCallersByMonth"][el];
+      const numActiveCallers = data["activeCallersByMonth"][el] || 0;
       const numRemindersSent = data["remindersByMonth"][el] || 0;
       return {
         date: el,
@@ -72,7 +34,7 @@ class DistrictReport extends Component {
   };
 
   render() {
-    const statistics = this.state.statistics;
+    const statistics = this.props.stats;
     const antIconBig = <Icon type="loading" style={{ fontSize: 28 }} spin />;
     const antIconHuge = <Icon type="loading" style={{ fontSize: 72 }} spin />;
     const districtTitle = this.props.district
