@@ -58,6 +58,7 @@ class Reports extends Component {
       const stateStats = responses.reduce((prev, curr) => {
         prev['totalCallers'] = prev['totalCallers'] + curr['totalCallers']
         prev['totalRecentCalls'] = prev['totalRecentCalls'] + curr['totalRecentCalls']
+        prev['totalRecentActiveCallers'] = prev['totalRecentActiveCallers'] + curr['totalRecentActiveCallers']
         Object.keys(curr['callersByMonth']).forEach(month => {
           const existing = prev['callersByMonth'][month] || 0
           prev['callersByMonth'][month] = curr['callersByMonth'][month] + existing
@@ -71,7 +72,8 @@ class Reports extends Component {
         totalCallers: 0,
         totalRecentCalls: 0,
         callersByMonth: {},
-        remindersByMonth: {}
+        remindersByMonth: {},
+        totalRecentActiveCallers: 0
       })
       this.senatorDistricts().map((el)=>{
         return el.districtId
@@ -79,6 +81,7 @@ class Reports extends Component {
         statistics[districtId]['totalCallers'] = stateStats['totalCallers']
         statistics[districtId]['remindersByMonth'] = stateStats['remindersByMonth']
         statistics[districtId]['callersByMonth'] = stateStats['callersByMonth']
+        statistics[districtId]['totalRecentActiveCallers'] = stateStats['totalRecentActiveCallers']
       });
       this.setState({statistics})
     }).catch(e=>{
