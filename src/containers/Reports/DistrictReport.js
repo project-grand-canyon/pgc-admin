@@ -9,9 +9,29 @@ import {
   Legend,
   ResponsiveContainer,
 } from "recharts";
-import { Row, Col, Icon, Statistic, Typography } from "antd";
+import { Row, Col, Popover, Icon, Statistic, Typography } from "antd";
 import { displayName } from "../../_util/district";
 import CustomToolTip from "./CustomToolTip.js";
+
+const TopLineStat = ({ title, value }) => {
+  const antIconBig = <Icon type="loading" style={{ fontSize: 28 }} spin />;
+  return (
+    <Col span={4}>
+      {value ? (
+        <Statistic
+          title={
+              <Typography.Text>
+                {title}
+              </Typography.Text>
+          }
+          value={value}
+        />
+      ) : (
+        antIconBig
+      )}
+    </Col>
+  )
+}
 
 class DistrictReport extends Component {
   getChartData = (data) => {
@@ -19,12 +39,12 @@ class DistrictReport extends Component {
       .sort()
       .map((el) => {
         const numCallers = data["callersByMonth"][el];
-        const numActiveCallers = data["activeCallersByMonth"][el] || 0;
+        const numCalls = data["callsByMonth"][el] || 0;
         const numRemindersSent = data["remindersByMonth"][el] || 0;
         return {
           date: el,
           Callers: numCallers,
-          Calls: numActiveCallers,
+          Calls: numCalls,
           Reminders: numRemindersSent,
         };
       });
@@ -34,7 +54,6 @@ class DistrictReport extends Component {
 
   render() {
     const statistics = this.props.stats;
-    const antIconBig = <Icon type="loading" style={{ fontSize: 28 }} spin />;
     const antIconHuge = <Icon type="loading" style={{ fontSize: 72 }} spin />;
     const districtTitle = this.props.district
       ? `${displayName(this.props.district)} `
@@ -57,56 +76,43 @@ class DistrictReport extends Component {
         : 0;
     }
 
+    const explainer = statistics ? (
+      <Row>
+        <Col>
+          <Popover title="What do these mean?" content={
+            <>
+            <Typography.Paragraph>
+            Total Callers is the count of total callers in this district who are not paused.
+            </Typography.Paragraph>
+            <Typography.Paragraph>
+            Total Calls is the count of calls made to this Member of Congress.
+            </Typography.Paragraph>
+            <Typography.Paragraph>
+            Active Callers is the count of callers in this district who made at least 1 call to either their Senators or Representative.
+            </Typography.Paragraph>
+            <Typography.Paragraph>
+            Completion Rate is the percentage of the total callers who are active
+            </Typography.Paragraph>
+          </>
+          }>
+            <Typography.Title level={4}>What do these mean?</Typography.Title>
+          </Popover>
+        </Col>
+      </Row>
+    ) : null;
+
     return (
       <>
         <Typography.Title level={2}>
           {districtTitle}Activity Reports
         </Typography.Title>
-        <Row>
-          <Col span={6}>
-            {statistics ? (
-              <Statistic
-                title={<Typography.Text>Total Callers </Typography.Text>}
-                value={statistics.totalCallers}
-              />
-            ) : (
-              antIconBig
-            )}
-          </Col>
-          <Col span={6}>
-            {statistics ? (
-              <Statistic
-                title={<Typography.Text>Total Calls </Typography.Text>}
-                value={statistics.totalCalls}
-              />
-            ) : (
-              antIconBig
-            )}
-          </Col>
-          <Col span={6}>
-            {statistics ? (
-              <Statistic
-                title={
-                  <Typography.Text>
-                    Past {statistics.recentDayCount} Days Call Count
-                  </Typography.Text>
-                }
-                value={statistics.totalRecentCalls}
-              />
-            ) : (
-              antIconBig
-            )}
-          </Col>
-          <Col span={6}>
-            {statistics ? (
-              <Statistic
-                title={<Typography.Text>Completion Rate </Typography.Text>}
-                value={completionRate + "%"}
-              />
-            ) : (
-              antIconBig
-            )}
-          </Col>
+        { explainer }
+        <Row type="flex" justify="space-around">
+          <TopLineStat title="Total Callers" value={statistics && statistics.totalCallers} />
+          <TopLineStat title="Total Calls" value={statistics && statistics.totalCalls} />
+          <TopLineStat title={`Past ${statistics && statistics.recentDayCount} Days Call Count`} value={statistics && statistics.totalRecentCalls} />
+          <TopLineStat title={`Past ${statistics && statistics.recentDayCount} Days Active Caller Count`} value={ statistics && statistics.totalRecentActiveCallers } />
+          <TopLineStat title="Completion Rate" value={ statistics && completionRate + "%"} />
         </Row>
         <Row style={{ marginTop: "40px" }}>
           <Col>
