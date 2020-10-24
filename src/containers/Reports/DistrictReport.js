@@ -51,6 +51,7 @@ class DistrictReport extends Component {
 
   render() {
     const { district, stats: statistics } = this.props;
+    console.log(JSON.stringify(this.props))
     const antIconHuge = <Icon type="loading" style={{ fontSize: 72 }} spin />;
     const districtTitle = this.props.district
       ? `${displayName(this.props.district)} `

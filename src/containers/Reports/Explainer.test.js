@@ -1,8 +1,7 @@
 import "@testing-library/jest-dom";
-import { getByText, getNodeText } from "@testing-library/dom";
 
 import React from "react";
-import { act, fireEvent, render, screen } from "@testing-library/react";
+import { render, screen } from "@testing-library/react";
 import Explainer, { explainerTexts } from "./Explainer";
 
 test("Shows Senator explainer text", () => {
