@@ -51,7 +51,6 @@ class DistrictReport extends Component {
 
   render() {
     const { district, stats: statistics } = this.props;
-    console.log(JSON.stringify(this.props))
     const antIconHuge = <Icon type="loading" style={{ fontSize: 72 }} spin />;
     const districtTitle = this.props.district
       ? `${displayName(this.props.district)} `
@@ -110,7 +109,7 @@ class DistrictReport extends Component {
                   <CartesianGrid strokeDasharray="3 3" />
                   <XAxis dataKey="date" />
                   <YAxis />
-                  <Tooltip content={<CustomToolTip />} />
+                  <Tooltip content={<CustomToolTip isSenator={district.senatorDistrict} />} />
                   <Legend />
                   <Line type="monotone" dataKey="Callers" stroke="#8884d8" />
                   <Line type="monotone" dataKey="Calls" stroke="#901111" />
