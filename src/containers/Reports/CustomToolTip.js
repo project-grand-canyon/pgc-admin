@@ -1,6 +1,6 @@
 import React from "react";
 
-const CustomToolTip = ({ active, payload }) => {
+const CustomToolTip = ({ active, payload, isSenator }) => {
   if (active && payload && payload.length > 0) {
     const callStats = payload.reduce((acc, el) => {
       const name = el.name;
@@ -40,7 +40,7 @@ const CustomToolTip = ({ active, payload }) => {
           {" "}
           Calls : {`${calls.value}`}{" "}
         </p>
-        <p id="completion">Completion : {`${completion}`}%</p>
+        {isSenator ? null : <p id="completion">Completion : {`${completion}`}%</p>}
       </div>
     );
   }

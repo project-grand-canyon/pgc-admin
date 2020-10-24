@@ -1,0 +1,21 @@
+{
+    "created": "2019-07-23 01:53",
+    "lastModified": "2020-10-06 22:54",
+    "districtId": 940,
+    "state": "AK",
+    "number": -2,
+    "repFirstName": "Dan",
+    "repLastName": "Sullivan",
+    "repImageUrl": "https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/S001198.jpg",
+    "callTargets": [
+        {
+            "targetDistrictId": 940,
+            "percentage": 100
+        }
+    ],
+    "scriptModifiedTime": 1599429211000,
+    "lastStaleScriptNotification": 1602024844000,
+    "status": "active",
+    "info": null,
+    "senatorDistrict": true
+}

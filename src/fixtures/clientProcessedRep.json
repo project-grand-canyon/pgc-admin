@@ -1,0 +1,29 @@
+{
+    "created": "2019-05-27 19:14",
+    "lastModified": "2020-10-06 22:54",
+    "districtId": 593,
+    "state": "AK",
+    "number": 0,
+    "repFirstName": "Don",
+    "repLastName": "Young",
+    "repImageUrl": "https://upload.wikimedia.org/wikipedia/commons/d/d6/Don_Young%2C_official_115th_Congress_photo_portrait.jpg",
+    "callTargets": [
+        {
+            "targetDistrictId": 593,
+            "percentage": 100
+        },
+        {
+            "targetDistrictId": 913,
+            "percentage": 0
+        },
+        {
+            "targetDistrictId": 940,
+            "percentage": 0
+        }
+    ],
+    "scriptModifiedTime": 1599430568000,
+    "lastStaleScriptNotification": 1602024844000,
+    "status": "active",
+    "info": null,
+    "senatorDistrict": false
+}

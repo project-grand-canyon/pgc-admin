@@ -55,6 +55,16 @@ test("Fewer calls than reminders sent (both above 0)", () => {
 	expect(text).toBe("Completion : 50.0%");
 });
 
+test("Senator District", () => {
+	const payload = [ {name: "Calls", value: 1}, {name: "Reminders", value: 2 }];
+	const active = true;
+	const isSenator = true;
+	
+	render(CustomToolTip({ active, payload, isSenator }));
+	const text = screen.queryByText(/^Completion/);	
+	expect(text).not.toBeInTheDocument();
+});
+
 test("empty payload", () => {
 	let payload = [];
 	let active = true;
