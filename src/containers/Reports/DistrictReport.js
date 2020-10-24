@@ -9,7 +9,7 @@ import {
   Legend,
   ResponsiveContainer,
 } from "recharts";
-import { Row, Col, Icon, Statistic, Typography } from "antd";
+import { Row, Col, Icon, Popover, Statistic, Typography } from "antd";
 import Explainer from "./Explainer";
 import { displayName } from "../../_util/district";
 import CustomToolTip from "./CustomToolTip.js";
@@ -73,24 +73,19 @@ class DistrictReport extends Component {
         : 0;
     }
 
-    const explainer =
-      statistics && district ? (
-        <Row>
-          <Col>
-            <Popover
-              title="What do these mean?"
-              content={<Explainer isSenator={district.senatorDistrict} />}
-            ></Popover>
-          </Col>
-        </Row>
-      ) : null;
-
     return (
       <>
         <Typography.Title level={2}>
           {districtTitle}Activity Reports
         </Typography.Title>
-        { explainer }
+        <Row>
+          <Col>
+            <Popover
+              title="What do these mean?"
+              content={<Explainer isSenator={district.senatorDistrict} />}
+            ><Typography.Title level={4}>What do these mean?</Typography.Title></Popover>
+          </Col>
+        </Row>
         <Row type="flex" justify="space-around">
           <TopLineStat title="Total Callers" value={statistics && statistics.totalCallers} />
           <TopLineStat title="Total Calls" value={statistics && statistics.totalCalls} />

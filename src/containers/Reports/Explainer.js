@@ -1,5 +1,5 @@
 import React from "react";
-import { Col, Row, Popover, Typography } from "antd";
+import { Typography } from "antd";
 
 const explainerTexts = {
   totalCallers: {
