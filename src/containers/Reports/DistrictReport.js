@@ -91,7 +91,7 @@ class DistrictReport extends Component {
           <TopLineStat title="Total Calls" value={statistics && statistics.totalCalls} />
           <TopLineStat title={`Past ${statistics && statistics.recentDayCount} Days Call Count`} value={statistics && statistics.totalRecentCalls} />
           <TopLineStat title={`Past ${statistics && statistics.recentDayCount} Days Active Caller Count`} value={ statistics && statistics.totalRecentActiveCallers } />
-          <TopLineStat title="Completion Rate" value={ statistics && completionRate + "%"} />
+          { district.senatorDistrict ? null : <TopLineStat title="Completion Rate" value={ statistics && completionRate + "%"} /> }
         </Row>
         <Row style={{ marginTop: "40px" }}>
           <Col>
