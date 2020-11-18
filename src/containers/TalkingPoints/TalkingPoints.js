@@ -98,7 +98,9 @@ class TalkingPoints extends Component {
         allTalkingPoints: null,
         themes: null,
         searchTerm: null,
-        filters: null,
+        filters: {
+            scope: ['national', 'state', 'district']
+        },
         liveTalkingPoints: null,
         redirect: null,
         editing: null,
