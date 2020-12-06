@@ -278,7 +278,7 @@ class TalkingPoints extends Component {
             el['bg'] = idx % 2 === 0 ? "white" : 'rgba(0,0,0,0)';
             return el
         })
-        return presentableTalkingPoints.slice(0, 30)
+        return presentableTalkingPoints.slice(0, 100)
     }
 
     handleFilterChange = (values) => {
