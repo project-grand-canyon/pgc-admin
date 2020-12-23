@@ -2,11 +2,13 @@ import React, { Component } from 'react';
 import { Link } from 'react-router-dom';
 import get from "lodash/get"
 
-import { Button, Icon, List, Modal, message, Skeleton, Form, Popconfirm, Typography, Spin} from 'antd';
+import { Button, Modal, message, Skeleton, Form, Typography} from 'antd';
 
 import { getHydratedDistict, getThemes, updateRequest, updateScript } from '../../_util/axios-api';
 import { displayName, slug as districtSlug } from '../../_util/district';
 import RequestSection from './RequestSection';
+import TalkingPointsSection from './TalkingPointsSection';
+
 
 class Script extends Component {
     state = {
@@ -155,53 +157,12 @@ class Script extends Component {
     }
 
     talkingPointsSection = () => {
-        if (this.state.hydratedDistrict === null || this.state.themes === null) {
-            return <></>
-        }
-        if (this.state.savingEdits) {
-            return <Spin size="large" />
-        }
-        const list = <List
-            itemLayout="vertical"
-            bordered
-            style={{background: "#FFFFFF"}}
-            dataSource={this.state.hydratedDistrict.script}
-            renderItem={(item, idx) => {
-                const theme = this.state.themes.find( (el) => {
-                    return el.themeId === item.themeId
-                });
-
-                return <List.Item
-                    key={item.talkingPointId}
-                    actions={[
-                        <Button disabled={idx===0} shape="circle" onClick={e=>{this.scriptItemClicked(idx, "up")}}><Icon type="up-circle" theme="twoTone" /></Button>,
-                        <Button disabled={idx===this.state.hydratedDistrict.script.length-1} shape="circle" onClick={e=>{this.scriptItemClicked(idx, "down")}}><Icon type="down-circle" theme="twoTone" /></Button>,
-                        <Popconfirm title="Are you sure you want to remove this talking point?" onConfirm={e=>{this.scriptItemClicked(idx, "remove")}} okText="Yes" cancelText="No">
-                            <Button shape="circle">
-                                <Icon type="minus-circle" theme="twoTone" twoToneColor="#ae1414" />
-                            </Button>
-                        </Popconfirm>
-                    ]}
-                >
-                <List.Item.Meta
-                    title={`${idx + 1}. ${theme.name}`}
-                />
-                    <span>{item.content}</span>
-
-                </List.Item>
-            }
-            }
+        return <TalkingPointsSection 
+            district = {this.state.hydratedDistrict}
+            themes = {this.state.themes}
+            isSaving = {this.state.savingEdits}
+            scriptItemClicked = {this.scriptItemClicked}
         />
-        const heading = (
-            <>
-                <Typography.Title level={3}>Talking Points</Typography.Title>
-                <Typography.Paragraph>Change the order or remove talking points.</Typography.Paragraph>
-            </>
-        )
-        return <div style={{marginTop: "1em"}}>
-            {heading}
-            {list}
-        </div>
     }
 
     actions = () => {
