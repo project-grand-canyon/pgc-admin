@@ -2,17 +2,18 @@ import React, { Component } from 'react';
 import { Link } from 'react-router-dom';
 import get from "lodash/get"
 
-import { Button, Card, Icon, Input, List, Modal, message, Skeleton, Form, Popconfirm, Typography, Spin} from 'antd';
+import { Button, Icon, List, Modal, message, Skeleton, Form, Popconfirm, Typography, Spin} from 'antd';
 
 import { getHydratedDistict, getThemes, updateRequest, updateScript } from '../../_util/axios-api';
 import { displayName, slug as districtSlug } from '../../_util/district';
+import RequestSection from './RequestSection';
 
 class Script extends Component {
     state = {
         hydratedDistrict: null,
         themes: null,
         savingEdits: false,
-        updatedRequest: null,
+        isEditingRequest: false
     }
 
     componentDidMount() {
@@ -124,67 +125,33 @@ class Script extends Component {
         });
     }
 
-    updateRequest = () => {
-        const newRequest = {...this.state.updatedRequest};
-        this.setState({
-            updatedRequest: null,
-            savingEdits: true
-        }, () => {
-            const self = this;
-            updateRequest(this.state.hydratedDistrict, newRequest).then((response)=>{
-            }).catch((e) => {
-                console.log(e)
-                console.log(e.response.data)
-                message.error(get(e, ["response","data","message"], "Unrecognized error while updating request"))
-            }).then(() => {
-                self.fetchData(()=>{self.setState({savingEdits: false})})
-            });
+    updateRequest = (newRequest) => {
+        console.log(newRequest)
+        updateRequest(this.state.hydratedDistrict, newRequest).then((response)=>{
+        }).catch((e) => {
+            console.log(e)
+            console.log(e.response.data)
+            message.error(get(e, ["response","data","message"], "Unrecognized error while updating request"))
+        }).then(() => {
+            this.fetchData(()=>{this.setState({savingEdits: false})})
         });
     }
 
     requestSection = () => {
-        if (this.state.hydratedDistrict === null || this.state.themes === null || this.state.savingEdits) {
-            return <></>
-        }
-
-        const heading = (
-            <>
-                <Typography.Title level={3}>Request</Typography.Title>
-                <Typography.Paragraph>Set the request that each of your callers will make to your Member of Congress. Ensure the request is respectful and relevant to the lawmaker.</Typography.Paragraph>
-            </>
-        )
-
-        const currentRequest = this.getCurrentRequest();
-        let requestDisplay = (
-            <Card actions={[<Icon type="edit" onClick={(e)=> { this.setState({updatedRequest: {...currentRequest}})} }/>]}>
-                <Typography.Text>{currentRequest && currentRequest.content}</Typography.Text>
-            </Card>
-        );
-
-        if (this.state.updatedRequest) {
-            requestDisplay = (
-                <>
-                    <Input.TextArea defaultValue={currentRequest.content} autosize onChange={(e)=>{
-                        const newUpdated = {...this.state.updatedRequest}
-                        newUpdated.content = e.target.value;
-                        this.setState({updatedRequest: newUpdated})
-                    }}/>
-                    <Button onClick={(e)=>{
-                        this.setState({updatedRequest: null})
-                    }}>Cancel</Button>
-                    <Button onClick={(e)=>{
-                        this.updateRequest();
-                    }}>Save</Button>
-                </>
-            )
-        }
-
-        return (
-            <>
-                {heading}
-                {requestDisplay}
-            </>
-        )
+        const currentRequest = this.getCurrentRequest()
+        return <RequestSection 
+            district = {this.state.hydratedDistrict}  
+            isUpdating = {this.state.savingEdits}
+            isEditing = {this.state.isEditingRequest}
+            currentRequest = {currentRequest}
+            onClickEdit = {(e)=> { this.setState({isEditingRequest: true})} }
+            onCancel = {(e) => { this.setState({isEditingRequest: false}) }}
+            onSave = { (newRequest) => {
+                console.log('ben')
+                this.setState({isEditingRequest: false}) 
+                this.updateRequest(newRequest)
+            }}
+        />
     }
 
     talkingPointsSection = () => {
