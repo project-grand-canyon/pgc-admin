@@ -4,9 +4,8 @@ import get from "lodash/get"
 
 import { Button, Card, Icon, Input, List, Modal, message, Skeleton, Form, Popconfirm, Typography, Spin} from 'antd';
 
-import axios from '../../_util/axios-api';
+import { getHydratedDistict, getThemes, updateRequest, updateScript } from '../../_util/axios-api';
 import { displayName, slug as districtSlug } from '../../_util/district';
-import { authHeader } from '../../_util/auth/auth-header';
 
 class Script extends Component {
     state = {
@@ -36,15 +35,16 @@ class Script extends Component {
 
     doFetchData(cb){
         if (this.props.district) {
-            const requestOptions = {
-                url: `/districts/${this.props.district.districtId}/hydrated`,
-                method: 'GET',
-                headers: { ...authHeader(), 'Content-Type': 'application/json' },
-            };
-            axios(requestOptions).then((response)=>{
-                const district = response.data;
+            const hydratedPromise = getHydratedDistict(this.props.district)
+            const themesPromise = getThemes()
+            Promise.all([hydratedPromise, themesPromise]).then(( responses )=>{
+                const district = responses[0].data;
+                const themes = responses[1].data;
                 if (district.districtId === this.props.district.districtId) {
-                    this.setState({hydratedDistrict: district});
+                    this.setState({
+                        hydratedDistrict: district,
+                        themes: themes // this can be moved to redux
+                    });
                 }
             }).catch((e) => {
                 Modal.error({
@@ -56,17 +56,6 @@ class Script extends Component {
                 cb && cb()
             })
         }
-
-        const themesRequestOptions = {
-            url: `/themes`,
-            method: 'GET',
-            headers: { ...authHeader(), 'Content-Type': 'application/json' },
-        };
-        axios(themesRequestOptions).then((response)=>{
-            this.setState({themes: response.data});
-        }).catch((e) => {
-            console.log(e)
-        })
     }
 
     componentDidUpdate(prevProps) {
@@ -122,14 +111,9 @@ class Script extends Component {
                 }
             }
 
-            const updateScriptRequestOptions = {
-                url: `/districts/${this.props.district.districtId}/script`,
-                method: 'PUT',
-                headers: { ...authHeader(), 'Content-Type': 'application/json' },
-                data: newScript.map((el)=>{return el.talkingPointId})
-            };
+            const newTalkingPointIds = newScript.map((el)=>{return el.talkingPointId})
             const self = this;
-            axios(updateScriptRequestOptions).then((response)=>{
+            updateScript(this.props.district, newTalkingPointIds).then((response)=>{
             }).catch((e) => {
                 console.log(e)
                 console.log(e.response.data)
@@ -146,25 +130,8 @@ class Script extends Component {
             updatedRequest: null,
             savingEdits: true
         }, () => {
-            const updateRequestRequestOptions = newRequest.requestId ?  {
-                url: `/requests/${newRequest.requestId}`,
-                method: 'PUT',
-                headers: { ...authHeader(), 'Content-Type': 'application/json' },
-                data: {
-                    districtId: this.state.hydratedDistrict.districtId,
-                    content: newRequest.content
-                }
-            } : {
-                url: `/requests/`,
-                method: 'POST',
-                headers: { ...authHeader(), 'Content-Type': 'application/json' },
-                data: {
-                    districtId: this.state.hydratedDistrict.districtId,
-                    content: newRequest.content
-                }
-            };
             const self = this;
-            axios(updateRequestRequestOptions).then((response)=>{
+            updateRequest(this.state.hydratedDistrict, newRequest).then((response)=>{
             }).catch((e) => {
                 console.log(e)
                 console.log(e.response.data)
