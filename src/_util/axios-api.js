@@ -38,6 +38,15 @@ export function updateScript(district, talkingPointIds) {
   return client(requestOptions)
 }
 
+export function updateUnhydratedDistrict(district) {
+  const requestOptions = makeRequestOptions(`/districts/${district.districtId}`, "PUT")
+  delete district.lastModified
+  delete district.created
+  delete district.senatorDistrict
+  requestOptions['data'] = district
+  return client(requestOptions)
+}
+
 export function getThemes() {
   const requestOptions = makeRequestOptions(`/themes`)
   return client(requestOptions)

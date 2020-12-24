@@ -9,10 +9,6 @@ const RequestSection = ({ district, isSaving, isEditing, currentRequest, onClick
 
   let newRequestContent = currentRequest && currentRequest.content || "";
 
-  if (isSaving) {
-    return <Spin />
-  }
-
 const heading = (
     <>
         <Typography.Title level={3}>Request</Typography.Title>
@@ -42,7 +38,7 @@ const mutableRequest = (
     </>
 )
 
-const requestDisplay = isEditing ? mutableRequest : immutableRequest;
+const requestDisplay = isSaving ? <Spin /> : isEditing ? mutableRequest : immutableRequest;
 
 return (
     <>

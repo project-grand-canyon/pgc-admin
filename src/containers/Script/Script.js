@@ -4,10 +4,11 @@ import get from "lodash/get"
 
 import { Button, Modal, message, Skeleton, Form, Typography} from 'antd';
 
-import { getHydratedDistict, getThemes, updateRequest, updateScript } from '../../_util/axios-api';
+import { getHydratedDistict, getThemes, updateRequest, updateScript, updateUnhydratedDistrict } from '../../_util/axios-api';
 import { displayName, slug as districtSlug } from '../../_util/district';
 import RequestSection from './RequestSection';
 import TalkingPointsSection from './TalkingPointsSection';
+import DelegationSection from './DelegationSection';
 
 
 class Script extends Component {
@@ -128,22 +129,23 @@ class Script extends Component {
     }
 
     updateRequest = (newRequest) => {
-        console.log(newRequest)
-        updateRequest(this.state.hydratedDistrict, newRequest).then((response)=>{
-        }).catch((e) => {
-            console.log(e)
-            console.log(e.response.data)
-            message.error(get(e, ["response","data","message"], "Unrecognized error while updating request"))
-        }).then(() => {
-            this.fetchData(()=>{this.setState({savingEdits: false})})
-        });
+        this.setState({savingEdits: true},() => {
+            updateRequest(this.state.hydratedDistrict, newRequest).then((response)=>{
+            }).catch((e) => {
+                console.log(e)
+                console.log(e.response.data)
+                message.error(get(e, ["response","data","message"], "Unrecognized error while updating request"))
+            }).then(() => {
+                this.fetchData(()=>{this.setState({savingEdits: false})})
+            });
+        })
     }
 
     requestSection = () => {
         const currentRequest = this.getCurrentRequest()
         return <RequestSection 
             district = {this.state.hydratedDistrict}  
-            isUpdating = {this.state.savingEdits}
+            isSaving = {this.state.savingEdits}
             isEditing = {this.state.isEditingRequest}
             currentRequest = {currentRequest}
             onClickEdit = {(e)=> { this.setState({isEditingRequest: true})} }
@@ -191,9 +193,29 @@ class Script extends Component {
         </Skeleton>);
     }
 
+    changeDelegation = (e) => {
+        const wantsDelegation = e.target.checked
+
+        const updatedDistrict = {...this.props.district}
+        updatedDistrict['delegateScript'] = wantsDelegation
+
+        this.setState({savingEdits: true},() => {
+            updateUnhydratedDistrict(updatedDistrict).then((response)=>{
+            }).catch((e) => {
+                console.log(e)
+                console.log(e.response.data)
+                message.error(get(e, ["response","data","message"], "Unrecognized error while updating delegation status"))
+            }).then(() => {
+                this.fetchData(()=>{this.setState({savingEdits: false})})
+            });
+        })
+        
+    }
+
     render() {
         return <>
             {this.header()}
+            <DelegationSection isSaving={this.state.savingEdits} district={this.state.hydratedDistrict} onDelegationChanged={this.changeDelegation} />
             {this.requestSection()}
             {this.talkingPointsSection()}
             {this.actions()}

@@ -6,9 +6,6 @@ const TalkingPointsSection = ({district, themes, isSaving, scriptItemClicked}) =
     if (district === null || themes === null) {
         return <></>
     }
-    if (isSaving) {
-        return <Spin size="large" />
-    }
     const list = <List
         itemLayout="vertical"
         bordered
@@ -46,9 +43,10 @@ const TalkingPointsSection = ({district, themes, isSaving, scriptItemClicked}) =
             <Typography.Paragraph>Change the order or remove talking points.</Typography.Paragraph>
         </>
     )
+    const info = isSaving? <Spin /> : list
     return <div style={{marginTop: "1em"}}>
         {heading}
-        {list}
+        {info}
     </div>
 }
 
