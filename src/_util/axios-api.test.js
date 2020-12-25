@@ -1,34 +1,53 @@
 import axios from "axios";
 import { axiosMock } from "../jest/axios-mock";
 
-import { getAllCallers, getCallerHistories } from "./axios-api";
+import { getAllCallers, getCallerHistories, getThemes } from "./axios-api";
 
 const districts = require('../fixtures/districts.json');
 const districtsById = new Map(districts.map((dist) => [dist.districtId, dist]));
 const callers = require('../fixtures/callers.json');
 const reminders = require('../fixtures/reminders.json');
 const calls = require('../fixtures/calls.json');
+const themes = require('../fixtures/themes.json')
 
-axiosMock.onGet('/mockapi/callers').reply(200, callers);
 
 const callsURL = /\/mockapi\/calls(\/(\d+))?/;
-axiosMock.onGet(callsURL).reply((config) => {
-    const match = config.url.match(callsURL);
-    let matchingCalls = calls;
-    if (match[1]) {
-        const callerId = parseInt(match[2]);
-        matchingCalls = matchingCalls.filter((el) => el.callerId == callerId);
-    }
-    return [200, matchingCalls];
-});
-
 const remindersURL = /\/mockapi\/reminders\/(\d+)/;
-axiosMock.onGet(remindersURL).reply((config) => {
-    const callerId = parseInt(config.url.match(remindersURL)[1]);
-    return [200, reminders.filter((el) => el.callerId == callerId)];
-});
+const requestURL = /\/mockapi\/requests\/(\d+)/;
+
+describe('script updating', () => {
+
+    axiosMock.onGet('/mockapi/themes').reply(() => {
+        return [200, themes];
+    });
+
+    test('can get themes', () => {
+        getThemes().then(response => {
+            expect(response.status).toBe(200)
+            expect(response.data).toMatchObject(themes)
+        })
+    })
+
+})
+
 
 describe('callerHistory', () => {
+
+    axiosMock.onGet('/mockapi/callers').reply(200, callers);
+    axiosMock.onGet(callsURL).reply((config) => {
+        const match = config.url.match(callsURL);
+        let matchingCalls = calls;
+        if (match[1]) {
+            const callerId = parseInt(match[2]);
+            matchingCalls = matchingCalls.filter((el) => el.callerId == callerId);
+        }
+        return [200, matchingCalls];
+    });
+    axiosMock.onGet(remindersURL).reply((config) => {
+        const callerId = parseInt(config.url.match(remindersURL)[1]);
+        return [200, reminders.filter((el) => el.callerId == callerId)];
+    });
+
 
     test('can load callers', (done) => {
         getAllCallers(districtsById, (err, callers) => {
