@@ -1,31 +1,38 @@
-import axios from "axios";
 import { axiosMock } from "../jest/axios-mock";
 
-import { getAllCallers, getCallerHistories, getThemes } from "./axios-api";
+import { getAllCallers, getCallerHistories, getHydratedDistict, getThemes } from "./axios-api";
 
 const districts = require('../fixtures/districts.json');
 const districtsById = new Map(districts.map((dist) => [dist.districtId, dist]));
-const callers = require('../fixtures/callers.json');
-const reminders = require('../fixtures/reminders.json');
 const calls = require('../fixtures/calls.json');
+const callers = require('../fixtures/callers.json');
+const hydratedDistrict = require('../fixtures/hydrated_district.json')
+const reminders = require('../fixtures/reminders.json');
 const themes = require('../fixtures/themes.json')
-
 
 const callsURL = /\/mockapi\/calls(\/(\d+))?/;
 const remindersURL = /\/mockapi\/reminders\/(\d+)/;
 const requestURL = /\/mockapi\/requests\/(\d+)/;
+const hydratedDistrictURL = /\mockapi\/districts\/(\d+)\/hydrated/;
+
+describe('district info', () => {
+    test('can get hydrated district', async () => {
+        axiosMock.onGet(/.*/).reply(() => {
+            return [200, hydratedDistrict];
+        });
+        const result = await getHydratedDistict(hydratedDistrict)
+        expect(result.config.url).toBe(`/mockapi/districts/${hydratedDistrict.districtId}/hydrated`)
+    })
+})
 
 describe('script updating', () => {
 
-    axiosMock.onGet('/mockapi/themes').reply(() => {
-        return [200, themes];
-    });
-
-    test('can get themes', () => {
-        getThemes().then(response => {
-            expect(response.status).toBe(200)
-            expect(response.data).toMatchObject(themes)
-        })
+    test('can get themes', async () => {
+        axiosMock.onGet(/.*/).reply(() => {
+            return [200, themes];
+        });
+        const result = await getThemes()
+        expect(result.config.url).toBe(`/mockapi/themes`)
     })
 
 })
