@@ -15,7 +15,6 @@ const DelegationSection = ({district, isSaving, onDelegationChanged}) => {
         </>
     )
     const wantsDelegation = district && district.delegateScript
-
     const checkbox = <Checkbox checked={wantsDelegation} onChange={onDelegationChanged}>I want CCL to manage the script for this district</Checkbox>
     const info = isSaving ? <Spin /> : checkbox
 

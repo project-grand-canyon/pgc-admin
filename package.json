@@ -54,9 +54,10 @@
     "@testing-library/dom": "^7.22.0",
     "@testing-library/jest-dom": "^5.11.2",
     "@testing-library/react": "^10.4.8",
+    "@testing-library/user-event": "^12.6.0",
+    "axios-mock-adapter": "^1.18.2",
     "cypress": "^4.12.1",
     "redux-mock-store": "^1.5.4",
-    "axios-mock-adapter": "^1.18.2",
     "terser": "^3.17.0"
   },
   "jest": {
