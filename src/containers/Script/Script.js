@@ -2,18 +2,21 @@ import React, { Component } from 'react';
 import { Link } from 'react-router-dom';
 import get from "lodash/get"
 
-import { Button, Card, Icon, Input, List, Modal, message, Skeleton, Form, Popconfirm, Typography, Spin} from 'antd';
+import { Button, Divider, Modal, message, Skeleton, Form, Typography} from 'antd';
 
-import axios from '../../_util/axios-api';
+import { getHydratedDistict, getThemes, updateRequest, updateScript, updateUnhydratedDistrict } from '../../_util/axios-api';
 import { displayName, slug as districtSlug } from '../../_util/district';
-import { authHeader } from '../../_util/auth/auth-header';
+import RequestSection from './RequestSection';
+import TalkingPointsSection from './TalkingPointsSection';
+import DelegationSection from './DelegationSection';
+
 
 class Script extends Component {
     state = {
         hydratedDistrict: null,
         themes: null,
         savingEdits: false,
-        updatedRequest: null,
+        isEditingRequest: false
     }
 
     componentDidMount() {
@@ -36,15 +39,16 @@ class Script extends Component {
 
     doFetchData(cb){
         if (this.props.district) {
-            const requestOptions = {
-                url: `/districts/${this.props.district.districtId}/hydrated`,
-                method: 'GET',
-                headers: { ...authHeader(), 'Content-Type': 'application/json' },
-            };
-            axios(requestOptions).then((response)=>{
-                const district = response.data;
+            const hydratedPromise = getHydratedDistict(this.props.district)
+            const themesPromise = getThemes()
+            Promise.all([hydratedPromise, themesPromise]).then(( responses )=>{
+                const district = responses[0].data;
+                const themes = responses[1].data;
                 if (district.districtId === this.props.district.districtId) {
-                    this.setState({hydratedDistrict: district});
+                    this.setState({
+                        hydratedDistrict: district,
+                        themes: themes // this can be moved to redux
+                    });
                 }
             }).catch((e) => {
                 Modal.error({
@@ -56,17 +60,6 @@ class Script extends Component {
                 cb && cb()
             })
         }
-
-        const themesRequestOptions = {
-            url: `/themes`,
-            method: 'GET',
-            headers: { ...authHeader(), 'Content-Type': 'application/json' },
-        };
-        axios(themesRequestOptions).then((response)=>{
-            this.setState({themes: response.data});
-        }).catch((e) => {
-            console.log(e)
-        })
     }
 
     componentDidUpdate(prevProps) {
@@ -122,14 +115,9 @@ class Script extends Component {
                 }
             }
 
-            const updateScriptRequestOptions = {
-                url: `/districts/${this.props.district.districtId}/script`,
-                method: 'PUT',
-                headers: { ...authHeader(), 'Content-Type': 'application/json' },
-                data: newScript.map((el)=>{return el.talkingPointId})
-            };
+            const newTalkingPointIds = newScript.map((el)=>{return el.talkingPointId})
             const self = this;
-            axios(updateScriptRequestOptions).then((response)=>{
+            updateScript(this.props.district, newTalkingPointIds).then((response)=>{
             }).catch((e) => {
                 console.log(e)
                 console.log(e.response.data)
@@ -140,134 +128,43 @@ class Script extends Component {
         });
     }
 
-    updateRequest = () => {
-        const newRequest = {...this.state.updatedRequest};
-        this.setState({
-            updatedRequest: null,
-            savingEdits: true
-        }, () => {
-            const updateRequestRequestOptions = newRequest.requestId ?  {
-                url: `/requests/${newRequest.requestId}`,
-                method: 'PUT',
-                headers: { ...authHeader(), 'Content-Type': 'application/json' },
-                data: {
-                    districtId: this.state.hydratedDistrict.districtId,
-                    content: newRequest.content
-                }
-            } : {
-                url: `/requests/`,
-                method: 'POST',
-                headers: { ...authHeader(), 'Content-Type': 'application/json' },
-                data: {
-                    districtId: this.state.hydratedDistrict.districtId,
-                    content: newRequest.content
-                }
-            };
-            const self = this;
-            axios(updateRequestRequestOptions).then((response)=>{
+    updateRequest = (newRequest) => {
+        this.setState({savingEdits: true},() => {
+            updateRequest(this.state.hydratedDistrict, newRequest).then((response)=>{
             }).catch((e) => {
                 console.log(e)
                 console.log(e.response.data)
                 message.error(get(e, ["response","data","message"], "Unrecognized error while updating request"))
             }).then(() => {
-                self.fetchData(()=>{self.setState({savingEdits: false})})
+                this.fetchData(()=>{this.setState({savingEdits: false})})
             });
-        });
+        })
     }
 
     requestSection = () => {
-        if (this.state.hydratedDistrict === null || this.state.themes === null || this.state.savingEdits) {
-            return <></>
-        }
-
-        const heading = (
-            <>
-                <Typography.Title level={3}>Request</Typography.Title>
-                <Typography.Paragraph>Set the request that each of your callers will make to your Member of Congress. Ensure the request is respectful and relevant to the lawmaker.</Typography.Paragraph>
-            </>
-        )
-
-        const currentRequest = this.getCurrentRequest();
-        let requestDisplay = (
-            <Card actions={[<Icon type="edit" onClick={(e)=> { this.setState({updatedRequest: {...currentRequest}})} }/>]}>
-                <Typography.Text>{currentRequest && currentRequest.content}</Typography.Text>
-            </Card>
-        );
-
-        if (this.state.updatedRequest) {
-            requestDisplay = (
-                <>
-                    <Input.TextArea defaultValue={currentRequest.content} autosize onChange={(e)=>{
-                        const newUpdated = {...this.state.updatedRequest}
-                        newUpdated.content = e.target.value;
-                        this.setState({updatedRequest: newUpdated})
-                    }}/>
-                    <Button onClick={(e)=>{
-                        this.setState({updatedRequest: null})
-                    }}>Cancel</Button>
-                    <Button onClick={(e)=>{
-                        this.updateRequest();
-                    }}>Save</Button>
-                </>
-            )
-        }
-
-        return (
-            <>
-                {heading}
-                {requestDisplay}
-            </>
-        )
+        const currentRequest = this.getCurrentRequest()
+        return <RequestSection 
+            district = {this.state.hydratedDistrict}  
+            isSaving = {this.state.savingEdits}
+            isEditing = {this.state.isEditingRequest}
+            currentRequest = {currentRequest}
+            onClickEdit = {(e)=> { this.setState({isEditingRequest: true})} }
+            onCancel = {(e) => { this.setState({isEditingRequest: false}) }}
+            onSave = { (newRequest) => {
+                console.log('ben')
+                this.setState({isEditingRequest: false}) 
+                this.updateRequest(newRequest)
+            }}
+        />
     }
 
     talkingPointsSection = () => {
-        if (this.state.hydratedDistrict === null || this.state.themes === null) {
-            return <></>
-        }
-        if (this.state.savingEdits) {
-            return <Spin size="large" />
-        }
-        const list = <List
-            itemLayout="vertical"
-            bordered
-            style={{background: "#FFFFFF"}}
-            dataSource={this.state.hydratedDistrict.script}
-            renderItem={(item, idx) => {
-                const theme = this.state.themes.find( (el) => {
-                    return el.themeId === item.themeId
-                });
-
-                return <List.Item
-                    key={item.talkingPointId}
-                    actions={[
-                        <Button disabled={idx===0} shape="circle" onClick={e=>{this.scriptItemClicked(idx, "up")}}><Icon type="up-circle" theme="twoTone" /></Button>,
-                        <Button disabled={idx===this.state.hydratedDistrict.script.length-1} shape="circle" onClick={e=>{this.scriptItemClicked(idx, "down")}}><Icon type="down-circle" theme="twoTone" /></Button>,
-                        <Popconfirm title="Are you sure you want to remove this talking point?" onConfirm={e=>{this.scriptItemClicked(idx, "remove")}} okText="Yes" cancelText="No">
-                            <Button shape="circle">
-                                <Icon type="minus-circle" theme="twoTone" twoToneColor="#ae1414" />
-                            </Button>
-                        </Popconfirm>
-                    ]}
-                >
-                <List.Item.Meta
-                    title={`${idx + 1}. ${theme.name}`}
-                />
-                    <span>{item.content}</span>
-
-                </List.Item>
-            }
-            }
+        return <TalkingPointsSection 
+            district = {this.state.hydratedDistrict}
+            themes = {this.state.themes}
+            isSaving = {this.state.savingEdits}
+            scriptItemClicked = {this.scriptItemClicked}
         />
-        const heading = (
-            <>
-                <Typography.Title level={3}>Talking Points</Typography.Title>
-                <Typography.Paragraph>Change the order or remove talking points.</Typography.Paragraph>
-            </>
-        )
-        return <div style={{marginTop: "1em"}}>
-            {heading}
-            {list}
-        </div>
     }
 
     actions = () => {
@@ -296,12 +193,37 @@ class Script extends Component {
         </Skeleton>);
     }
 
+    changeDelegation = (e) => {
+        const wantsDelegation = e.target.checked
+
+        const updatedDistrict = {...this.props.district}
+        updatedDistrict['delegateScript'] = wantsDelegation
+
+        this.setState({savingEdits: true},() => {
+            updateUnhydratedDistrict(updatedDistrict).then((response)=>{
+            }).catch((e) => {
+                console.log(e)
+                console.log(e.response.data)
+                message.error(get(e, ["response","data","message"], "Unrecognized error while updating delegation status"))
+            }).then(() => {
+                this.fetchData(()=>{this.setState({savingEdits: false})})
+            });
+        })
+        
+    }
+
     render() {
         return <>
             {this.header()}
             {this.requestSection()}
             {this.talkingPointsSection()}
             {this.actions()}
+            <Divider />
+            <DelegationSection
+                isSaving={this.state.savingEdits}
+                district={this.state.hydratedDistrict}
+                onDelegationChanged={this.changeDelegation} 
+            />
         </>;
     }
 }

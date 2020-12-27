@@ -14,30 +14,65 @@ const client = axios.create({
     "https://project-grand-canyon.appspot.com/api/",
 });
 
-export function getStatistics(district) {
-  const requestOptions = {
-    url: `/stats/${district.districtId}`,
-    method: "GET",
+function makeRequestOptions(url, method = "GET") {
+  return {
+    url,
+    method,
     headers: { ...authHeader(), "Content-Type": "application/json" },
   };
+}
+
+export function updateRequest(district, request) {
+  const isUpdating = request.requestId;
+  const method = isUpdating ? "PUT" : "POST";
+  const basePath = `/requests`
+  const path = isUpdating ? basePath + `/${request.requestId}` : basePath
+  const requestOptions = makeRequestOptions(path, method)
+  requestOptions['data'] = {
+    'districtId': district.districtId,
+    'content': request.content
+  }
+
+  return client(requestOptions)
+}
+
+export function updateScript(district, talkingPointIds) {
+  const requestOptions = makeRequestOptions(`/districts/${district.districtId}/script`, "PUT")
+  requestOptions['data'] = talkingPointIds
+  return client(requestOptions)
+}
+
+export function updateUnhydratedDistrict(district) {
+  const requestOptions = makeRequestOptions(`/districts/${district.districtId}`, "PUT")
+  delete district.lastModified
+  delete district.created
+  delete district.senatorDistrict
+  requestOptions['data'] = district
+  return client(requestOptions)
+}
+
+export function getThemes() {
+  const requestOptions = makeRequestOptions(`/themes`)
+  return client(requestOptions)
+}
+
+export function getHydratedDistict(district) {  
+  const requestOptions = makeRequestOptions(`/districts/${district.districtId}/hydrated`)
+  return client(requestOptions)
+}
+
+export function getStatistics(district) {
+  const requestOptions = makeRequestOptions(`/stats/${district.districtId}`)
   return client(requestOptions)
 }
 
 export function getDistrictCallers(district, districtsById, completion) {
-  const requestOptions = {
-    url: `/callers?districtId=${district.districtId}`,
-    method: "GET",
-    headers: { ...authHeader(), "Content-Type": "application/json" },
-  };
+  const requestOptions = makeRequestOptions(`/callers?districtId=${district.districtId}`)
   getCallers(requestOptions, districtsById, completion);
 }
 
 export function getAllCallers(districtsById, completion) {
-  const requestOptions = {
-    url: `/callers`,
-    method: "GET",
-    headers: { ...authHeader(), "Content-Type": "application/json" },
-  };
+  const requestOptions = makeRequestOptions(`/callers`)
   getCallers(requestOptions, districtsById, completion);
 }
 
@@ -81,16 +116,9 @@ function transformCaller(caller, districtsById) {
 }
 
 function getCallerHistory(caller, districtsById) {
-  const callHistoryRequestOptions = {
-    url: `/calls/${caller["callerId"]}`,
-    method: "GET",
-    headers: { ...authHeader(), "Content-Type": "application/json" },
-  };
-  const reminderHistoryRequestOptions = {
-    url: `/reminders/${caller["callerId"]}`,
-    method: "GET",
-    headers: { ...authHeader(), "Content-Type": "application/json" },
-  };
+  const callHistoryRequestOptions = makeRequestOptions(`/calls/${caller["callerId"]}`)
+  const reminderHistoryRequestOptions = makeRequestOptions(`/reminders/${caller["callerId"]}`)
+
   return Promise.all([
     client(callHistoryRequestOptions),
     client(reminderHistoryRequestOptions),

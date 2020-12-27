@@ -1,0 +1,196 @@
+{
+    "created": "2019-05-27 19:14",
+    "lastModified": "2020-12-23 22:32",
+    "districtId": 593,
+    "state": "AK",
+    "number": 0,
+    "repFirstName": "Don",
+    "repLastName": "Young",
+    "repImageUrl": "https://upload.wikimedia.org/wikipedia/commons/d/d6/Don_Young%2C_official_115th_Congress_photo_portrait.jpg",
+    "callTargets": [
+        {
+            "targetDistrictId": 593,
+            "percentage": 34
+        },
+        {
+            "targetDistrictId": 913,
+            "percentage": 33
+        },
+        {
+            "targetDistrictId": 940,
+            "percentage": 33
+        }
+    ],
+    "scriptModifiedTime": 1608762741000,
+    "lastStaleScriptNotification": 1607283844000,
+    "status": "active",
+    "delegateScript": false,
+    "info": null,
+    "offices": [
+        {
+            "created": "2019-09-04 05:15",
+            "lastModified": "2019-09-04 05:15",
+            "districtOfficeId": 2391,
+            "districtId": 593,
+            "phone": "202-225-5765",
+            "address": {
+                "addressLine1": "2314 Rayburn House Office Building;",
+                "addressLine2": null,
+                "city": "Washington",
+                "state": "DC",
+                "country": "US",
+                "zipCode": "20515"
+            },
+            "email": "",
+            "opensAt": "09:00:00",
+            "closesAt": "17:00:00"
+        },
+        {
+            "created": "2020-11-25 19:41",
+            "lastModified": "2020-11-25 19:41",
+            "districtOfficeId": 2804,
+            "districtId": 593,
+            "phone": "907-271-5978",
+            "address": {
+                "addressLine1": "471 W. 36th Avenue, Suite 201",
+                "addressLine2": "",
+                "city": "Anchorage",
+                "state": "AK",
+                "country": "US",
+                "zipCode": "99503"
+            },
+            "email": "",
+            "opensAt": "11:00:00",
+            "closesAt": "12:00:00"
+        }
+    ],
+    "script": [
+        {
+            "created": "2020-09-02 19:05",
+            "lastModified": "2020-09-02 19:05",
+            "talkingPointId": 723,
+            "themeId": 8,
+            "content": "A recent study by the Audubon Society found that 79% of Alaska's bird species are vulnerable to climate change due to loss of habitat.  Inability to adapt to rapid climate change could lead to population declines and local extinctions. The study called for action to reduce carbon emissions at an urgent speed and wide scale to limit global warming's impact on both birds and people.",
+            "scope": "state",
+            "enabled": true,
+            "districts": [],
+            "states": [
+                "AK"
+            ],
+            "createdBy": 247,
+            "referenceUrl": "https://nas-national-prod.s3.amazonaws.com/briefs_ak_final.pdf",
+            "reviewStatus": "waiting_review"
+        },
+        {
+            "created": "2020-07-28 20:58",
+            "lastModified": "2020-07-28 20:58",
+            "talkingPointId": 641,
+            "themeId": 9,
+            "content": "The carbon fee and dividend policy in H.R.763 will reduce US greenhouse gas emissions 40% in 12 years while growing the economy and creating jobs.",
+            "scope": "national",
+            "enabled": true,
+            "districts": [],
+            "states": [],
+            "createdBy": 12,
+            "referenceUrl": null,
+            "reviewStatus": "waiting_review"
+        },
+        {
+            "created": "2020-01-07 15:31",
+            "lastModified": "2020-01-07 15:31",
+            "talkingPointId": 202,
+            "themeId": 11,
+            "content": "Seventeen of the eighteen hottest years on record have occurred since 2000. We cannot wait to see how hot this next decade will be.",
+            "scope": "national",
+            "enabled": true,
+            "districts": [],
+            "states": [],
+            "createdBy": 10,
+            "referenceUrl": "https://www.conservation.org/stories/11-climate-change-facts-you-need-to-know",
+            "reviewStatus": "waiting_review"
+        },
+        {
+            "created": "2020-08-24 21:14",
+            "lastModified": "2020-08-24 21:18",
+            "talkingPointId": 697,
+            "themeId": 7,
+            "content": "H.R. 763, the Energy Innovation and Carbon Dividend Act, mandates direct payments to every American household every month, while simultaneously creating a healthier environment and energy economy. It's like the stimulus package for the COVID economy, and we know it works to help people. ",
+            "scope": "national",
+            "enabled": true,
+            "districts": [],
+            "states": [],
+            "createdBy": 323,
+            "referenceUrl": null,
+            "reviewStatus": "waiting_review"
+        },
+        {
+            "created": "2020-08-24 21:25",
+            "lastModified": "2020-08-24 21:25",
+            "talkingPointId": 698,
+            "themeId": 17,
+            "content": "With climate change, like the pandemic, it's super important to be prepared and to act early. Experts say the fastest way to fix the climate crisis is with H.R. 763, the Energy Innovation and Carbon Dividend Act. ",
+            "scope": "national",
+            "enabled": true,
+            "districts": [],
+            "states": [],
+            "createdBy": 323,
+            "referenceUrl": null,
+            "reviewStatus": "waiting_review"
+        },
+        {
+            "created": "2020-09-02 18:51",
+            "lastModified": "2020-09-02 18:51",
+            "talkingPointId": 722,
+            "themeId": 8,
+            "content": "Climate change will have big impacts for Alaska's valuable fisheries, from ocean acidification to warmer waters.  A marine heat wave from 2013-2015, known as 'The Blob', caused wildlife die-offs and a hit to cod fisheries in Alaska.  A recent study found that due to climate change, these marine heatwaves will occur more frequently and intensely, with negative consequences for Alaska's fisheries.",
+            "scope": "state",
+            "enabled": true,
+            "districts": [],
+            "states": [
+                "AK"
+            ],
+            "createdBy": 247,
+            "referenceUrl": "https://www.sciencedaily.com/releases/2020/04/200421090550.htm",
+            "reviewStatus": "waiting_review"
+        },
+        {
+            "created": "2019-11-15 01:26",
+            "lastModified": "2019-11-15 01:26",
+            "talkingPointId": 155,
+            "themeId": 15,
+            "content": "[Share a reason that climate change is a high-priority issue for you personally.]",
+            "scope": "national",
+            "enabled": true,
+            "districts": [],
+            "states": [],
+            "createdBy": 147,
+            "referenceUrl": null,
+            "reviewStatus": "waiting_review"
+        }
+    ],
+    "requests": [
+        {
+            "created": "2019-06-05 02:17",
+            "lastModified": "2020-01-08 20:43",
+            "requestId": 185,
+            "districtId": 593,
+            "content": "Please cosponsor H.R. 763, The Energy Innovation and Carbon Dividend Act."
+        },
+        {
+            "created": "2019-06-05 02:19",
+            "lastModified": "2019-11-26 19:06",
+            "requestId": 613,
+            "districtId": 593,
+            "content": "Please work in a bipartisan fashion to address the factors behind climate change."
+        },
+        {
+            "created": "2020-03-22 04:51",
+            "lastModified": "2020-12-23 22:32",
+            "requestId": 909,
+            "districtId": 593,
+            "content": "I'm calling to ask you to work with your colleagues across the aisle to enact bipartisan climate legislation such as H.R.763, the Energy Innovation and Carbon Dividend Act.\n"
+        }
+    ],
+    "timeZone": "America/Anchorage",
+    "senatorDistrict": false
+}

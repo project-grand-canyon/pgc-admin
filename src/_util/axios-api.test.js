@@ -1,34 +1,110 @@
-import axios from "axios";
 import { axiosMock } from "../jest/axios-mock";
 
-import { getAllCallers, getCallerHistories } from "./axios-api";
+import { getAllCallers, getCallerHistories, getHydratedDistict, getThemes, updateRequest, updateScript, updateUnhydratedDistrict } from "./axios-api";
 
 const districts = require('../fixtures/districts.json');
 const districtsById = new Map(districts.map((dist) => [dist.districtId, dist]));
-const callers = require('../fixtures/callers.json');
-const reminders = require('../fixtures/reminders.json');
 const calls = require('../fixtures/calls.json');
-
-axiosMock.onGet('/mockapi/callers').reply(200, callers);
+const callers = require('../fixtures/callers.json');
+const hydratedDistrict = require('../fixtures/hydrated_district.json')
+const reminders = require('../fixtures/reminders.json');
+const themes = require('../fixtures/themes.json')
 
 const callsURL = /\/mockapi\/calls(\/(\d+))?/;
-axiosMock.onGet(callsURL).reply((config) => {
-    const match = config.url.match(callsURL);
-    let matchingCalls = calls;
-    if (match[1]) {
-        const callerId = parseInt(match[2]);
-        matchingCalls = matchingCalls.filter((el) => el.callerId == callerId);
+const remindersURL = /\/mockapi\/reminders\/(\d+)/;
+const requestURL = /\/mockapi\/requests\/(\d+)/;
+const hydratedDistrictURL = /\mockapi\/districts\/(\d+)\/hydrated/;
+
+function verifyRequest(result, method, path, body) {
+    expect(result.config.method).toBe(method)
+    expect(result.config.url).toBe(`/mockapi/${path}`)
+    if (body) {
+        expect(result.config.data).toBe(JSON.stringify(body))
     }
-    return [200, matchingCalls];
+}
+
+describe('district info', () => {
+    test('can get hydrated district', async () => {
+        axiosMock.onGet(/.*/).reply(() => {
+            return [200, hydratedDistrict];
+        });
+        const result = await getHydratedDistict(hydratedDistrict)
+        verifyRequest(result, 'get', `districts/${hydratedDistrict.districtId}/hydrated`)
+    })
+
+    test('can update district', async () => {
+        const district = {
+            'lastModified': 'xxx',
+            'created': 'xxx',
+            'senatorDistrict': 'xxx',
+            'districtId': 1
+        }
+        axiosMock.onPut(/.*/).reply(() => {
+            return [200, "ok"]            
+        })
+        const result = await updateUnhydratedDistrict(district)
+        verifyRequest(result, 'put', `districts/${district.districtId}`, {'districtId': district.districtId})
+    })
+})
+
+describe('script updating', () => {
+    test('can get themes', async () => {
+        axiosMock.onGet(/.*/).reply(() => {
+            return [200, themes];
+        });
+        const result = await getThemes()
+        verifyRequest(result, 'get', 'themes')
+    })
+
+    test('can update request' ,async () => {
+        const request = {"requestId": "a", "content": "hello"}
+        const district = districts[0]
+        axiosMock.onPut(/.*/).reply(() => {
+            return [200, {"a": "b"}];
+        });
+        const result = await updateRequest(district, request)        
+        verifyRequest(result, 'put', `requests/${request.requestId}`, {'districtId': district.districtId, 'content': 'hello'})
+    })
+
+    test('can create request' ,async () => {
+        const request = {"content": "hello"}
+        const district = districts[0]
+        axiosMock.onPost(/.*/).reply(() => {
+            return [200, {"a": "b"}];
+        });
+        const result = await updateRequest(district, request)
+        verifyRequest(result, 'post', `requests`, {'districtId': district.districtId, 'content': 'hello'})
+    })
+
+    test('can update script', async () => {
+        const talkingPointIds = [1, 2, 3]
+        const district = districts[0]
+        axiosMock.onPut(/.*/).reply(() => {
+            return [200, "ok"]
+        })
+        const result = await updateScript(district, talkingPointIds)
+        verifyRequest(result, 'put', `districts/${district.districtId}/script`, talkingPointIds)
+    })
 });
 
-const remindersURL = /\/mockapi\/reminders\/(\d+)/;
-axiosMock.onGet(remindersURL).reply((config) => {
-    const callerId = parseInt(config.url.match(remindersURL)[1]);
-    return [200, reminders.filter((el) => el.callerId == callerId)];
-});
 
 describe('callerHistory', () => {
+
+    axiosMock.onGet('/mockapi/callers').reply(200, callers);
+    axiosMock.onGet(callsURL).reply((config) => {
+        const match = config.url.match(callsURL);
+        let matchingCalls = calls;
+        if (match[1]) {
+            const callerId = parseInt(match[2]);
+            matchingCalls = matchingCalls.filter((el) => el.callerId == callerId);
+        }
+        return [200, matchingCalls];
+    });
+    axiosMock.onGet(remindersURL).reply((config) => {
+        const callerId = parseInt(config.url.match(remindersURL)[1]);
+        return [200, reminders.filter((el) => el.callerId == callerId)];
+    });
+
 
     test('can load callers', (done) => {
         getAllCallers(districtsById, (err, callers) => {
