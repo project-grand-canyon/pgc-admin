@@ -7,7 +7,7 @@ const RequestSection = ({ district, isSaving, isEditing, currentRequest, onClick
     return <></>
   }
 
-  let newRequestContent = currentRequest && currentRequest.content || "";
+  let newRequestContent = (currentRequest && currentRequest.content) || "";
 
 const heading = (
     <>
