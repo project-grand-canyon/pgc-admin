@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import { Link } from 'react-router-dom';
 import get from "lodash/get"
 
-import { Button, Modal, message, Skeleton, Form, Typography} from 'antd';
+import { Button, Divider, Modal, message, Skeleton, Form, Typography} from 'antd';
 
 import { getHydratedDistict, getThemes, updateRequest, updateScript, updateUnhydratedDistrict } from '../../_util/axios-api';
 import { displayName, slug as districtSlug } from '../../_util/district';
@@ -215,10 +215,15 @@ class Script extends Component {
     render() {
         return <>
             {this.header()}
-            <DelegationSection isSaving={this.state.savingEdits} district={this.state.hydratedDistrict} onDelegationChanged={this.changeDelegation} />
             {this.requestSection()}
             {this.talkingPointsSection()}
             {this.actions()}
+            <Divider />
+            <DelegationSection
+                isSaving={this.state.savingEdits}
+                district={this.state.hydratedDistrict}
+                onDelegationChanged={this.changeDelegation} 
+            />
         </>;
     }
 }
