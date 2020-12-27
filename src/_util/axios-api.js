@@ -23,12 +23,16 @@ function makeRequestOptions(url, method = "GET") {
 }
 
 export function updateRequest(district, request) {
-  const method = request.requestId == null ? "POST" : "PUT";
-  const requestOptions = makeRequestOptions(`/requests/${request.requestId}`, method)
+  const isUpdating = request.requestId;
+  const method = isUpdating ? "PUT" : "POST";
+  const basePath = `/requests`
+  const path = isUpdating ? basePath + `/${request.requestId}` : basePath
+  const requestOptions = makeRequestOptions(path, method)
   requestOptions['data'] = {
     'districtId': district.districtId,
     'content': request.content
   }
+
   return client(requestOptions)
 }
 

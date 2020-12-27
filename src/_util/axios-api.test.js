@@ -1,6 +1,6 @@
 import { axiosMock } from "../jest/axios-mock";
 
-import { getAllCallers, getCallerHistories, getHydratedDistict, getThemes } from "./axios-api";
+import { getAllCallers, getCallerHistories, getHydratedDistict, getThemes, updateRequest, updateScript, updateUnhydratedDistrict } from "./axios-api";
 
 const districts = require('../fixtures/districts.json');
 const districtsById = new Map(districts.map((dist) => [dist.districtId, dist]));
@@ -15,27 +15,77 @@ const remindersURL = /\/mockapi\/reminders\/(\d+)/;
 const requestURL = /\/mockapi\/requests\/(\d+)/;
 const hydratedDistrictURL = /\mockapi\/districts\/(\d+)\/hydrated/;
 
+function verifyRequest(result, method, path, body) {
+    expect(result.config.method).toBe(method)
+    expect(result.config.url).toBe(`/mockapi/${path}`)
+    if (body) {
+        expect(result.config.data).toBe(JSON.stringify(body))
+    }
+}
+
 describe('district info', () => {
     test('can get hydrated district', async () => {
         axiosMock.onGet(/.*/).reply(() => {
             return [200, hydratedDistrict];
         });
         const result = await getHydratedDistict(hydratedDistrict)
-        expect(result.config.url).toBe(`/mockapi/districts/${hydratedDistrict.districtId}/hydrated`)
+        verifyRequest(result, 'get', `districts/${hydratedDistrict.districtId}/hydrated`)
+    })
+
+    test('can update district', async () => {
+        const district = {
+            'lastModified': 'xxx',
+            'created': 'xxx',
+            'senatorDistrict': 'xxx',
+            'districtId': 1
+        }
+        axiosMock.onPut(/.*/).reply(() => {
+            return [200, "ok"]            
+        })
+        const result = await updateUnhydratedDistrict(district)
+        verifyRequest(result, 'put', `districts/${district.districtId}`, {'districtId': district.districtId})
     })
 })
 
 describe('script updating', () => {
-
     test('can get themes', async () => {
         axiosMock.onGet(/.*/).reply(() => {
             return [200, themes];
         });
         const result = await getThemes()
-        expect(result.config.url).toBe(`/mockapi/themes`)
+        verifyRequest(result, 'get', 'themes')
     })
 
-})
+    test('can update request' ,async () => {
+        const request = {"requestId": "a", "content": "hello"}
+        const district = districts[0]
+        axiosMock.onPut(/.*/).reply(() => {
+            return [200, {"a": "b"}];
+        });
+        const result = await updateRequest(district, request)        
+        verifyRequest(result, 'put', `requests/${request.requestId}`, {'districtId': district.districtId, 'content': 'hello'})
+    })
+
+    test('can create request' ,async () => {
+        const request = {"content": "hello"}
+        const district = districts[0]
+        axiosMock.onPost(/.*/).reply(() => {
+            return [200, {"a": "b"}];
+        });
+        const result = await updateRequest(district, request)
+        verifyRequest(result, 'post', `requests`, {'districtId': district.districtId, 'content': 'hello'})
+    })
+
+    test('can update script', async () => {
+        const talkingPointIds = [1, 2, 3]
+        const district = districts[0]
+        axiosMock.onPut(/.*/).reply(() => {
+            return [200, "ok"]
+        })
+        const result = await updateScript(district, talkingPointIds)
+        verifyRequest(result, 'put', `districts/${district.districtId}/script`, talkingPointIds)
+    })
+});
 
 
 describe('callerHistory', () => {
