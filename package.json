@@ -7,7 +7,7 @@
     "@emotion/styled": "^10.0.27",
     "@sentry/browser": "^5.20.1",
     "antd": "^3.26.18",
-    "axios": "^0.18.1",
+    "axios": "^0.21.1",
     "babel-plugin-import": "^1.12.1",
     "csv-writer": "^1.6.0",
     "customize-cra": "^0.9.1",
