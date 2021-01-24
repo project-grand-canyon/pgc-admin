@@ -412,6 +412,7 @@ class TalkingPoints extends Component {
                     isInScript = { isInScript }
                     scriptToggle = { this.toggleTalkingPointInclusionInScript }
                     edit = { this.initiateEditTalkingPoint }
+                    isShowingModerationControls = { this.props.admin.root }
                 />                
                 }
             }

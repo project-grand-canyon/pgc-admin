@@ -1,7 +1,7 @@
 import React from "react";
 import { Icon, List, Typography } from 'antd';
 
-const TalkingPointCard = ({talkingPoint, createdBy, theme, isInScript, scriptToggle, edit}) => {
+const TalkingPointCard = ({talkingPoint, createdBy, theme, isInScript, scriptToggle, edit, isShowingModerationControls }) => {
         if (talkingPoint == null || talkingPoint.created == null) {
             return null
         }
