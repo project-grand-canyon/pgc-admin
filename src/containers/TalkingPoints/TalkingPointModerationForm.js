@@ -1,5 +1,5 @@
 import React, { Component } from "react";
-import { Form, Select, Typography } from "antd";
+import { Form, Select } from "antd";
 
 class TalkingPointModeration extends Component {
   render() {
@@ -10,7 +10,6 @@ class TalkingPointModeration extends Component {
     const { getFieldDecorator } = this.props.form;
     return (
       <div>
-        <Typography.Title level={4}>Moderation</Typography.Title>
         <Form>
           <Form.Item label="Status">
             {getFieldDecorator("status", {

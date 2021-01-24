@@ -43,6 +43,7 @@ const TalkingPointCard = ({talkingPoint, createdBy, theme, isInScript, scriptTog
 
         const moderationSection = isShowingModerationControl ? (
             <div>
+                <Typography.Title level={4}>Moderation</Typography.Title>
                 <Typography.Paragraph>Talking Point Id: {`${talkingPoint.talkingPointId}`}</Typography.Paragraph>
                 <Typography.Paragraph>Scope: {scopeDescription}</Typography.Paragraph>
                 <TalkingPointModerationForm
