@@ -2,13 +2,14 @@ import React, { Component } from 'react';
 import { Redirect } from 'react-router-dom';
 import moment from 'moment';
 import { connect } from 'react-redux';
-import { Button, Icon, Input, List, message, Modal, Skeleton, Spin, Typography } from 'antd';
+import { Button, Input, List, message, Modal, Skeleton, Spin, Typography } from 'antd';
 import get from "lodash/get"
 
 import { getTalkingPoints, getThemes, getAdmins, getScript, addTalkingPoint, editTalkingPoint, updateScript } from '../../_util/axios-api';
 import { slug as districtSlug } from "../../_util/district";
 import AddEditTalkingPointModal from './AddEditTalkingPointModal'
 import TalkingPointsFilterForm from './TalkingPointsFilterForm'
+import TalkingPointCard from './TalkingPointCard'
 
 import './TalkingPoints.module.css';
 
@@ -398,49 +399,20 @@ class TalkingPoints extends Component {
             // }}
         header={<Typography.Title level={3}>Search Results</Typography.Title>}
             dataSource={this.presentableTalkingPoints()}
-            renderItem={item => {
+            renderItem={talkingPoint => {
                 const theme = this.state.themes.find((el) => {
-                    return el.themeId === item.themeId
+                    return el.themeId === talkingPoint.themeId
                 });
-                const createdBy = item.createdBy && this.state.adminsById.get(item.createdBy);
-
-                const reference = item.referenceUrl ?
-                    <Typography.Text copyable={{ text: item.referenceUrl }}>
-                        <a target="_blank" href={item.referenceUrl} rel="noopener noreferrer">Reference URL</a>
-                    </Typography.Text> : null;
-
-                const createdDate = new Date(item.created.replace(/-/g, "/") + " UTC");
-                const createdByDesc = createdBy && createdBy.email ?
-                <><Typography.Text style={{fontStyle: "italic"}}>Created on {createdDate.toDateString()} by: </Typography.Text><Typography.Text style={{fontStyle: "italic", color: "#0081C7"}} copyable={{ text: createdBy.email }}>{createdBy.email} </Typography.Text></>
-                     : null;
-                const description = createdByDesc
-
-                const isInScript = this.state.liveTalkingPoints.includes(item.talkingPointId)
-                return <List.Item
-                    style={{background: item.bg, padding: "10px"}}
-                    key={item.talkingPointId}
-                    extra={reference}
-                    actions={[
-                        <span>
-                            <Icon style={{ marginRight: 8, color: "#0081C7" }} type={isInScript ? "check-square" : "border"} onClick={(e)=> {
-                                this.toggleTalkingPointInclusionInScript(item.talkingPointId)
-                            } }/>
-                            <Typography.Text>In Script</Typography.Text>
-                        </span>,
-                        <span>
-                            <Icon style={{ marginRight: 8 }} type="edit" theme="twoTone" twoToneColor="#0081C7" onClick={(e)=> {
-                                this.initiateEditTalkingPoint(item)
-                            } } />
-                            <Typography.Text>Edit</Typography.Text>
-                        </span> 
-                    ]}
-                >
-                    <List.Item.Meta
-                        title={theme.name}
-                        description= {description}
-                    />
-                        <Typography.Paragraph>{item.content}</Typography.Paragraph>
-                </List.Item>
+                const createdBy = talkingPoint.createdBy && this.state.adminsById.get(talkingPoint.createdBy)
+                const isInScript = this.state.liveTalkingPoints.includes(talkingPoint.talkingPointId)
+                return <TalkingPointCard 
+                    talkingPoint = {talkingPoint}
+                    createdBy = {createdBy}
+                    theme = { theme }
+                    isInScript = { isInScript }
+                    scriptToggle = { this.toggleTalkingPointInclusionInScript }
+                    edit = { this.initiateEditTalkingPoint }
+                />                
                 }
             }
         />
