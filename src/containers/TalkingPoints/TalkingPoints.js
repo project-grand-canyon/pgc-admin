@@ -5,8 +5,7 @@ import { connect } from 'react-redux';
 import { Button, Icon, Input, List, message, Modal, Skeleton, Spin, Typography } from 'antd';
 import get from "lodash/get"
 
-import axios from '../../_util/axios-api';
-import { authHeader } from '../../_util/auth/auth-header';
+import { getTalkingPoints, getThemes, getAdmins, getScript, addTalkingPoint, editTalkingPoint, updateScript } from '../../_util/axios-api';
 import { slug as districtSlug } from "../../_util/district";
 import AddEditTalkingPointModal from './AddEditTalkingPointModal'
 import TalkingPointsFilterForm from './TalkingPointsFilterForm'
@@ -42,32 +41,12 @@ class TalkingPoints extends Component {
         }
 
         this.setState({loading: true}, () => {
-            const adminsRequestOptions = {
-                url: `/admins`,
-                method: 'GET',
-                headers: { ...authHeader(), 'Content-Type': 'application/json' },
-            };
-            const getAdmins = axios(adminsRequestOptions);
-            const talkingPointRequestOptions = {
-                url: `/talkingpoints`,
-                method: 'GET',
-                headers: { ...authHeader(), 'Content-Type': 'application/json' },
-            };
-            const getTPs = axios(talkingPointRequestOptions);
-            const themesRequestOptions = {
-                url: `/themes`,
-                method: 'GET',
-                headers: { ...authHeader(), 'Content-Type': 'application/json' },
-            };
-            const getThemes = axios(themesRequestOptions);
-            const liveTalkingPointsRequestOptions = {
-                url: `districts/${this.props.district.districtId}/script`,
-                method: 'GET',
-                headers: { ...authHeader(), 'Content-Type': 'application/json' },
-            };
-            const getLiveTPs = axios(liveTalkingPointsRequestOptions);
+            const getAdminsPromise = getAdmins()
+            const getTalkingPointsPromise = getTalkingPoints()
+            const getThemesPromise = getThemes()
+            const getScriptPromise = getScript(this.props.district)
             
-            Promise.all([getAdmins, getTPs, getThemes, getLiveTPs]).then((response)=>{
+            Promise.all([getAdminsPromise, getTalkingPointsPromise, getThemesPromise, getScriptPromise]).then((response)=>{
                 const admins = response[0].data;
                 const adminsById = new Map(admins.map((el) => [el.adminId, el]));
                 const talkingPoints = response[1].data;
@@ -240,20 +219,14 @@ class TalkingPoints extends Component {
 
         if (values.talkingPointId) {
             body['talkingPointId'] = values.talkingPointId
-            this.editTalkingPoint(body)
+            this.editExistingTalkingPoint(body)
         } else {
             this.addNewTalkingPoint(body)
         }
     }
 
-    addNewTalkingPoint = (body) => {
-        const talkingPointRequestOptions = {
-            url: `/talkingpoints`,
-            method: 'POST',
-            headers: { ...authHeader(), 'Content-Type': 'application/json' },
-            data: body,
-        };
-        axios(talkingPointRequestOptions).then((response)=>{
+    addNewTalkingPoint = (newTalkingPoint) => {
+        addTalkingPoint(newTalkingPoint).then((response)=>{
             message.success('Talking Point Added');
         }).catch((e) => {
             Modal.error({
@@ -266,14 +239,8 @@ class TalkingPoints extends Component {
         })
     }
 
-    editTalkingPoint = (body) => {
-        const talkingPointRequestOptions = {
-            url: `/talkingpoints/${body.talkingPointId}`,
-            method: 'PUT',
-            headers: { ...authHeader(), 'Content-Type': 'application/json' },
-            data: body,
-        };
-        axios(talkingPointRequestOptions).then((response)=>{
+    editExistingTalkingPoint = (talkingPoint) => {
+        editTalkingPoint(talkingPoint).then((response)=>{
             message.success('Talking Point Edited');
         }).catch((e) => {
             Modal.error({
@@ -388,14 +355,8 @@ class TalkingPoints extends Component {
                     return el !== talkingPointId
                 }) :
                 [...this.state.liveTalkingPoints].concat([talkingPointId])
-            const updateScriptRequestOptions = {
-                url: `/districts/${this.props.district.districtId}/script`,
-                method: 'PUT',
-                headers: { ...authHeader(), 'Content-Type': 'application/json' },
-                data: newScript
-            };
             const scriptURL = `/script/${districtSlug(this.props.district)}`;
-            axios(updateScriptRequestOptions).then((response)=>{
+            updateScript(this.props.district, newScript).then((response)=>{
                 Modal.confirm({
                     title: 'View Updated Script?',
                     content: 'You just made changes to the call-in script. Would you like to view the updated script?',
