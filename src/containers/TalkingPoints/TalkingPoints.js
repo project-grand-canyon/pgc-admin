@@ -241,6 +241,9 @@ class TalkingPoints extends Component {
     }
 
     editExistingTalkingPoint = (talkingPoint) => {
+        delete talkingPoint['created']
+        delete talkingPoint['lastModified']
+        delete talkingPoint['bg']
         editTalkingPoint(talkingPoint).then((response)=>{
             message.success('Talking Point Edited');
         }).catch((e) => {
@@ -412,7 +415,8 @@ class TalkingPoints extends Component {
                     isInScript = { isInScript }
                     scriptToggle = { this.toggleTalkingPointInclusionInScript }
                     edit = { this.initiateEditTalkingPoint }
-                    isShowingModerationControls = { this.props.admin.root }
+                    isShowingModerationControl = { this.props.admin.root }
+                    updateApproval = {this.editExistingTalkingPoint}
                 />                
                 }
             }
