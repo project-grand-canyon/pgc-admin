@@ -25,10 +25,10 @@ class TalkingPoints extends Component {
         liveTalkingPoints: null,
         redirect: null,
         editing: null,
-        wantsToAddNewTalkingPoint: false,
+        isAddingNewTalkingPoint: false,
         admins: null,
         adminsById: null,
-        editingTalkingPointDetails: null
+        isEditingTalkingPointsDetails: null
     }
 
     componentDidMount() {
@@ -193,12 +193,12 @@ class TalkingPoints extends Component {
 
     addNewTalkingPointClicked = () => {
         this.setState({
-            wantsToAddNewTalkingPoint: true
+            isAddingNewTalkingPoint: true
         })
     }
 
     handleSaveTalkingPoint = (values) => {
-        this.setState({wantsToAddNewTalkingPoint: false, editingTalkingPointDetails: null, editing: true})
+        this.setState({isAddingNewTalkingPoint: false, isEditingTalkingPointsDetails: null, editing: true})
 
         const body = {
             content: values.content,
@@ -254,18 +254,18 @@ class TalkingPoints extends Component {
     }
 
     handleCancelAddNewTalkingPoint = () => {
-        this.setState({wantsToAddNewTalkingPoint: false, editingTalkingPointDetails: null})
+        this.setState({isAddingNewTalkingPoint: false, isEditingTalkingPointsDetails: null})
     }
 
     addEditTalkingPointModal = () => {
         return this.hasTalkingPoints() ?
             <AddEditTalkingPointModal
                 themes={this.state.themes}
-                display={this.state.wantsToAddNewTalkingPoint || this.state.editingTalkingPointDetails !== null}
+                display={this.state.isAddingNewTalkingPoint || this.state.isEditingTalkingPointsDetails !== null}
                 handleSave={(vals)=>{this.handleSaveTalkingPoint(vals)}}
                 handleCancel={this.handleCancelAddNewTalkingPoint}
                 districts={this.props.districts}
-                talkingPointUnderEdit={this.state.editingTalkingPointDetails}
+                talkingPointUnderEdit={this.state.isEditingTalkingPointsDetails}
             /> : null;
     }
 
@@ -311,7 +311,7 @@ class TalkingPoints extends Component {
                 style={{position: "absolute", right: "10px", top:"10px"}}
                 type="primary"
                 onClick={this.addNewTalkingPointClicked || !this.hasTalkingPoints()}
-                disabled={this.state.wantsToAddNewTalkingPoint}>
+                disabled={this.state.isAddingNewTalkingPoint}>
                     Add A New Talking Point
             </Button>
         </div>);
@@ -342,7 +342,7 @@ class TalkingPoints extends Component {
         }
 
         this.setState({
-            editingTalkingPointDetails: talkingPointDetails
+            isEditingTalkingPointsDetails: talkingPointDetails
         })
     }
 
