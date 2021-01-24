@@ -36,6 +36,28 @@ export function updateRequest(district, request) {
   return client(requestOptions)
 }
 
+export function addTalkingPoint(newTalkingPoint) {
+  const requestOptions = makeRequestOptions('/talkingpoints', 'POST')
+  requestOptions['data'] = newTalkingPoint
+  return client(requestOptions)
+}
+
+export function editTalkingPoint(talkingPoint) {
+  const requestOptions = makeRequestOptions(`/talkingpoints/${talkingPoint.talkingPointId}`, 'PUT')
+  requestOptions['data'] = talkingPoint
+  return client(requestOptions)
+}
+
+export function getAdmins() {
+  const requestOptions = makeRequestOptions('/admins')
+  return client(requestOptions)
+}
+
+export function getTalkingPoints() {
+  const requestOptions = makeRequestOptions('/talkingpoints')
+  return client(requestOptions)
+}
+
 export function updateScript(district, talkingPointIds) {
   const requestOptions = makeRequestOptions(`/districts/${district.districtId}/script`, "PUT")
   requestOptions['data'] = talkingPointIds
@@ -58,6 +80,11 @@ export function getThemes() {
 
 export function getHydratedDistict(district) {  
   const requestOptions = makeRequestOptions(`/districts/${district.districtId}/hydrated`)
+  return client(requestOptions)
+}
+
+export function getScript(district) {
+  const requestOptions = makeRequestOptions(`/districts/${district.districtId}/script`)
   return client(requestOptions)
 }
 

@@ -2,94 +2,16 @@ import React, { Component } from 'react';
 import { Redirect } from 'react-router-dom';
 import moment from 'moment';
 import { connect } from 'react-redux';
-import { Button, Checkbox, Col, Form, Icon, Input, List, message, Modal, DatePicker, Row, Select, Skeleton, Spin, Typography } from 'antd';
+import { Button, Input, List, message, Modal, Skeleton, Spin, Typography } from 'antd';
 import get from "lodash/get"
 
-import axios from '../../_util/axios-api';
-import { authHeader } from '../../_util/auth/auth-header';
+import { getTalkingPoints, getThemes, getAdmins, getScript, addTalkingPoint, editTalkingPoint, updateScript } from '../../_util/axios-api';
 import { slug as districtSlug } from "../../_util/district";
 import AddEditTalkingPointModal from './AddEditTalkingPointModal'
+import TalkingPointsFilterForm from './TalkingPointsFilterForm'
+import TalkingPointCard from './TalkingPointCard'
 
 import './TalkingPoints.module.css';
-
-class TalkingPointsFilter extends Component {
-
-    render() {
-        const filters = this.props.filters;
-        const { getFieldDecorator } = this.props.form;
-        return (
-            <Form>
-                <Row>
-                    <Col sm={24} md={12} >
-                        <Form.Item label="Creation Date">
-                            {getFieldDecorator("creationDate", {initialValue: filters && filters.creationDate})(
-                                <DatePicker.RangePicker />
-                            )}
-                        </Form.Item>
-                    </Col>
-                    <Col sm={24} md={12} >
-                        <Form.Item label="Last Updated Date">
-                            {getFieldDecorator("updatedDate", {initialValue: filters && filters.updatedDate})(
-                                <DatePicker.RangePicker />
-                            )}
-                        </Form.Item>
-                    </Col>
-                </Row>
-                <Row gutter={[{ xs: 8, sm: 16, md: 24, lg: 32 }, 20]}>
-                    <Col sm={24} md={6} >
-                        <Form.Item label="Relevance">
-                            {getFieldDecorator("scope", {initialValue: filters && filters.scope})(
-                                <Checkbox.Group>
-                                    <Checkbox value={"national"}>National</Checkbox>
-                                    <Checkbox value={"state"}>My State</Checkbox>
-                                    <Checkbox value={"district"}>My District</Checkbox>
-                            </Checkbox.Group>
-                            )}
-                        </Form.Item>
-                    </Col>
-                    <Col sm={24} md={6} >
-                        <Form.Item label="Theme">
-                        {getFieldDecorator("theme", {initialValue: filters && filters.theme})(
-                            <Select
-                                showSearch
-                                allowClear
-                                placeholder="Select a theme"
-                                optionFilterProp="children"
-                                filterOption={(input, option) => option.props.children.toLowerCase().indexOf(input.toLowerCase()) >= 0}>
-                                {this.props.themes.map((el)=>{
-                                    return (<Select.Option key={el.name} value={el.name}>{el.name}</Select.Option>)
-                                })}
-                            </Select>,
-                            )}
-                        </Form.Item>
-                    </Col>
-                    <Col sm={24} md={6} >
-                        <Form.Item label="Currently selected">
-                            {getFieldDecorator("script", {
-                                valuePropName: 'checked',
-                                initialValue: filters && filters.script
-                            })(
-                                <Checkbox value={"script"}>In Script</Checkbox>
-                            )}
-                        </Form.Item>
-                    </Col>
-                    <Col sm={24} md={6} >
-                        <Form.Item label="Author">
-                            {getFieldDecorator("author", {initialValue: filters && filters.author})(
-                                <Input placeholder="Username or email" />
-                            )}
-                        </Form.Item>
-                    </Col>
-                </Row>
-            </Form>
-        );
-    }
-}
-
-const TalkingPointsFilterForm = Form.create({
-    name: 'talking_points_filter_sort',
-    onValuesChange: (props, _, values) => props.onValuesChange(values)
-})(TalkingPointsFilter);
 
 class TalkingPoints extends Component {
 
@@ -104,10 +26,10 @@ class TalkingPoints extends Component {
         liveTalkingPoints: null,
         redirect: null,
         editing: null,
-        wantsToAddNewTalkingPoint: false,
+        isAddingNewTalkingPoint: false,
         admins: null,
         adminsById: null,
-        editingTalkingPointDetails: null
+        isEditingTalkingPointsDetails: null
     }
 
     componentDidMount() {
@@ -120,32 +42,12 @@ class TalkingPoints extends Component {
         }
 
         this.setState({loading: true}, () => {
-            const adminsRequestOptions = {
-                url: `/admins`,
-                method: 'GET',
-                headers: { ...authHeader(), 'Content-Type': 'application/json' },
-            };
-            const getAdmins = axios(adminsRequestOptions);
-            const talkingPointRequestOptions = {
-                url: `/talkingpoints`,
-                method: 'GET',
-                headers: { ...authHeader(), 'Content-Type': 'application/json' },
-            };
-            const getTPs = axios(talkingPointRequestOptions);
-            const themesRequestOptions = {
-                url: `/themes`,
-                method: 'GET',
-                headers: { ...authHeader(), 'Content-Type': 'application/json' },
-            };
-            const getThemes = axios(themesRequestOptions);
-            const liveTalkingPointsRequestOptions = {
-                url: `districts/${this.props.district.districtId}/script`,
-                method: 'GET',
-                headers: { ...authHeader(), 'Content-Type': 'application/json' },
-            };
-            const getLiveTPs = axios(liveTalkingPointsRequestOptions);
+            const getAdminsPromise = getAdmins()
+            const getTalkingPointsPromise = getTalkingPoints()
+            const getThemesPromise = getThemes()
+            const getScriptPromise = getScript(this.props.district)
             
-            Promise.all([getAdmins, getTPs, getThemes, getLiveTPs]).then((response)=>{
+            Promise.all([getAdminsPromise, getTalkingPointsPromise, getThemesPromise, getScriptPromise]).then((response)=>{
                 const admins = response[0].data;
                 const adminsById = new Map(admins.map((el) => [el.adminId, el]));
                 const talkingPoints = response[1].data;
@@ -197,7 +99,16 @@ class TalkingPoints extends Component {
         }
 
         const filters = this.state.filters;
-        const presentableTalkingPoints = [...this.state.allTalkingPoints].filter(el =>{
+        const presentableTalkingPoints = [...this.state.allTalkingPoints]
+        .filter(el => {
+            if (this.props.admin.root) {
+                return filters.reviewStatus === undefined || filters.reviewStatus.length === 0 ||
+                filters.reviewStatus.indexOf(el.reviewStatus) !== -1
+            } else {
+                return el.createdBy === this.props.admin.adminId || el.reviewStatus === 'promoted' || el.reviewStatus === 'waiting_review' // remove the waiting review option once all TPs have been reviewed
+            }
+        })
+        .filter(el =>{
             if (filters && filters.creationDate && filters.creationDate.length > 0) {
                 const creationDateRange = this.state.filters.creationDate;
                 const start = creationDateRange[0];
@@ -292,12 +203,12 @@ class TalkingPoints extends Component {
 
     addNewTalkingPointClicked = () => {
         this.setState({
-            wantsToAddNewTalkingPoint: true
+            isAddingNewTalkingPoint: true
         })
     }
 
     handleSaveTalkingPoint = (values) => {
-        this.setState({wantsToAddNewTalkingPoint: false, editingTalkingPointDetails: null, editing: true})
+        this.setState({isAddingNewTalkingPoint: false, isEditingTalkingPointsDetails: null, editing: true})
 
         const body = {
             content: values.content,
@@ -318,20 +229,14 @@ class TalkingPoints extends Component {
 
         if (values.talkingPointId) {
             body['talkingPointId'] = values.talkingPointId
-            this.editTalkingPoint(body)
+            this.editExistingTalkingPoint(body)
         } else {
             this.addNewTalkingPoint(body)
         }
     }
 
-    addNewTalkingPoint = (body) => {
-        const talkingPointRequestOptions = {
-            url: `/talkingpoints`,
-            method: 'POST',
-            headers: { ...authHeader(), 'Content-Type': 'application/json' },
-            data: body,
-        };
-        axios(talkingPointRequestOptions).then((response)=>{
+    addNewTalkingPoint = (newTalkingPoint) => {
+        addTalkingPoint(newTalkingPoint).then((response)=>{
             message.success('Talking Point Added');
         }).catch((e) => {
             Modal.error({
@@ -344,14 +249,11 @@ class TalkingPoints extends Component {
         })
     }
 
-    editTalkingPoint = (body) => {
-        const talkingPointRequestOptions = {
-            url: `/talkingpoints/${body.talkingPointId}`,
-            method: 'PUT',
-            headers: { ...authHeader(), 'Content-Type': 'application/json' },
-            data: body,
-        };
-        axios(talkingPointRequestOptions).then((response)=>{
+    editExistingTalkingPoint = (talkingPoint) => {
+        delete talkingPoint['created']
+        delete talkingPoint['lastModified']
+        delete talkingPoint['bg']
+        editTalkingPoint(talkingPoint).then((response)=>{
             message.success('Talking Point Edited');
         }).catch((e) => {
             Modal.error({
@@ -365,18 +267,18 @@ class TalkingPoints extends Component {
     }
 
     handleCancelAddNewTalkingPoint = () => {
-        this.setState({wantsToAddNewTalkingPoint: false, editingTalkingPointDetails: null})
+        this.setState({isAddingNewTalkingPoint: false, isEditingTalkingPointsDetails: null})
     }
 
     addEditTalkingPointModal = () => {
         return this.hasTalkingPoints() ?
             <AddEditTalkingPointModal
                 themes={this.state.themes}
-                display={this.state.wantsToAddNewTalkingPoint || this.state.editingTalkingPointDetails !== null}
+                display={this.state.isAddingNewTalkingPoint || this.state.isEditingTalkingPointsDetails !== null}
                 handleSave={(vals)=>{this.handleSaveTalkingPoint(vals)}}
                 handleCancel={this.handleCancelAddNewTalkingPoint}
                 districts={this.props.districts}
-                talkingPointUnderEdit={this.state.editingTalkingPointDetails}
+                talkingPointUnderEdit={this.state.isEditingTalkingPointsDetails}
             /> : null;
     }
 
@@ -422,7 +324,7 @@ class TalkingPoints extends Component {
                 style={{position: "absolute", right: "10px", top:"10px"}}
                 type="primary"
                 onClick={this.addNewTalkingPointClicked || !this.hasTalkingPoints()}
-                disabled={this.state.wantsToAddNewTalkingPoint}>
+                disabled={this.state.isAddingNewTalkingPoint}>
                     Add A New Talking Point
             </Button>
         </div>);
@@ -438,13 +340,15 @@ class TalkingPoints extends Component {
                 <TalkingPointsFilterForm
                     themes={this.state.themes}
                     filters={this.state.filters}
-                    onValuesChange={this.handleFilterChange} />
+                    onValuesChange={this.handleFilterChange} 
+                    showsModerationControl = {this.props.admin.root}
+                    />
             </div>
         );
     }
 
     initiateEditTalkingPoint = (talkingPointDetails) => {
-        if (this.props.adminId && this.props.adminId !== talkingPointDetails.createdBy) {
+        if (this.props.admin.adminId && this.props.admin.adminId !== talkingPointDetails.createdBy) {
             Modal.error({
                 title: 'Not Allowed to Edit',
                 content: "Only the person who created this talking point can edit it."
@@ -453,7 +357,7 @@ class TalkingPoints extends Component {
         }
 
         this.setState({
-            editingTalkingPointDetails: talkingPointDetails
+            isEditingTalkingPointsDetails: talkingPointDetails
         })
     }
 
@@ -466,14 +370,8 @@ class TalkingPoints extends Component {
                     return el !== talkingPointId
                 }) :
                 [...this.state.liveTalkingPoints].concat([talkingPointId])
-            const updateScriptRequestOptions = {
-                url: `/districts/${this.props.district.districtId}/script`,
-                method: 'PUT',
-                headers: { ...authHeader(), 'Content-Type': 'application/json' },
-                data: newScript
-            };
             const scriptURL = `/script/${districtSlug(this.props.district)}`;
-            axios(updateScriptRequestOptions).then((response)=>{
+            updateScript(this.props.district, newScript).then((response)=>{
                 Modal.confirm({
                     title: 'View Updated Script?',
                     content: 'You just made changes to the call-in script. Would you like to view the updated script?',
@@ -515,49 +413,23 @@ class TalkingPoints extends Component {
             // }}
         header={<Typography.Title level={3}>Search Results</Typography.Title>}
             dataSource={this.presentableTalkingPoints()}
-            renderItem={item => {
+            renderItem={talkingPoint => {
                 const theme = this.state.themes.find((el) => {
-                    return el.themeId === item.themeId
+                    return el.themeId === talkingPoint.themeId
                 });
-                const createdBy = item.createdBy && this.state.adminsById.get(item.createdBy);
-
-                const reference = item.referenceUrl ?
-                    <Typography.Text copyable={{ text: item.referenceUrl }}>
-                        <a target="_blank" href={item.referenceUrl} rel="noopener noreferrer">Reference URL</a>
-                    </Typography.Text> : null;
-
-                const createdDate = new Date(item.created.replace(/-/g, "/") + " UTC");
-                const createdByDesc = createdBy && createdBy.email ?
-                <><Typography.Text style={{fontStyle: "italic"}}>Created on {createdDate.toDateString()} by: </Typography.Text><Typography.Text style={{fontStyle: "italic", color: "#0081C7"}} copyable={{ text: createdBy.email }}>{createdBy.email} </Typography.Text></>
-                     : null;
-                const description = createdByDesc
-
-                const isInScript = this.state.liveTalkingPoints.includes(item.talkingPointId)
-                return <List.Item
-                    style={{background: item.bg, padding: "10px"}}
-                    key={item.talkingPointId}
-                    extra={reference}
-                    actions={[
-                        <span>
-                            <Icon style={{ marginRight: 8, color: "#0081C7" }} type={isInScript ? "check-square" : "border"} onClick={(e)=> {
-                                this.toggleTalkingPointInclusionInScript(item.talkingPointId)
-                            } }/>
-                            <Typography.Text>In Script</Typography.Text>
-                        </span>,
-                        <span>
-                            <Icon style={{ marginRight: 8 }} type="edit" theme="twoTone" twoToneColor="#0081C7" onClick={(e)=> {
-                                this.initiateEditTalkingPoint(item)
-                            } } />
-                            <Typography.Text>Edit</Typography.Text>
-                        </span> 
-                    ]}
-                >
-                    <List.Item.Meta
-                        title={theme.name}
-                        description= {description}
-                    />
-                        <Typography.Paragraph>{item.content}</Typography.Paragraph>
-                </List.Item>
+                const createdBy = talkingPoint.createdBy && this.state.adminsById.get(talkingPoint.createdBy)
+                const isInScript = this.state.liveTalkingPoints.includes(talkingPoint.talkingPointId)
+                return <TalkingPointCard 
+                    talkingPoint = {talkingPoint}
+                    createdBy = {createdBy}
+                    theme = { theme }
+                    isInScript = { isInScript }
+                    scriptToggle = { this.toggleTalkingPointInclusionInScript }
+                    edit = { this.initiateEditTalkingPoint }
+                    isShowingModerationControl = { this.props.admin.root }
+                    updateApproval = {this.editExistingTalkingPoint}
+                    districtsById = {this.props.districtsById}
+                />                
                 }
             }
         />
@@ -577,11 +449,11 @@ class TalkingPoints extends Component {
 const mapStateToProps = state => {
 
     const admin = {...state.admin}
-    const adminTwo = {...admin.admin}
 
     return {
-        adminId: adminTwo.adminId,
-        districts: state.districts.districts
+        admin: {...admin.admin},
+        districts: state.districts.districts,
+        districtsById: state.districts.districtsById
     };
 };
 
