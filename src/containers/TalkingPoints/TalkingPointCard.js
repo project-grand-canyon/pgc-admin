@@ -2,7 +2,7 @@ import React from "react";
 import { Icon, List, Typography } from 'antd';
 import TalkingPointModerationForm from './TalkingPointModerationForm'
 
-const TalkingPointCard = ({talkingPoint, createdBy, theme, isInScript, scriptToggle, edit, isShowingModerationControl, updateApproval }) => {
+const TalkingPointCard = ({talkingPoint, createdBy, theme, isInScript, scriptToggle, edit, isShowingModerationControl, updateApproval, districtsById }) => {
         if (talkingPoint == null || talkingPoint.created == null) {
             return null
         }
@@ -31,17 +31,29 @@ const TalkingPointCard = ({talkingPoint, createdBy, theme, isInScript, scriptTog
             </span> 
         ]
 
+        var scopeDescription = talkingPoint.scope
+
+        if (talkingPoint.scope === 'state') {
+            scopeDescription += `s: ${talkingPoint.states.join(', ')}`
+        } else if (talkingPoint.scope === 'district') {
+            const districts = talkingPoint.districts.map((el) => { return `${districtsById.get(el).state} - ${districtsById.get(el).number}` }).join(', ')
+            scopeDescription += `s: ${districts}`
+        }
 
 
         const moderationSection = isShowingModerationControl ? (
-            <TalkingPointModerationForm
-                talkingPoint = {talkingPoint}
-                onValuesChange = {(props, _, values) => {
-                    const tp = {...talkingPoint}
-                    tp.reviewStatus = props.status
-                    updateApproval(tp)
-                }}
-            />
+            <div>
+                <Typography.Paragraph>Talking Point Id: {`${talkingPoint.talkingPointId}`}</Typography.Paragraph>
+                <Typography.Paragraph>Scope: {scopeDescription}</Typography.Paragraph>
+                <TalkingPointModerationForm
+                    talkingPoint = {talkingPoint}
+                    onValuesChange = {(props, _, values) => {
+                        const tp = {...talkingPoint}
+                        tp.reviewStatus = props.status
+                        updateApproval(tp)
+                    }}
+                />
+            </div>
             
         ) : null
 

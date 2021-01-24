@@ -6,6 +6,24 @@ class TalkingPointsFilter extends Component {
     render() {
         const filters = this.props.filters;
         const { getFieldDecorator } = this.props.form;
+
+        const moderationControl = this.props.showsModerationControl ? (
+            <Row>
+                <Col>
+                    <Form.Item label="Review Status">
+                        {getFieldDecorator("reviewStatus", {initialValue: filters && filters.reviewStatus})(
+                            <Checkbox.Group>
+                                <Checkbox value={"promoted"}>Approved</Checkbox>
+                                <Checkbox value={"passed"}>Suppressed</Checkbox>
+                                <Checkbox value={"waiting_review"}>Awaiting Review</Checkbox>
+                                <Checkbox value={"archived"}>Archived</Checkbox>
+                            </Checkbox.Group>
+                        )}
+                    </Form.Item>
+                </Col>
+            </Row>
+        ) : null
+
         return (
             <Form>
                 <Row>
@@ -70,6 +88,7 @@ class TalkingPointsFilter extends Component {
                         </Form.Item>
                     </Col>
                 </Row>
+                {moderationControl}
             </Form>
         );
     }

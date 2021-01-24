@@ -99,7 +99,16 @@ class TalkingPoints extends Component {
         }
 
         const filters = this.state.filters;
-        const presentableTalkingPoints = [...this.state.allTalkingPoints].filter(el =>{
+        const presentableTalkingPoints = [...this.state.allTalkingPoints]
+        .filter(el => {
+            if (this.props.admin.root) {
+                return filters.reviewStatus === undefined || filters.reviewStatus.length === 0 ||
+                filters.reviewStatus.indexOf(el.reviewStatus) !== -1
+            } else {
+                return el.createdBy === this.props.admin.adminId || el.reviewStatus === 'promoted' || el.reviewStatus === 'waiting_review' // remove the waiting review option once all TPs have been reviewed
+            }
+        })
+        .filter(el =>{
             if (filters && filters.creationDate && filters.creationDate.length > 0) {
                 const creationDateRange = this.state.filters.creationDate;
                 const start = creationDateRange[0];
@@ -331,7 +340,9 @@ class TalkingPoints extends Component {
                 <TalkingPointsFilterForm
                     themes={this.state.themes}
                     filters={this.state.filters}
-                    onValuesChange={this.handleFilterChange} />
+                    onValuesChange={this.handleFilterChange} 
+                    showsModerationControl = {this.props.admin.root}
+                    />
             </div>
         );
     }
@@ -417,6 +428,7 @@ class TalkingPoints extends Component {
                     edit = { this.initiateEditTalkingPoint }
                     isShowingModerationControl = { this.props.admin.root }
                     updateApproval = {this.editExistingTalkingPoint}
+                    districtsById = {this.props.districtsById}
                 />                
                 }
             }
@@ -440,7 +452,8 @@ const mapStateToProps = state => {
 
     return {
         admin: {...admin.admin},
-        districts: state.districts.districts
+        districts: state.districts.districts,
+        districtsById: state.districts.districtsById
     };
 };
 
