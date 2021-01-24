@@ -366,7 +366,7 @@ class TalkingPoints extends Component {
     }
 
     initiateEditTalkingPoint = (talkingPointDetails) => {
-        if (this.props.adminId && this.props.adminId !== talkingPointDetails.createdBy) {
+        if (this.props.admin.adminId && this.props.admin.adminId !== talkingPointDetails.createdBy) {
             Modal.error({
                 title: 'Not Allowed to Edit',
                 content: "Only the person who created this talking point can edit it."
@@ -499,10 +499,9 @@ class TalkingPoints extends Component {
 const mapStateToProps = state => {
 
     const admin = {...state.admin}
-    const adminTwo = {...admin.admin}
 
     return {
-        adminId: adminTwo.adminId,
+        admin: {...admin.admin},
         districts: state.districts.districts
     };
 };
