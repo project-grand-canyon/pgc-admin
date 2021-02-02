@@ -2,7 +2,10 @@ import React, { Component } from 'react';
 import { Form, Input, Modal, Select, TreeSelect } from 'antd';
 
 import groupBy from '../../_util/groupBy';
+import styles from "./TalkingPoints.module.css";
 
+
+const MAX_CONTENT_LENGTH = 512;
 
 class AddEditTalkingPointModal extends Component {
 
@@ -91,9 +94,12 @@ class AddEditTalkingPointModal extends Component {
             <Form.Item label="Content">
                 {getFieldDecorator('content', {
                     rules: [{required: true, message: 'You must write a message to the Member of Congress'},
-                            {max: 512, message:'The message must not exceed 512 characters.'}]
-                })(<Input.TextArea placeholder="The message to the Member of Congress" autosize={{ minRows: 3, maxRows: 6 }} />
+                            {max: MAX_CONTENT_LENGTH, message: `The message must not exceed ${MAX_CONTENT_LENGTH} characters.`}]
+                })(<Input.TextArea placeholder="The message to the Member of Congress" autoSize={{ minRows: 3, maxRows: 6 }} />
                 )}
+                <div className={styles['char-count'] + (this.props.contentLength > MAX_CONTENT_LENGTH ? ' ' + styles['char-count-error'] : '')}>
+                    {this.props.contentLength} / {MAX_CONTENT_LENGTH}
+                </div>
             </Form.Item>
             <Form.Item label="Reference URL">
                 {getFieldDecorator('referenceUrl', {
@@ -200,11 +206,12 @@ class AddEditTalkingPointModal extends Component {
 
 }
 
-const AddNewTalkingPointForm = Form.create({
+const AddEditTalkingPointForm = Form.create({
     name: 'add_new_talking_point_form',
     onValuesChange (props, changedValues, allValues) {
         if (Object.keys(changedValues).indexOf('content') !== -1) {
             props.form.validateFields(['content']);
+            props.onChangeContent(changedValues.content);
         }
         if (changedValues && changedValues.scope) {
             props.form.resetFields(['subScope'])
@@ -212,4 +219,20 @@ const AddNewTalkingPointForm = Form.create({
     }
 })(AddEditTalkingPointModal);
 
-export default AddNewTalkingPointForm;
+class AddEditTalkingPointWrapper extends Component {
+
+    state = {
+        contentLength: 0,
+    };
+
+    handleChangeContent = (content) => {
+        this.setState({ contentLength: content.length });
+    };
+
+    render() {
+        return <AddEditTalkingPointForm {...this.props} contentLength={this.state.contentLength} onChangeContent={this.handleChangeContent} />;
+    }
+
+}
+
+export default AddEditTalkingPointWrapper;
