@@ -26,12 +26,14 @@ class AddEditTalkingPointModal extends Component {
                 }
                 this.props.handleSave(values);
                 this.props.form.resetFields()
+                this.props.onChangeContent('');
             }
         });
     }
 
     handleCancel = () => {
         this.props.form.resetFields();
+        this.props.onChangeContent('');
         this.props.handleCancel();
     }
 
