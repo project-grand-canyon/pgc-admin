@@ -105,7 +105,7 @@ class TalkingPoints extends Component {
                 return filters.reviewStatus === undefined || filters.reviewStatus.length === 0 ||
                 filters.reviewStatus.indexOf(el.reviewStatus) !== -1
             } else {
-                return el.createdBy === this.props.admin.adminId || el.reviewStatus === 'promoted' || el.reviewStatus === 'waiting_review' // remove the waiting review option once all TPs have been reviewed
+                return el.createdBy === this.props.admin.adminId || el.reviewStatus === 'promoted' 
             }
         })
         .filter(el =>{
