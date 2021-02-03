@@ -10,14 +10,12 @@ const hydratedDistrict = require('../fixtures/hydrated_district.json')
 const reminders = require('../fixtures/reminders.json');
 const themes = require('../fixtures/themes.json')
 
-const callsURL = /\/mockapi\/calls(\/(\d+))?/;
-const remindersURL = /\/mockapi\/reminders\/(\d+)/;
-const requestURL = /\/mockapi\/requests\/(\d+)/;
-const hydratedDistrictURL = /\mockapi\/districts\/(\d+)\/hydrated/;
+const callsURL = /\/calls(\/(\d+))?/;
+const remindersURL = /\/reminders\/(\d+)/;
 
 function verifyRequest(result, method, path, body) {
     expect(result.config.method).toBe(method)
-    expect(result.config.url).toBe(`/mockapi/${path}`)
+    expect(result.config.url).toBe(`/${path}`)
     if (body) {
         expect(result.config.data).toBe(JSON.stringify(body))
     }
@@ -90,7 +88,7 @@ describe('script updating', () => {
 
 describe('callerHistory', () => {
 
-    axiosMock.onGet('/mockapi/callers').reply(200, callers);
+    axiosMock.onGet('/callers').reply(200, callers);
     axiosMock.onGet(callsURL).reply((config) => {
         const match = config.url.match(callsURL);
         let matchingCalls = calls;
