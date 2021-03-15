@@ -5,7 +5,7 @@ import { Button, Card, Col, Form, Input, List, Modal, Row, Skeleton, Spin, Typog
 import OfficeModal from './OfficeModal';
 import StatusFormItem from './StatusFormItem';
 
-import axios from '../../_util/axios-api';
+import axios, { getErrorMessage } from '../../_util/axios-api';
 import { displayName } from '../../_util/district';
 import { authHeader } from '../../_util/auth/auth-header';
 
@@ -147,7 +147,7 @@ class Representative extends Component {
             }).catch((e) => {
                 Modal.error({
                     title: "Error updating district",
-                    content: e.message,
+                    content: getErrorMessage(e),
                 });
             }).then(()=>{
                 this.fetchDistrictDetails(()=>{self.setState({editing: false})})
@@ -344,7 +344,7 @@ class Representative extends Component {
                     }).catch((e) => {
                         Modal.error({
                             title: "Error removing office",
-                            content: e.message,
+                            content: getErrorMessage(e),
                         });
                     }).then(()=>{
                         that.fetchDistrictDetails(()=>{that.setState({editing: false})})
@@ -385,7 +385,7 @@ class Representative extends Component {
             }).catch((e) => {
                 Modal.error({
                     title: "Error adding office",
-                    content: e.message,
+                    content: getErrorMessage(e),
                 });
             }).then(()=>{
                 this.fetchDistrictDetails(()=>{this.setState({editing: false})})
@@ -419,7 +419,7 @@ class Representative extends Component {
             }).catch((e) => {
                 Modal.error({
                     title: "Error updating office",
-                    content: e.message,
+                    content: getErrorMessage(e),
                 });
             }).then(()=>{
                 this.fetchDistrictDetails(()=>{this.setState({editing: false})})

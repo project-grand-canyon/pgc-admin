@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import { Redirect } from 'react-router-dom';
 import { Button, Col, InputNumber, Modal, Skeleton, Form, Row, Typography} from 'antd';
 
-import axios from '../../_util/axios-api';
+import axios, { getErrorMessage } from '../../_util/axios-api';
 import { authHeader } from '../../_util/auth/auth-header';
 
 import styles from './CallDistribution.module.css';
@@ -167,7 +167,7 @@ class CallDistribution extends Component {
                     }).catch((e) => {
                         Modal.error({
                             title: "Error updating call distribution",
-                            content: e.message,
+                            content: getErrorMessage(e),
                         });
                     }).then(()=>{
                         this.fetchData(()=>{self.setState({editing: false})})

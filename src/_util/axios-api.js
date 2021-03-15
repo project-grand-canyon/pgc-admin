@@ -36,6 +36,10 @@ export function updateRequest(district, request) {
   return client(requestOptions)
 }
 
+export function getErrorMessage(e) {
+  return e.response && e.response.data ? e.response.data.message : e.message
+}
+
 export function addTalkingPoint(newTalkingPoint) {
   const requestOptions = makeRequestOptions('/talkingpoints', 'POST')
   requestOptions['data'] = newTalkingPoint

@@ -14,7 +14,7 @@ import {
 } from 'antd';
 import { authHeader } from '../../_util/auth/auth-header';
 import { HistoryType } from './constants'
-import axios from '../../_util/axios-api';
+import axios, { getErrorMessage } from '../../_util/axios-api';
 
 const sendNotification = (callerId) => {
     const requestOptions = {
@@ -25,7 +25,7 @@ const sendNotification = (callerId) => {
     axios(requestOptions).then((response)=>{
       message.success("Notification sent successfully.")
     }).catch((e) => {
-        message.error(`Notification failed to send: ${e.message}`);
+        message.error(`Notification failed to send: ${getErrorMessage(e)}`);
     })
 }
 

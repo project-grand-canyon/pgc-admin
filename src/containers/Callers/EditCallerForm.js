@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import { Button, Checkbox, Form, Input, message } from 'antd';
 import { authHeader } from '../../_util/auth/auth-header';
-import axios from '../../_util/axios-api';
+import axios, { getErrorMessage } from '../../_util/axios-api';
 
 class EditCaller extends Component {
 
@@ -165,7 +165,7 @@ class EditCaller extends Component {
           })
         }).catch((e) => {
             this.setState({saving: false}, ()=>{
-                message.error(`Error saving: ${e.message}`);
+                message.error(`Error saving: ${getErrorMessage(e)}`);
             })
         })
       }
