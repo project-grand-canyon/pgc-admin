@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import { Button, Col, Empty, Form, Icon, Input, Modal, Row, Spin, Typography, TreeSelect } from 'antd';
 import { withRouter, Redirect } from 'react-router-dom';
 import { connect } from 'react-redux';
-import axios from '../../_util/axios-api';
+import axios, { getErrorMessage } from '../../_util/axios-api';
 import groupBy from '../../_util/groupBy';
 import { authHeader } from '../../_util/auth/auth-header';
 import { displayName } from '../../_util/district';
@@ -83,7 +83,7 @@ class SignUp extends Component {
                     }).catch((e) => {
                         Modal.error({
                             title: "Error Signing Up",
-                            content: `${e.response.data.message}`
+                            content: `${getErrorMessage(e)}`
                         });
                         this.setState({submissionStage: "unsubmitted"})
                     })
