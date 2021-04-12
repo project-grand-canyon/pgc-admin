@@ -1,14 +1,11 @@
 import React, { Component } from 'react';
-import { Link } from 'react-router-dom';
 import get from "lodash/get"
 
-import { Button, Divider, Modal, message, Skeleton, Form, Typography} from 'antd';
+import { Button, Modal, message, Skeleton, Form, Typography} from 'antd';
 
-import { getHydratedDistict, getThemes, updateRequest, updateScript, updateUnhydratedDistrict } from '../../_util/axios-api';
-import { displayName, slug as districtSlug } from '../../_util/district';
+import { getHydratedDistict, updateRequest } from '../../_util/axios-api';
+import { displayName } from '../../_util/district';
 import RequestSection from './RequestSection';
-import TalkingPointsSection from './TalkingPointsSection';
-import DelegationSection from './DelegationSection';
 
 
 class Script extends Component {
@@ -39,15 +36,11 @@ class Script extends Component {
 
     doFetchData(cb){
         if (this.props.district) {
-            const hydratedPromise = getHydratedDistict(this.props.district)
-            const themesPromise = getThemes()
-            Promise.all([hydratedPromise, themesPromise]).then(( responses )=>{
-                const district = responses[0].data;
-                const themes = responses[1].data;
+            getHydratedDistict(this.props.district).then(( response )=>{
+                const district = response.data;
                 if (district.districtId === this.props.district.districtId) {
                     this.setState({
-                        hydratedDistrict: district,
-                        themes: themes // this can be moved to redux
+                        hydratedDistrict: district
                     });
                 }
             }).catch((e) => {
@@ -93,41 +86,6 @@ class Script extends Component {
         return request || emptyReq;
     }
 
-    scriptItemClicked = (idx, action) => {
-        this.setState({savingEdits: true},() => {
-            const newDistrict = {...this.state.hydratedDistrict}
-            const newScript = [...newDistrict.script]
-            if (action === "up") {
-                if (idx > 0) {
-                    const temp = newScript[idx]
-                    newScript[idx] = newScript[idx-1]
-                    newScript[idx-1] = temp
-                }
-            } else if (action === "down") {
-                if (idx < newScript.length - 1) {
-                    const temp = newScript[idx]
-                    newScript[idx] = newScript[idx+1]
-                    newScript[idx+1] = temp
-                }
-            } else if (action === "remove") {
-                if (idx >= 0 && idx <= newScript.length - 1){
-                    newScript.splice(idx, 1);
-                }
-            }
-
-            const newTalkingPointIds = newScript.map((el)=>{return el.talkingPointId})
-            const self = this;
-            updateScript(this.props.district, newTalkingPointIds).then((response)=>{
-            }).catch((e) => {
-                console.log(e)
-                console.log(e.response.data)
-                message.error(get(e, ["response","data","message"], "Unrecognized error while updating script"))
-            }).then(() => {
-                self.fetchData(()=>{self.setState({savingEdits: false})})
-            });
-        });
-    }
-
     updateRequest = (newRequest) => {
         this.setState({savingEdits: true},() => {
             updateRequest(this.state.hydratedDistrict, newRequest).then((response)=>{
@@ -158,23 +116,12 @@ class Script extends Component {
         />
     }
 
-    talkingPointsSection = () => {
-        return <TalkingPointsSection 
-            district = {this.state.hydratedDistrict}
-            themes = {this.state.themes}
-            isSaving = {this.state.savingEdits}
-            scriptItemClicked = {this.scriptItemClicked}
-        />
-    }
-
     actions = () => {
-        const talkingPointsURL = `/talking-points/${districtSlug(this.props.district)}`;
         return (
             <Skeleton loading={this.state.hydratedDistrict === null}>
                 {this.state.hydratedDistrict &&
                 <div style={{padding: "10px", display: "flex", justifyContent: "center"}}>
-                    <Button style={{marginRight: "5px"}} ><Link to={talkingPointsURL}>Add a Talking Point</Link></Button>
-                    <Button style={{marginLeft: "5px"}} target="_blank" href={`http://www.cclcalls.org/call/${this.state.hydratedDistrict.state.toLowerCase()}/${this.state.hydratedDistrict.number}`}>View the Live Script</Button>
+                    <Button style={{marginLeft: "5px"}} target="_blank" href={`http://www.cclcalls.org/call/${this.state.hydratedDistrict.state.toLowerCase()}/${this.state.hydratedDistrict.number}`}>Preview the Live Script</Button>
                 </div>}
             </Skeleton>
         )
@@ -186,44 +133,18 @@ class Script extends Component {
             {this.state.hydratedDistrict &&
                 <div style={{padding: "10px"}}>
                     <Typography.Title level={2}>
-                        {displayName(this.state.hydratedDistrict)} ({this.state.hydratedDistrict.repLastName}) Script
+                        {displayName(this.state.hydratedDistrict)} ({this.state.hydratedDistrict.repLastName}) Request
                     </Typography.Title>
                 </div>
             }
         </Skeleton>);
     }
 
-    changeDelegation = (e) => {
-        const wantsDelegation = e.target.checked
-
-        const updatedDistrict = {...this.props.district}
-        updatedDistrict['delegateScript'] = wantsDelegation
-
-        this.setState({savingEdits: true},() => {
-            updateUnhydratedDistrict(updatedDistrict).then((response)=>{
-            }).catch((e) => {
-                console.log(e)
-                console.log(e.response.data)
-                message.error(get(e, ["response","data","message"], "Unrecognized error while updating delegation status"))
-            }).then(() => {
-                this.fetchData(()=>{this.setState({savingEdits: false})})
-            });
-        })
-        
-    }
-
     render() {
         return <>
             {this.header()}
             {this.requestSection()}
-            {this.talkingPointsSection()}
             {this.actions()}
-            <Divider />
-            <DelegationSection
-                isSaving={this.state.savingEdits}
-                district={this.state.hydratedDistrict}
-                onDelegationChanged={this.changeDelegation} 
-            />
         </>;
     }
 }
