@@ -15,7 +15,6 @@ import Reports from '../Reports/Reports';
 import Callers from '../Callers/Callers';
 import CallDistribution from '../CallDistribution/CallDistribution';
 import Script from '../Script/Script';
-import TalkingPoints from '../TalkingPoints/TalkingPoints';
 import Representative from '../Representative/Representative';
 import Account from '../Account/Account';
 import RequestPasswordReset from '../RequestPasswordReset/RequestPasswordReset';
@@ -63,7 +62,6 @@ class App extends Component {
               <PrivateRoute path="/callers/:districtSlug?" component={Callers} />
               <PrivateRoute path="/distribution/:districtSlug?" component={CallDistribution} />
               <PrivateRoute path="/script/:districtSlug?" component={Script} />
-              <PrivateRoute path="/talking-points/:districtSlug?" component={TalkingPoints} />
               <PrivateRoute path="/representative/:districtSlug?" component={Representative} />
               <PrivateRoute path="/admins/:districtSlug?" component={Admin} />
               <PrivateRoute path="/account/:districtSlug?" component={Account} />

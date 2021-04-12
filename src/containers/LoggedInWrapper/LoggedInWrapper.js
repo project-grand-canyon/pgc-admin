@@ -170,11 +170,6 @@ class LoggedInWrapper extends Component {
                                 <span>Call-In Script</span>
                                 <Link to={this.urlPath('script', selectedDistrict)} />
                             </Menu.Item>
-                            <Menu.Item key="talking-points">
-                                <Icon type="file-search" />
-                                <span>Talking Points Library</span>
-                                <Link to={this.urlPath('talking-points', selectedDistrict)} />
-                            </Menu.Item>
                             {/* <Menu.Item key="schedule">
                                 <Icon type="schedule" />
                                 <span>Schedule</span>
