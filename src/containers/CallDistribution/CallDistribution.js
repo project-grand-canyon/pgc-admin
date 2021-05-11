@@ -130,7 +130,7 @@ class CallDistribution extends Component {
                         {displayName(this.state.hydratedDistrict)} ({this.state.hydratedDistrict.repLastName}) Call Distribution
                     </Typography.Title>
                     <Typography.Paragraph>
-                        The monthly call-in notifications ask callers to make one call. After the callers make one call, they will be asked to call their other two members of Congress. The percentage below define the proportion of initial calls from your district that your Senators and Representative will receive. This has no effect on the proportion of calls they will receive from callers who make more than one call.
+                        The monthly call-in notifications ask callers to make one call. After the callers make one call, they will be asked to call their other two members of Congress. The percentage below defines the proportion of initial calls from your district that your Senators and Representative will receive. This has no effect on the proportion of calls they will receive from callers who make more than one call.
                     </Typography.Paragraph>
                     <Typography.Paragraph>
 
