@@ -11,7 +11,7 @@ const displayName = (district) => {
         return `${district.state}-${district.number}`
     }
 
-    const junsen = Math.abs(district.number) === 1 ? "Sen." : "Jun.";
+    const junsen = Math.abs(district.number) === 1 ? "Sr." : "Jr.";
 
     return `${district.state}-${junsen} Senator`
 }
