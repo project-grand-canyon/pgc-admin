@@ -2,12 +2,15 @@ import React, { Component } from "react";
 import { Redirect } from "react-router";
 import {
   Button,
+  Checkbox,
+  Col,
   Icon,
   Input,
   Form,
   message,
   Modal,
   Popover,
+  Row,
   Table,
   Typography,
 } from "antd";
@@ -34,6 +37,7 @@ class Callers extends Component {
     callerDetail: {},
     searchTerm: null,
     generatingCsv: false,
+    hidePaused: true
   };
 
   isCallerInFocus = (key) => {
@@ -365,25 +369,42 @@ class Callers extends Component {
     }
   };
 
+  toggleHidePaused = e => {
+    this.setState({
+      hidePaused: e.target.checked,
+    });
+  }
+
   render() {
     if (isSenatorDistrict(this.props.district)) {
       return <Redirect to={`/script/${districtSlug(this.props.district)}`} />;
     }
 
+    const filteredDistrictCallers = this.state.districtCallers && this.state.districtCallers.filter ((caller)=>{
+      return !this.state.hidePaused || (caller.status && caller.status.status !== "PAUSED")
+    })
+
     return (
       <>
         <Typography.Title level={2}>Callers for District</Typography.Title>
         {this.detailModal()}
-        <Button
-          disabled={this.state.districtCallers === null}
-          onClick={this.onClickDownloadAsCsv}
-        >
-          Download as CSV
-        </Button>
+        <Row>
+          <Col span={4}>
+            <Button
+              disabled={filteredDistrictCallers === null}
+              onClick={this.onClickDownloadAsCsv}
+            >
+              Download as CSV
+            </Button>
+          </Col>
+          <Col span={4  }>
+          <Checkbox checked={this.state.hidePaused} onChange={this.toggleHidePaused} /> Hide paused callers
+          </Col>
+        </Row>
         <Table
-          loading={this.state.districtCallers === null}
+          loading={filteredDistrictCallers === null}
           bordered
-          dataSource={this.state.districtCallers}
+          dataSource={filteredDistrictCallers}
           columns={this.columns.filter((el) => {
             return el.key !== "districtName";
           })}
