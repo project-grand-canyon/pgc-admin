@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { Button, Col, Empty, Form, Icon, Input, Modal, Row, Spin, Typography, TreeSelect } from 'antd';
+import { Button, Cascader, Col, Empty, Form, Input, Modal, Row, Spin, Tag, Typography } from 'antd';
 import { withRouter, Redirect } from 'react-router-dom';
 import { connect } from 'react-redux';
 import axios, { getErrorMessage } from '../../_util/axios-api';
@@ -22,7 +22,9 @@ class SignUp extends Component {
     state = {
         submissionStage: "unsubmitted",
         cascaderDistricts: null,
-        congressionalDistrictsError: null
+        congressionalDistrictsError: null,
+        selectedDistricts: new Set(),
+        districtsById: null
     };
 
     componentDidMount = () => {
@@ -32,22 +34,22 @@ class SignUp extends Component {
             const cascaderDistricts = Object.keys(districtsByState).sort().map((state)=>{
                 return {
                     value: state,
-                    title: state,
-                    selectable: false,
+                    label: state,
                     children: districtsByState[state].sort((a, b)=> {
                         return parseInt(a.number) - parseInt(b.number)
                     }).map((district) =>{
                         return {
                             value: district.districtId,
-                            title: `${displayName(district)} (${district.repLastName})`,
-                            selectable: true
+                            label: `${displayName(district)} (${district.repLastName})`,
                         }
                     })
                 }
             })
 
+            const districtsById = groupBy(districts, 'districtId');
             this.setState({
-                cascaderDistricts: cascaderDistricts
+                cascaderDistricts: cascaderDistricts,
+                districtsById
             });
         })
         .catch((error) =>{
@@ -63,10 +65,19 @@ class SignUp extends Component {
 
     handleSubmit = (e) => {
         e.preventDefault();
-        // const that = this;
+        
+        if (this.state.selectedDistricts.values().next().value === undefined) {
+            Modal.error({
+                title: "District Reqired",
+                "content": "You must selected at least one district to administer"
+            })
+            return
+        }
+
         this.props.form.validateFields((err, values) => {
             if (!err) {
                 const fieldValues = {...values};
+                fieldValues["districts"] = [...this.state.selectedDistricts];
                 fieldValues["root"] = false;
                 this.props.form.resetFields();
                 this.setState({
@@ -90,6 +101,37 @@ class SignUp extends Component {
                 });
             }
         });
+    }
+
+    onChangeDistrict = (value) => {
+        const districtId = value.pop()
+        const updatedDistricts = new Set(this.state.selectedDistricts)
+        updatedDistricts.add(districtId)
+        this.setState({
+            selectedDistricts: updatedDistricts
+        });
+    }
+
+    onRemoveDistrict = (districtId) => {
+        console.log(districtId)
+
+        if (this.state.selectedDistricts.has(districtId)) {
+
+        const updatedDistricts = new Set(this.state.selectedDistricts)
+        updatedDistricts.delete(districtId)
+        this.setState({
+            selectedDistricts: updatedDistricts
+        });
+    } else {
+        console.log('not present')
+    }
+    }
+
+    tagsJsx = () => {
+        return [...this.state.selectedDistricts].map( (dist) => {
+            const district = this.state.districtsById[dist][0]
+            return district ? <Tag key={dist} closable onClose={e => { this.onRemoveDistrict(dist)} }> {`${displayName(district)}`}</Tag> : null;
+        })
     }
 
     render() {
@@ -119,16 +161,6 @@ class SignUp extends Component {
 
         const { getFieldDecorator } = this.props.form;
 
-        const treeData = this.state.cascaderDistricts
-        const districtSelectionProps = {
-            treeData,
-            allowClear: true,
-            multiple: true,
-            treeCheckable: false,
-            treeDefaultExpandAll: true,
-            showCheckedStrategy: TreeSelect.SHOW_ALL,
-            prefix: (<Icon type="environment" placeholder="Districts"/>)
-        };
         return (<>
             <div>
                 <Row>
@@ -164,9 +196,10 @@ class SignUp extends Component {
                             </Form.Item>
                             <Form.Item label="Congressional Districts">
                                 {getFieldDecorator("districts", {initialValue: this.empty, rules:[{required: true, message: "Select at least one district"}]})(
-                                    <TreeSelect {...districtSelectionProps} />,
+                                    <Cascader options={this.state.cascaderDistricts} onChange={this.onChangeDistrict} placeholder="Choose one or more" />,
                                 )}
                             </Form.Item>
+                            {this.tagsJsx()}
                             <Form.Item>
                                 <Button type="primary" htmlType="submit">
                                     Apply
