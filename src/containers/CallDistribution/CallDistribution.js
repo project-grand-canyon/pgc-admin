@@ -145,7 +145,7 @@ class CallDistribution extends Component {
         const self = this;
         this.props.form.validateFields((err, values) => {
             if (!err) {
-                const {districtId, state, number, repFirstName, repLastName, repImageUrl, status} = this.state.hydratedDistrict
+                const {districtId, state, number, repFirstName, repLastName, repImageUrl, status, party} = this.state.hydratedDistrict
                 const body = {
                     districtId,
                     state,
@@ -153,7 +153,8 @@ class CallDistribution extends Component {
                     repFirstName,
                     repLastName,
                     repImageUrl,
-                    status
+                    status,
+                    party
                 }
                 body["callTargets"] = this.getCallTargetRequestBodyComponent()
                 this.setState({editing: true},()=>{
