@@ -80,7 +80,7 @@ class Representative extends Component {
             if (errors != null) {
                 return;
             }
-            const { state, number, callTargets, status: previousStatus } = this.state.hydratedDistrict
+            const { state, number, callTargets, party, status: previousStatus } = this.state.hydratedDistrict
             const { firstName: repFirstName, lastName: repLastName, repImageUrl, status } = formFields
             
             const putBody = {
@@ -91,6 +91,7 @@ class Representative extends Component {
                 repLastName,
                 repImageUrl,
                 status,
+                party
             }
 
             const updateDistrict = () => { this.putUpdate(putBody) };

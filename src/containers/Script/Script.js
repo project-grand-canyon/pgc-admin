@@ -109,7 +109,6 @@ class Script extends Component {
             onClickEdit = {(e)=> { this.setState({isEditingRequest: true})} }
             onCancel = {(e) => { this.setState({isEditingRequest: false}) }}
             onSave = { (newRequest) => {
-                console.log('ben')
                 this.setState({isEditingRequest: false}) 
                 this.updateRequest(newRequest)
             }}
