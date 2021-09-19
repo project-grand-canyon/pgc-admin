@@ -19,6 +19,9 @@ const heading = (
 const immutableRequest = (
   <Card actions={[<Icon type="edit" onClick={onClickEdit} />]}>
       <Typography.Text>{currentRequest && currentRequest.content}</Typography.Text>
+      <br/>
+      <br/>
+      <Typography.Text><i>Last Updated: {currentRequest && currentRequest.lastModified && Intl.DateTimeFormat('en-US').format(new Date(currentRequest.lastModified))}</i></Typography.Text>
   </Card>
 )
 
