@@ -1,11 +1,12 @@
 import React, { Component } from 'react';
 import get from "lodash/get"
 
-import { Button, Modal, message, Skeleton, Form, Typography} from 'antd';
+import { Button, Divider, Modal, message, Skeleton, Form, Typography} from 'antd';
 
-import { getHydratedDistict, updateRequest } from '../../_util/axios-api';
+import { getHydratedDistict, updateRequest, updateUnhydratedDistrict } from '../../_util/axios-api';
 import { displayName } from '../../_util/district';
 import RequestSection from './RequestSection';
+import DelegationSection from './DelegationSection';
 
 
 class Script extends Component {
@@ -139,11 +140,35 @@ class Script extends Component {
         </Skeleton>);
     }
 
+    changeDelegation = (e) => {
+        const wantsDelegation = e.target.checked
+        const updatedDistrict = {...this.props.district}
+        updatedDistrict['delegateScript'] = wantsDelegation
+
+        this.setState({savingEdits: true},() => {
+            updateUnhydratedDistrict(updatedDistrict).then((response)=>{
+            }).catch((e) => {
+                message.error(get(e, ["response","data","message"], "Unrecognized error while updating delegation status"))
+            }).then(() => {
+                this.fetchData(()=>{this.setState({savingEdits: false})})
+            });
+        })
+        
+    }
+
+
     render() {
         return <>
             {this.header()}
             {this.requestSection()}
             {this.actions()}
+            <Divider />
+            <DelegationSection
+                isSaving={this.state.savingEdits}
+                district={this.state.hydratedDistrict}
+                onDelegationChanged={this.changeDelegation} 
+            />
+
         </>;
     }
 }
