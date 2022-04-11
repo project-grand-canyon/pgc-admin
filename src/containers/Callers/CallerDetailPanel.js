@@ -96,6 +96,14 @@ class CallerDetailPanel extends Component {
                     </Row>
                     <Row>
                         <Col sm={24} md={8}>
+                            <Typography.Text strong>Reminder Day of Month</Typography.Text>
+                        </Col>
+                        <Col>
+                            <Typography.Text  disabled={!caller.reminderDayOfMonth}>{caller.reminderDayOfMonth ? caller.reminderDayOfMonth : "none"}</Typography.Text>
+                        </Col>
+                    </Row>
+                    <Row>
+                        <Col sm={24} md={8}>
                             <Typography.Text strong>Active/Paused</Typography.Text>
                         </Col>
                         <Col>
