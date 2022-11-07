@@ -268,6 +268,9 @@ class Callers extends Component {
       return;
     }
 
+    const currentState = this.props.district.state;
+    const currentDistrictNumber = this.props.district.number;
+
     const hide = message.loading("Generating a CSV", 0);
     const callers = _.cloneDeep(this.state.districtCallers);
     getCallerHistories(callers, this.props.districtsById, (err, histories) => {
@@ -288,7 +291,7 @@ class Callers extends Component {
       const data = asCsv(enrichedCallers);
       fileDownload(
         data,
-        `${this.props.district.state}${this.props.district.number}.csv`
+        `${currentState}${currentDistrictNumber}.csv`
       );
       message.success(`CSV has downloaded!`);
     });
