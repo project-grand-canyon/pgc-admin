@@ -19,6 +19,7 @@ import Representative from '../Representative/Representative';
 import Account from '../Account/Account';
 import RequestPasswordReset from '../RequestPasswordReset/RequestPasswordReset';
 import FinishPasswordReset from '../FinishPasswordReset/FinishPasswordReset';
+import Closing from "../Closing/Closing";
 
 import styles from './App.module.css';
 
@@ -48,6 +49,22 @@ class App extends Component {
   }
 
   render() {
+
+    const now = new Date();
+    const thisYear = now.getFullYear();
+
+    if (thisYear >= 2023) {
+      return (
+        <ScrollToTop>
+          <div className={styles.App}>
+              <Switch>
+                <Route component={Closing} />
+              </Switch>
+          </div>
+        </ScrollToTop>
+      );
+    }
+
     return (
       <ScrollToTop>
         <div className={styles.App}>

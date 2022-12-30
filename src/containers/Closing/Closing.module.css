@@ -1,0 +1,51 @@
+.Hero {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    justify-content: flex-start;
+    align-content: space-around;
+    padding: 20px;
+}
+
+.main {
+    display: flex;
+    flex-direction: column;
+}
+
+.capitol {
+    width: 25%;
+    height: auto;
+    padding-bottom: 10%;
+    align-self: center;
+}
+
+.messageContainer {
+    display: flex;
+    justify-content: center
+}
+
+.message {
+    padding: 1rem; 
+}
+
+@media (min-width: 768px) {
+    .Hero {
+        flex-direction: row;
+        gap: 10px;
+    }
+
+    .main {
+        align-self: center;
+    }
+
+    .capitol {
+        width: 10%;
+        padding-bottom: 0;
+        align-self: center;
+    }
+
+    .message {
+        max-width: 75%;
+    }
+}
